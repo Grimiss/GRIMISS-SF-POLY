@@ -35,7 +35,7 @@ Sound quality is the highest technical priority. Visual fidelity to the approved
 
 The repository contains the approved interface reference image:
 
-"file_000000004878820ab269b1f9474348f3.png"
+file_000000004878820ab269b1f9474348f3.png
 
 "Approved SF-POLY interface" (file_000000004878820ab269b1f9474348f3.png)
 
