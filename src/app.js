@@ -288,28 +288,47 @@ masterVolume.classList.add("master-volume");
 const masterTune=rotary(upperSections.get("MASTER"),"tune","TUNE",17,140,56);
 masterTune.classList.add("master-tune");
 
-// Two independent oscillator tuning strips: five octave detents above
-// a ±100-cent fine-tune potentiometer (50% = unison).
-// Existing legacy semitone settings are retained by patch migration.
+// Each oscillator uses a discrete octave display and two hardware arrows
+// above a centred ±100-cent TUNE potentiometer. Saved parameter IDs remain
+// unchanged, including legacy semitone offset compatibility.
 for(const [osc,x] of [[1,11],[2,143]]){
  const heading=el("span","sf-osc-label",dcoSection);
  heading.textContent="OSC "+osc;
  heading.style.left=x+"px";
- for(const [key,label,y,isOctave] of [
-  ["osc"+osc+"Octave","OCT",57,true],
-  ["osc"+osc+"Fine","TUNE",143,false]
+ const key="osc"+osc+"Octave";
+ const assembly=el("div","sf-octave-control",dcoSection);
+ assembly.style.left=x+"px";
+ const caption=el("span","sf-octave-caption",assembly);
+ caption.textContent="OCTAVE";
+ const display=el("output","sf-octave-display",assembly);
+ display.setAttribute("aria-label","Oscillator "+osc+" octave");
+ const arrowRow=el("div","sf-octave-arrows",assembly);
+ const down=el("button","sf-octave-arrow",arrowRow);
+ const up=el("button","sf-octave-arrow",arrowRow);
+ for(const [arrow,step,label,glyph] of [
+  [down,-1,"Decrease octave","◀"],[up,1,"Increase octave","▶"]
  ]){
-  const root=rotary(dcoSection,key,label,x,y,53);
-  root.classList.add("sf-osc-knob",isOctave?"sf-octave-knob":"sf-fine-knob");
-  if(isOctave){
-   const input=root.querySelector("input");
-   input.step=".25";
-   const readout=el("output","sf-octave-readout",root);
-   const paint=v=>readout.textContent=(Math.round(v)>0?"+":"")+Math.round(v);
-   bindings.get(key).push({input:{value:0},paint});
-   paint(params[key]);
-  }
+  arrow.type="button";
+  arrow.textContent=glyph;
+  arrow.setAttribute("aria-label","Oscillator "+osc+": "+label);
+  arrow.addEventListener("click",()=>{
+   const next=Math.max(-2,Math.min(2,Math.round(params[key])+step));
+   if(next!==Math.round(params[key]))setParam(key,next);
+  });
  }
+ // Existing update(k) broadcasts to bindings; the readouts therefore
+ // follow preset loading, incoming MIDI automation and arrow clicks.
+ const paint=v=>{
+  const value=Math.max(-2,Math.min(2,Math.round(v)));
+  display.textContent=value>0?"+"+value:String(value);
+  down.disabled=value<=-2;
+  up.disabled=value>=2;
+ };
+ if(!bindings.has(key))bindings.set(key,[]);
+ bindings.get(key).push({input:{value:0},paint});
+ paint(params[key]);
+ const tune=rotary(dcoSection,"osc"+osc+"Fine","TUNE",x,143,53);
+ tune.classList.add("sf-osc-knob","sf-fine-knob");
 }
 // SUB OCT and pulse width use the common mechanical travel and scale.
 upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[261,308],46,166,30);
