@@ -144,7 +144,9 @@ function range(parent, k, label, x, y, w, h) {
   bind(k, input, (v) => {
     const u = toUnit(k, v);
     cap.style.top = 27 + (1 - u) * (h - 43) + "px";
-    input.title = `${label}: ${v.toFixed(3)}`;
+    // Parameter value stays available to assistive technology while dragging.
+    // Native browser title tooltips obscure the slot and are intentionally disabled.
+    input.removeAttribute("title");
     input.setAttribute("aria-valuetext", v.toFixed(3));
   });
   return box;
@@ -204,8 +206,8 @@ function upperFaders(section,keys,centres,top=46,height=166,width=46){
 // LFO waveform keys are now in the middle; both faders have full 166px travel.
 upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[20,104],46,166,35);
 upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[26,71,116,161],46,166,38);
-upperFaders(hpfSection,[["hpf","HPF"]],[53],45,145,54);
-const boostButton=button(hpfSection,"bassBoost","BOOST",35,192,36,26,()=>{
+upperFaders(hpfSection,[["hpf","HPF"]],[53],45,134,54);
+const boostButton=button(hpfSection,"bassBoost","BOOST",35,185,36,26,()=>{
  setParam("bassBoost",params.bassBoost>=.5?0:1);
  refreshSwitches();
 });
@@ -219,9 +221,9 @@ for(const [name,base,xs] of [
 upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[48,127],46,166,42);
 
 // Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[21,118],46,166,36);
+upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[22,111],46,166,34);
 // SUB OCT and pulse width use the common mechanical travel and scale.
-upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[210,237],46,166,24);
+upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[194,234],46,166,24);
 // Each oscillator has its own vertical, tactile five-waveform column.
 // Shared engraved waveform pictograms, matching the LFO switch artwork.
 const waveLabels=["SAW","TRI","PLS","SQR","PWM"];
@@ -235,7 +237,7 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?44:140)+"px";
+ row.style.left=(osc===1?43:132)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveLabels.forEach((name,i)=>{
@@ -269,7 +271,7 @@ const lfoWaveIcons=[
 ];
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  48,70+i*43,28,28,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
+  48,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
 function setArp(value) {
   Object.assign(music.arp, value);
