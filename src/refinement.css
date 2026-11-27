@@ -146,7 +146,7 @@
 #brand .preset-header-nav{width:37px;font:700 29px/36px Arial,sans-serif}
 #brand .preset-previous{right:172px}
 #brand .preset-next{right:130px}
-#brand .preset-header-save{right:17px;width:103px;font:800 14px Arial,sans-serif;letter-spacing:.7px}
+#brand .preset-header-save{right:17px;width:103px;font:800 12px Arial,sans-serif;letter-spacing:.7px}
 #brand .preset-header-nav:hover,#brand .preset-header-save:hover{color:#a7dcff;border-color:#5090ba}
 
 /* Wide, instrument-matched sound library. Group and search all sounds at once. */
