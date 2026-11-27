@@ -222,18 +222,22 @@ function section(name, x, y, w, h, color = "blue", upper = false) {
 // Balanced manufacturing grid, 8 mm-style consistent panel gaps.
 // Main control-dense sections receive space reclaimed from HPF/FILTER/MASTER.
 const upperLayout=[
- ["LFO",52,146],
- ["DCO",206,292],
- ["MIXER",506,211],
- ["HPF",725,82],
- ["FILTER",815,302],
- ["ENV 1 (FILTER)",1125,215],
- ["ENV 2 (AMP)",1348,215],
- ["MASTER",1571,154]
+ ["LFO",52,170],
+ ["DCO",230,332],
+ ["MIXER",570,211],
+ ["HPF",789,82],
+ ["FILTER",879,302],
+ ["ENV 1 (FILTER)",1189,215],
+ ["ENV 2 (AMP)",1412,215],
+ ["MASTER",1635,90]
 ];
 const upperSections=new Map();
 for(const [name,x,w] of upperLayout)
  upperSections.set(name,section(name,x,96,w,231,"blue",true));
+// Display names are decoupled from stable panel IDs used by the hardware skin.
+upperSections.get("DCO").querySelector("h2").textContent="OSCILLATORS";
+upperSections.get("ENV 1 (FILTER)").querySelector("h2").textContent="ENV 1 - FILTER";
+upperSections.get("ENV 2 (AMP)").querySelector("h2").textContent="ENV 2 - AMP";
 const lfoSection=upperSections.get("LFO"),
   dcoSection=upperSections.get("DCO"),
   mixerSection=upperSections.get("MIXER"),
@@ -244,7 +248,7 @@ function upperFaders(section,keys,centres,top=46,height=166,width=46){
  keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
 // LFO waveform keys are now in the middle; both faders have full 166px travel.
-upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[23,123],46,166,38);
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[25,145],46,166,38);
 upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[33,81,129,177],46,166,40);
 upperFaders(hpfSection,[["hpf","HPF"]],[41],45,151,46);
 const boostButton=button(hpfSection,"bassBoost","BOOST",23,195,36,26,()=>{
@@ -258,13 +262,15 @@ for(const [name,base,xs] of [
  ["ENV 1 (FILTER)",[["filterA","A"],["filterD","D"],["filterS","S"],["filterR","R"]],[25,74,123,172]],
  ["ENV 2 (AMP)",[["ampA","A"],["ampD","D"],["ampS","S"],["ampR","R"]],[25,74,123,172]]
 ])upperFaders(upperSections.get(name),base,[29,81,133,185],46,166,42);
-rotary(upperSections.get("MASTER"),"tune","TUNE",10,62,63);
-rotary(upperSections.get("MASTER"),"volume","VOLUME",82,62,63);
+const masterVolume=rotary(upperSections.get("MASTER"),"volume","VOLUME",7,43,76);
+masterVolume.classList.add("master-volume");
+const masterTune=rotary(upperSections.get("MASTER"),"tune","TUNE",17,140,56);
+masterTune.classList.add("master-tune");
 
 // Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","TUNE 1"],["osc2Tune","TUNE 2"]],[25,137],46,166,40);
+upperFaders(dcoSection,[["osc1Tune","TUNE 1"],["osc2Tune","TUNE 2"]],[28,157],46,166,40);
 // SUB OCT and pulse width use the common mechanical travel and scale.
-upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[225,271],46,166,30);
+upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[261,308],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
 // Shared engraved waveform pictograms, matching the LFO switch artwork.
 const waveLabels=["SAW","TRI","PLS","SQR","PWM","SINE"];
@@ -282,7 +288,7 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?55:166)+"px";
+ row.style.left=(osc===1?62:190)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveDisplayOrder.forEach(i=>{
@@ -316,7 +322,7 @@ filterChoices.forEach((name,i)=>{
 const lfoWaveIcons=[5,1,3].map(waveSvg);
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  59,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
+  71,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 350, 316, 231, "white");
 arp.classList.add("arp-vintage");
 function setArp(value){
@@ -441,13 +447,13 @@ range(au, "autoSpeed", "SPEED", 199, 54, 46, 156);
 const spl = el("div", "speed-labels", au);
 spl.innerHTML = "<span>4×</span><span>2×</span><span class=\"speed-unity\">1×</span><span>½×</span><span>⅒×</span>";
 spl.style.left = "239px";
-const ch = section("CIRCUIT CHARACTER", 924, 350, 235, 231, "white");
+const ch = section("CIRCUIT CHARACTER", 924, 350, 205, 231, "white");
 // Panel descriptions evoke each engine without changing its patch identity.
 const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
 characters.forEach(([label,level,enabled],i) => {
- const x = 7 + i*75;
- rotary(ch,level,label,x+6,76,59);
- const sw = button(ch,"engine-"+enabled,"ON",x+7,199,49,24,()=>{
+ const x = 16 + i*59;
+ rotary(ch,level,label,x,76,54);
+ const sw = button(ch,"engine-"+enabled,"ON",x+2,199,49,24,()=>{
   setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
  },"engine-toggle");
  sw.setAttribute("aria-label",label+" engine enable");
@@ -456,8 +462,8 @@ characters.forEach(([label,level,enabled],i) => {
 for (const [name, x, w, controls] of [
   [
     "DELAY",
-    1167,
-    177,
+    1137,
+    192,
     [
       ["delayTime", "TIME"],
       ["delayFeedback", "FB"],
@@ -466,8 +472,8 @@ for (const [name, x, w, controls] of [
   ],
   [
     "REVERB",
-    1352,
-    167,
+    1337,
+    182,
     [
       ["reverbSize", "SIZE"],
       ["reverbDamp", "DAMP"],
@@ -476,8 +482,10 @@ for (const [name, x, w, controls] of [
   ],
 ]) {
   const s = section(name, x, 350, w, 231);
+  // Common 59px knob pitch shared by all three lower analogue sections.
+  const leftMargin=name==="DELAY"?9:5;
   controls.forEach(([k, l], i) =>
-    rotary(s,k,l,5 + i * ((w - 12) / 3),76,(w - 12)/3),
+    rotary(s,k,l,leftMargin + i*59,76,54),
   );
 }
 const chorus = section("CHORUS", 1527, 350, 198, 231);
