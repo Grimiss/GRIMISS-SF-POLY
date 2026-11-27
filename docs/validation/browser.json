@@ -1,0 +1,263 @@
+{
+  "results": [
+    "all 13 section bounds match measured logical reference map",
+    "49 playable keyboard keys",
+    "AudioWorklet starts in running AudioContext",
+    "computer key produces measurable browser audio",
+    "key press reaches worklet voice ownership",
+    "computer key release leaves no active voices",
+    "browser enforces 12 voices and steals the thirteenth",
+    "panic clears all browser voices",
+    "pointer release/glissando leaves no stuck notes",
+    "SEQ16 continues while keyboard view is selected",
+    "arpeggiator continues across view changes",
+    "panel movements record CHARACTER automation",
+    "automation updates visible slider position",
+    "factory recall restores Juno profile and clears transports",
+    "user patch persists to browser storage",
+    "user patch renames",
+    "JSON export triggers a download",
+    "JSON import restores patch name",
+    "MIDI note-on produces a voice",
+    "MIDI sustain holds a released note",
+    "MIDI panic clears sustained/releasing notes",
+    "context can suspend",
+    "audio resumes after suspension",
+    "tablet keeps both banks and functional sequencer",
+    "first key starts audio and survives initial patch setup",
+    "small screens scroll the intact instrument",
+    "no uncaught browser exceptions"
+  ],
+  "geometry": [
+    {
+      "name": "LFO",
+      "rect": [
+        52,
+        112,
+        160,
+        231
+      ]
+    },
+    {
+      "name": "DCO",
+      "rect": [
+        221,
+        112,
+        274,
+        231
+      ]
+    },
+    {
+      "name": "MIXER",
+      "rect": [
+        503,
+        112,
+        219,
+        231
+      ]
+    },
+    {
+      "name": "HPF / VCF",
+      "rect": [
+        729,
+        112,
+        252,
+        231
+      ]
+    },
+    {
+      "name": "ENV 1 (FILTER)",
+      "rect": [
+        989,
+        112,
+        242,
+        231
+      ]
+    },
+    {
+      "name": "ENV 2 (AMP)",
+      "rect": [
+        1239,
+        112,
+        241,
+        231
+      ]
+    },
+    {
+      "name": "MASTER",
+      "rect": [
+        1488,
+        112,
+        235,
+        231
+      ]
+    },
+    {
+      "name": "ARPEGGIATOR",
+      "rect": [
+        52,
+        368,
+        316,
+        186
+      ]
+    },
+    {
+      "name": "AUTOMATION",
+      "rect": [
+        377,
+        368,
+        422,
+        186
+      ]
+    },
+    {
+      "name": "CHARACTER / VIEW",
+      "rect": [
+        814,
+        368,
+        250,
+        186
+      ]
+    },
+    {
+      "name": "DELAY",
+      "rect": [
+        1073,
+        368,
+        197,
+        186
+      ]
+    },
+    {
+      "name": "REVERB",
+      "rect": [
+        1278,
+        368,
+        192,
+        186
+      ]
+    },
+    {
+      "name": "CHORUS",
+      "rect": [
+        1479,
+        368,
+        246,
+        186
+      ]
+    }
+  ],
+  "rms": 0.009591064365417514,
+  "poly": {
+    "params": {
+      "lfoRate": 0.28,
+      "lfoDelay": 0,
+      "lfoWave": 0,
+      "lfoPitch": 0,
+      "lfoPWM": 0.06,
+      "lfoFilter": 0,
+      "osc1Tune": 0,
+      "osc2Tune": 0.07,
+      "subOct": 1,
+      "pw": 0.5,
+      "wave1": 0,
+      "wave2": 0,
+      "sync": 0,
+      "polyMod": 0,
+      "mix1": 0.65,
+      "mix2": 0.45,
+      "mixSub": 0.15,
+      "mixNoise": 0,
+      "hpf": 10,
+      "cutoff": 3200,
+      "resonance": 0.15,
+      "envAmount": 2,
+      "filterA": 0.04,
+      "filterD": 0.5,
+      "filterS": 0.45,
+      "filterR": 0.7,
+      "ampA": 0.02,
+      "ampD": 0.6,
+      "ampS": 0.75,
+      "ampR": 0.6,
+      "tune": 0,
+      "width": 0.7,
+      "volume": 0.65,
+      "character": 0.5,
+      "bend": 0,
+      "mod": 0,
+      "delayTime": 0.375,
+      "delayFeedback": 0.3,
+      "delayMix": 0,
+      "reverbSize": 0.6,
+      "reverbDamp": 0.55,
+      "reverbMix": 0.12,
+      "chorusMode": 1,
+      "chorusMix": 0.35,
+      "autoSpeed": 1,
+      "arpRate": 5,
+      "seqStep0": 0,
+      "seqStep1": 0,
+      "seqStep2": 0,
+      "seqStep3": 0,
+      "seqStep4": 0,
+      "seqStep5": 0,
+      "seqStep6": 0,
+      "seqStep7": 0,
+      "seqStep8": 0,
+      "seqStep9": 0,
+      "seqStep10": 0,
+      "seqStep11": 0,
+      "seqStep12": 0,
+      "seqStep13": 0,
+      "seqStep14": 0,
+      "seqStep15": 0
+    },
+    "arp": {
+      "on": false,
+      "mode": "up",
+      "hold": false,
+      "range": 1,
+      "rate": 5
+    },
+    "seq": {
+      "root": 48,
+      "length": 16,
+      "direction": "forward",
+      "rate": 4,
+      "steps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "automation": {
+      "events": [],
+      "duration": 0,
+      "loop": false,
+      "overdub": false
+    },
+    "frame": 60800,
+    "voices": 12,
+    "seqPlaying": false,
+    "seqIndex": 0,
+    "autoPlaying": false,
+    "autoRecording": false,
+    "autoPosition": 0,
+    "steals": 1
+  },
+  "errors": []
+}

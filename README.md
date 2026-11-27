@@ -727,3 +727,11 @@ Future development will concentrate on sound refinement, performance optimisatio
 
 GRIMISS SOUND FACTORY
 Independent instruments for creative sound exploration.
+
+---
+
+## Alpha 1 implementation
+
+The playable static application starts at `index.html`. Serve this directory over HTTP (`python3 -m http.server 8080`) or use GitHub Pages; AudioWorklet needs HTTPS or localhost. Click **START AUDIO** or play a key. Click the **SF-POLY branding** for patches and contextual modulation settings.
+
+Read [the implementation report](docs/ALPHA1.md) for architecture, controls, test evidence, model approximations, performance limits and listening-test work. The report distinguishes implementation from unverified analogue accuracy. The original project specification above remains authoritative.

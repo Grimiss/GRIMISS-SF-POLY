@@ -1,0 +1,39 @@
+{
+  "reference_size": [
+    1774,
+    887
+  ],
+  "note": "MAE includes different parameter values, texture, glyphs and lighting. Zero DOM error is against the manually measured reference map, not automatic image feature detection.",
+  "passes": {
+    "A-typography": {
+      "source": "work/pass2.png",
+      "mean_absolute_error_0_to_255": {
+        "whole": 30.012,
+        "branding": 27.798,
+        "upper-bank": 30.637,
+        "lower-bank": 29.672,
+        "keyboard": 36.952
+      }
+    },
+    "B-geometry": {
+      "source": "work/pass4.png",
+      "mean_absolute_error_0_to_255": {
+        "whole": 28.071,
+        "branding": 21.54,
+        "upper-bank": 26.702,
+        "lower-bank": 28.142,
+        "keyboard": 36.421
+      }
+    },
+    "C-final": {
+      "source": "work/validation/final.png",
+      "mean_absolute_error_0_to_255": {
+        "whole": 28.118,
+        "branding": 21.54,
+        "upper-bank": 27.69,
+        "lower-bank": 27.364,
+        "keyboard": 36.242
+      }
+    }
+  }
+}

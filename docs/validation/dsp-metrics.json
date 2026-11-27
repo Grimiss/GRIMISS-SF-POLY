@@ -1,0 +1,68 @@
+{
+  "sampleRate": 48000,
+  "models": {
+    "prophet": {
+      "rms": 0.02444611940195297,
+      "peak": 0.13992469012737274,
+      "dc": -2.757629453189755e-7,
+      "maxAdjacentJump": 0.029919598251581192
+    },
+    "oberheim": {
+      "rms": 0.025211232594759003,
+      "peak": 0.16655561327934265,
+      "dc": 0.0000023650402365730517,
+      "maxAdjacentJump": 0.02946431003510952
+    },
+    "juno": {
+      "rms": 0.013132870524211073,
+      "peak": 0.07161363214254379,
+      "dc": 1.680984198831062e-7,
+      "maxAdjacentJump": 0.00817263126373291
+    }
+  },
+  "performance": {
+    "0": {
+      "voices": 12,
+      "renderedSeconds": 1,
+      "cpuMilliseconds": 493,
+      "realtimeRatio": 0.493
+    },
+    "1": {
+      "voices": 12,
+      "renderedSeconds": 1,
+      "cpuMilliseconds": 489,
+      "realtimeRatio": 0.489
+    },
+    "0.25": {
+      "voices": 12,
+      "renderedSeconds": 1,
+      "cpuMilliseconds": 495,
+      "realtimeRatio": 0.495
+    },
+    "0.5": {
+      "voices": 12,
+      "renderedSeconds": 1,
+      "cpuMilliseconds": 719,
+      "realtimeRatio": 0.719
+    },
+    "0.75": {
+      "voices": 12,
+      "renderedSeconds": 1,
+      "cpuMilliseconds": 472,
+      "realtimeRatio": 0.472
+    }
+  },
+  "characterSweep": {
+    "rms": 0.03540011546361812,
+    "peak": 0.1646386831998825,
+    "dc": 0.000008855644561750163,
+    "maxAdjacentJump": 0.04824208281934261
+  },
+  "sustainStress": {
+    "durationSeconds": 30,
+    "voices": 12,
+    "sampleRate": 24000,
+    "peak": 0.29450687766075134,
+    "finite": true
+  }
+}
