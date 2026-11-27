@@ -552,7 +552,9 @@ chorusMix.classList.add("sf-fx-mix-knob");
 // I and II retain their independent bitmask switches, so both may be on.
 for(const [i,x] of [[1,42],[2,107]]){
  const sw=button(chorus,"chorus"+i,i===1?"I":"II",x,158,49,24,()=>{
-   setParam("chorusMode",Math.round(params.chorusMode)^i);
+   const next=Math.round(params.chorusMode)^i;
+   setParam("chorusMode",next);
+   setParam("chorusOn",next?1:0);
    refreshSwitches();
  },"sf-chorus-mode");
  sw.setAttribute("aria-label","Chorus "+i);
@@ -560,11 +562,13 @@ for(const [i,x] of [[1,42],[2,107]]){
  lamp.style.left=(x+19.5)+"px";
  lamp.dataset.chorus=i;
 }
-const chorusOff=button(chorus,"chorus0","OFF",(198-49)/2,195,49,24,()=>{
- setParam("chorusMode",0);
+const chorusOnSwitch=button(chorus,"chorus0","ON",(198-49)/2,199,49,24,()=>{
+ const enabled=params.chorusOn<.5;
+ if(enabled && Math.round(params.chorusMode)===0)setParam("chorusMode",1);
+ setParam("chorusOn",enabled?1:0);
  refreshSwitches();
 },"sf-chorus-off");
-chorusOff.setAttribute("aria-label","Turn both chorus modes off");
+chorusOnSwitch.setAttribute("aria-label","Chorus effect on/off");
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 let t = el("span", "wheel-title", wheel);
@@ -814,10 +818,11 @@ function refreshSwitches() {
   for (let i = 1; i <= 4; i++) setOn("range" + i, music.arp.range === i);
   setOn("autoLoop", music.automation.loop);
   setOn("autoOverdub", music.automation.overdub);
-  for (const i of [0,1,2])
-    setOn("chorus"+i,i===0 ? Math.round(params.chorusMode)===0 : !!(Math.round(params.chorusMode)&i));
+  setOn("chorus0",params.chorusOn>=.5);
+  for(const i of [1,2])
+    setOn("chorus"+i,params.chorusOn>=.5 && !!(Math.round(params.chorusMode)&i));
   for(const lamp of document.querySelectorAll(".sf-chorus-lamp")){
-    const on=!!(Math.round(params.chorusMode)&Number(lamp.dataset.chorus));
+    const on=params.chorusOn>=.5 && !!(Math.round(params.chorusMode)&Number(lamp.dataset.chorus));
     lamp.classList.toggle("lit",on);
   }
   for (const [, , enabled] of characters) {
