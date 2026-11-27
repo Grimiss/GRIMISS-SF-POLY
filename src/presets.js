@@ -167,6 +167,9 @@ export function validatePatch(input) {
       out.params[tuneKey]=original-octave*12-fine;
     }
   }
+  // Old saved sounds had only chorusMode; infer the new power switch.
+  if(input.params?.chorusOn===undefined)
+    out.params.chorusOn=Math.round(out.params.chorusMode)!==0?1:0;
   const a = input.arp || {},
     s = input.seq || {},
     u = input.automation || {};
