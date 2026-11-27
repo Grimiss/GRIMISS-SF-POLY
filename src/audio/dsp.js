@@ -153,6 +153,32 @@ export class CEMFilter {
     return y * (1 + res * 0.7);
   }
 }
+// SSM2044-inspired four-pole resonant lowpass, with a different
+// feedback law and distributed stage saturation from our Curtis model.
+// This is an original digital approximation, not a component-exact clone.
+export class SSMFilter {
+  constructor() {
+    this.z = new Float64Array(4);
+    this.hz = -1;
+    this.g = 0;
+    this.targetG = 0;
+  }
+  tick(x,hz,res,sr) {
+    if (hz !== this.hz) {
+      this.targetG = 1 - Math.exp(-TAU * clamp(hz,10,sr*.26)/sr);
+      this.hz=hz;
+    }
+    this.g += (this.targetG-this.g)*.035;
+    const g=this.g,z=this.z;
+    let v=saturate(x*1.12-z[3]*(3.25*res));
+    for(let i=0;i<4;i++) {
+      const stage=saturate(v*1.35)/1.35;
+      z[i]+=g*(stage-z[i]);
+      v=z[i];
+    }
+    return v*(1+.35*res);
+  }
+}
 // Discrete two-integrator topology-preserving state-variable lowpass.
 export class OBFilter {
   constructor() {
@@ -208,12 +234,10 @@ export class Model {
     this.sr = sr;
     this.kind = kind;
     this.osc = [new Oscillator(), new Oscillator(), new Oscillator()];
-    this.filter =
-      kind === 0
-        ? new CEMFilter()
-        : kind === 1
-          ? new CEMFilter()
-          : new JunoFilter();
+    // Each model owns all three lightweight filter states; only the selected
+    // filter processes samples. No allocations occur in the audio callback.
+    this.filters = [new CEMFilter(), new SSMFilter(), new JunoFilter()];
+    this.filter = this.filters[kind];
     this.cal = Math.sin((index + 1) * 13.71 + kind * 5.27);
     this.drift = 0;
     this.hpIn = 0;
@@ -297,7 +321,10 @@ export class Model {
       this.hpIn = x;
       this.hpOut = high;
       const warm = Math.tanh(high * (1 + p.analog * (k === 1 ? 0.65 : 0.35))) / (1 + p.analog * (k === 1 ? 0.65 : 0.35));
-      out += this.filter.tick(warm, this.cutoff, p.resonance, sr) * 0.5;
+      const selected = Math.round(p.filterModel);
+      const filterIndex = selected === 0 ? k : selected === 1 ? 2 : selected === 2 ? 1 : 0;
+      const activeFilter = this.filters[filterIndex];
+      out += activeFilter.tick(warm, this.cutoff, p.resonance, sr) * 0.5;
     }
     return out;
   }
