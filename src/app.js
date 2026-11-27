@@ -288,8 +288,29 @@ masterVolume.classList.add("master-volume");
 const masterTune=rotary(upperSections.get("MASTER"),"tune","TUNE",17,140,56);
 masterTune.classList.add("master-tune");
 
-// Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","TUNE 1"],["osc2Tune","TUNE 2"]],[28,157],46,166,40);
+// Two independent oscillator tuning strips: five octave detents above
+// a ±100-cent fine-tune potentiometer (50% = unison).
+// Existing legacy semitone settings are retained by patch migration.
+for(const [osc,x] of [[1,11],[2,143]]){
+ const heading=el("span","sf-osc-label",dcoSection);
+ heading.textContent="OSC "+osc;
+ heading.style.left=x+"px";
+ for(const [key,label,y,isOctave] of [
+  ["osc"+osc+"Octave","OCT",57,true],
+  ["osc"+osc+"Fine","TUNE",143,false]
+ ]){
+  const root=rotary(dcoSection,key,label,x,y,53);
+  root.classList.add("sf-osc-knob",isOctave?"sf-octave-knob":"sf-fine-knob");
+  if(isOctave){
+   const input=root.querySelector("input");
+   input.step=".25";
+   const readout=el("output","sf-octave-readout",root);
+   const paint=v=>readout.textContent=(Math.round(v)>0?"+":"")+Math.round(v);
+   bindings.get(key).push({input:{value:0},paint});
+   paint(params[key]);
+  }
+ }
+}
 // SUB OCT and pulse width use the common mechanical travel and scale.
 upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[261,308],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
@@ -309,7 +330,7 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?62:190)+"px";
+ row.style.left=(osc===1?82:209)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveDisplayOrder.forEach(i=>{
