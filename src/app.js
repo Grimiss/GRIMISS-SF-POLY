@@ -196,7 +196,7 @@ const upperLayout=[
 ];
 const upperSections=new Map();
 for(const [name,x,w] of upperLayout)
- upperSections.set(name,section(name,x,112,w,231,"blue",true));
+ upperSections.set(name,section(name,x,96,w,231,"blue",true));
 const lfoSection=upperSections.get("LFO"),
   dcoSection=upperSections.get("DCO"),
   mixerSection=upperSections.get("MIXER"),
@@ -279,7 +279,7 @@ const lfoWaveIcons=[5,1,3].map(waveSvg);
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
   59,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
-const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
+const arp = section("ARPEGGIATOR", 52, 350, 316, 231, "white");
 function setArp(value) {
   Object.assign(music.arp, value);
   send({ type: "arp", value });
@@ -289,14 +289,14 @@ function setArp(value) {
 const arpButtons = [
   [
     "arpOn",
-    '<span class="arp-power-symbol">⏻</span><i class="arp-power-led"></i>',
+    "ON",
     "ON",
     () => setArp({ on: !music.arp.on }),
   ],
-  ["arpUp", '<span class="arp-symbol">↑</span>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
-  ["arpDown", '<span class="arp-symbol">↓</span>', "DOWN", () => setArp({ mode: "down" })],
+  ["arpUp", '<span class="arp-symbol arp-arrow">⬆</span>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
+  ["arpDown", '<span class="arp-symbol arp-arrow">⬇</span>', "DOWN", () => setArp({ mode: "down" })],
   ["arpRandom", '<span class="arp-symbol">⤨</span>', "RND", () => setArp({ mode: "random" })],
-  ["arpHold", '<span class="arp-symbol hold-symbol">Ⅱ</span>', "HOLD", () => setArp({ hold: !music.arp.hold })],
+  ["arpHold", '<span class="arp-symbol hold-symbol">⏸</span>', "HOLD", () => setArp({ hold: !music.arp.hold })],
 ];
 arpButtons.forEach(([id, text, label, fn], i) => {
   button(
@@ -304,27 +304,27 @@ arpButtons.forEach(([id, text, label, fn], i) => {
     id,
     text,
     [22, 88, 146, 204, 259][i],
-    51,
-    [39, 49, 49, 49, 46][i],
+    58,
+    [43, 45, 45, 45, 45][i],
     34,
     fn,
   );
   const l = el("span", "button-label", arp);
   l.textContent = label;
-  l.style.cssText = `left:${[17, 86, 144, 202, 257][i]}px;top:90px;width:52px`;
+  l.style.cssText = `left:${[17, 86, 144, 202, 257][i]}px;top:104px;width:52px`;
 });
 let t = el("span", "button-label", arp);
 t.textContent = "RANGE";
-t.style.cssText = "left:22px;top:115px";
+t.style.cssText = "left:22px;top:145px";
 for (let i = 1; i <= 4; i++)
-  button(arp, "range" + i, "" + i, 22 + (i - 1) * 43, 138, 37, 29, () =>
+  button(arp, "range" + i, "" + i, 22 + (i - 1) * 43, 173, 37, 29, () =>
     setArp({ range: i }),
   );
 t = el("span", "button-label", arp);
 t.textContent = "RATE";
-t.style.cssText = "left:239px;top:115px";
+t.style.cssText = "left:239px;top:145px";
 const ar = el("div", "horizontal arp-rate-slider", arp);
-ar.style.cssText = "left:205px;top:138px;width:96px";
+ar.style.cssText = "left:205px;top:173px;width:96px";
 const arc = el("span", "cap", ar),
   ari = el("input", "", ar);
 ari.type = "range";
@@ -347,7 +347,7 @@ $("#arpUp").addEventListener("contextmenu", (e) => {
   e.preventDefault();
   setArp({ mode: "pendulum" });
 });
-const au = section("AUTOMATION", 377, 368, 269, 186, "white");
+const au = section("AUTOMATION", 377, 350, 269, 231, "white");
 // Uniform screen-printed transport icons; colour belongs to the glyph, not the switch.
 const ico = (paths,viewBox="0 0 24 24") =>
   '<span class="transport-icon"><svg viewBox="'+viewBox+'" aria-hidden="true">'+paths+'</svg></span>';
@@ -365,9 +365,9 @@ autoActions.forEach(([id, icon, label, type], i) =>
     id,
     icon + "<span>" + label + "</span>",
     13 + (i % 3) * 62,
-    47 + Math.floor(i / 3) * 61,
+    55 + Math.floor(i / 3) * 73,
     53,
-    53,
+    46,
     () => {
       if (id === "autoLoop" || id === "autoOverdub") {
         const k = id === "autoLoop" ? "loop" : "overdub";
@@ -384,22 +384,22 @@ autoActions.forEach(([id, icon, label, type], i) =>
     "transport",
   ),
 );
-range(au, "autoSpeed", "SPEED", 203, 39, 43, 124);
+range(au, "autoSpeed", "SPEED", 199, 54, 46, 156);
 const spl = el("div", "speed-labels", au);
-spl.innerHTML = "4x<br>2x<br><b>1x</b><br>0.5x<br>0.1x";
-spl.style.left = "244px";
-const ch = section("CHARACTER", 924, 368, 235, 186, "white");
-const characters = [["J-106","levelJuno","enableJuno"],["P-6","levelP6","enableP6"],["P-5","levelP5","enableP5"]];
+spl.innerHTML = "<span>4×</span><span>2×</span><span class=\"speed-unity\">1×</span><span>½×</span><span>⅒×</span>";
+spl.style.left = "239px";
+const ch = section("CHARACTER", 924, 350, 235, 231, "white");
+// Panel descriptions evoke each engine without changing its patch identity.
+const characters = [["SILK","levelJuno","enableJuno"],["GRAIN","levelP6","enableP6"],["BOLD","levelP5","enableP5"]];
 characters.forEach(([label,level,enabled],i) => {
  const x = 7 + i*75;
- range(ch,level,label,x,63,65,81);
- const sw = button(ch,"engine-"+enabled,"ON",x+7,39,49,21,()=>{
+ range(ch,level,label,x,52,65,149);
+ const sw = button(ch,"engine-"+enabled,"ON",x+7,199,49,24,()=>{
   setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
  },"engine-toggle");
  sw.setAttribute("aria-label",label+" engine enable");
 });
-button(ch,"viewKey","KEYBOARD",13,152,100,26,()=>setView("key"));
-button(ch,"viewSeq","SEQ16",122,152,100,26,()=>setView("seq"));
+// KEYBOARD and SEQ16 have moved to the performance controls by OCTAVE.
 for (const [name, x, w, controls] of [
   [
     "DELAY",
@@ -422,36 +422,39 @@ for (const [name, x, w, controls] of [
     ],
   ],
 ]) {
-  const s = section(name, x, 368, w, 186);
+  const s = section(name, x, 350, w, 231);
   controls.forEach(([k, l], i) =>
-    range(s, k, l, 6 + i * ((w - 12) / 3), 38, (w - 12) / 3, 134),
+    range(s, k, l, 6 + i * ((w - 12) / 3), 54, (w - 12) / 3, 159),
   );
 }
-const chorus = section("CHORUS", 1527, 368, 198, 186);
+const chorus = section("CHORUS", 1527, 350, 198, 231));
 for (const [i, label, x, w] of [
-  [1, "I", 8, 41],
-  [2, "II", 54, 41],
-  [0, "OFF", 100, 43],
+  [1, "I", 12, 57],
+  [2, "II", 76, 57],
+  [0, "OFF", 12, 121],
 ])
   button(
     chorus,
     "chorus" + i,
     label,
     x,
-    87,
-    w,
-    40,
+    i===0 ? 121 : 76,
+    i===0 ? 121 : w,
+    i===0 ? 34 : 37,
     (e) => {
       setParam("chorusMode", i === 0 ? 0 : (Math.round(params.chorusMode) ^ i));
       refreshSwitches();
     },
   );
-range(chorus, "chorusMix", "MIX", 147, 38, 44, 134);
+range(chorus, "chorusMix", "MIX", 147, 54, 44, 159);
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 t = el("span", "wheel-title", wheel);
 t.textContent = "OCTAVE";
-t.style.cssText = "left:40px;top:12px;width:90px";
+t.style.cssText = "left:40px;top:36px;width:90px";
+// The only display-mode selector is next to the keyboard octave controls.
+button(wheel,"viewKey","KEYBOARD",9,6,74,25,()=>setView("key"));
+button(wheel,"viewSeq","SEQ16",89,6,74,25,()=>setView("seq"));
 const oct = el("output", "octave-value", wheel);
 oct.textContent = "0";
 function changeOct(n) {
@@ -463,9 +466,9 @@ button(
   "octDown",
   '<svg viewBox="0 0 24 24"><path d="M19 2L3 12 19 22Z"/></svg>',
   27,
-  35,
-  37,
-  35,
+  58,
+  33,
+  29,
   () => changeOct(-1),
 );
 button(
@@ -473,9 +476,9 @@ button(
   "octUp",
   '<svg viewBox="0 0 24 24"><path d="M5 2L21 12 5 22Z"/></svg>',
   112,
-  35,
-  37,
-  35,
+  58,
+  33,
+  29,
   () => changeOct(1),
 );
 for (const [k, label, x] of [
@@ -484,7 +487,7 @@ for (const [k, label, x] of [
 ]) {
   t = el("span", "wheel-title", wheel);
   t.textContent = label;
-  t.style.cssText = `left:${x - 8}px;top:73px;width:54px`;
+  t.style.cssText = `left:${x - 8}px;top:96px;width:54px`;
   const w = el("div", "wheel", wheel);
   w.style.left = x + "px";
   const i = el("input", "", w);
@@ -1157,7 +1160,7 @@ window.sfpoly = {
 };
 
 // Track 6 analogue hardware inside the main control row.
-const analogPanel=section("VOICES",654,368,262,186);
+const analogPanel=section("VOICES",654,350,262,231);
 analogPanel.classList.add("track6-analog");
 const ledRow=el("div","voice-leds",analogPanel);
 ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
