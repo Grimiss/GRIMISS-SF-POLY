@@ -1,5 +1,5 @@
-import { defaults, clampParam, initialMusic } from "../parameters.js";
-import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js";
+import { defaults, clampParam, initialMusic } from "../parameters.js?v=20261127-oscpitch-v2";
+import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261127-oscpitch-v2";
 class Voice {
   constructor(sr, i) {
     this.index = i;
