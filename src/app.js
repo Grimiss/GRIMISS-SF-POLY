@@ -427,7 +427,7 @@ for (const [name, x, w, controls] of [
     range(s, k, l, 6 + i * ((w - 12) / 3), 54, (w - 12) / 3, 159),
   );
 }
-const chorus = section("CHORUS", 1527, 350, 198, 231));
+const chorus = section("CHORUS", 1527, 350, 198, 231);
 for (const [i, label, x, w] of [
   [1, "I", 12, 57],
   [2, "II", 76, 57],
