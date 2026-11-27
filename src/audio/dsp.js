@@ -496,7 +496,7 @@ export class Effects {
   }
   tick(l, r, p) {
     const mode = Math.round(p.chorusMode);
-    this.chorusEnable += ((mode ? 1 : 0) - this.chorusEnable) * 0.002;
+    this.chorusEnable += ((mode && (p.chorusOn ?? 1) >= .5 ? 1 : 0) - this.chorusEnable) * 0.002;
     this.phase =
       (this.phase +
         (TAU * (mode === 2 ? 0.83 : mode === 3 ? 1.2 : 0.48)) / this.sr) %
