@@ -152,6 +152,43 @@ function range(parent, k, label, x, y, w, h) {
   });
   return box;
 }
+// Reusable vintage potentiometer. Original parameter binding, wheel,
+ // keyboard and audio routing are unchanged. Vertical pointer drag is precise.
+function rotary(parent,k,label,x,y,size=53){
+ const root=el("div","sf-rotary",parent);
+ root.dataset.param=k;
+ root.style.cssText="left:"+x+"px;top:"+y+"px;width:"+size+"px;height:95px";
+ const caption=el("label","sf-rotary-label",root);
+ caption.textContent=label;
+ const face=el("div","sf-knob-face",root);
+ const marker=el("i","sf-knob-marker",face);
+ const input=el("input","sf-knob-input",face);
+ input.type="range";input.min=0;input.max=1;input.step=.0001;
+ input.setAttribute("aria-label",label+" "+k);
+ input.id="knob-"+k+"-"+(bindings.get(k)?.length||0);
+ caption.htmlFor=input.id;
+ bind(k,input,v=>{
+   const unit=toUnit(k,v);
+   face.style.setProperty("--angle",(-135+unit*270)+"deg");
+   input.setAttribute("aria-valuetext",String(Math.round(unit*100))+" percent");
+ });
+ let drag=null;
+ input.addEventListener("pointerdown",e=>{
+  drag={y:e.clientY,value:+input.value};
+  input.setPointerCapture?.(e.pointerId);
+  e.preventDefault();
+ });
+ input.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  const scale=e.shiftKey?420:190;
+  const value=Math.max(0,Math.min(1,drag.value+(drag.y-e.clientY)/scale));
+  input.value=value;
+  input.dispatchEvent(new Event("input",{bubbles:true}));
+ });
+ for(const event of ["pointerup","pointercancel","lostpointercapture"])
+  input.addEventListener(event,()=>drag=null);
+ return root;
+}
 function horizontal(parent, k, x, y, w) {
   const box = el("div", "horizontal", parent);
   box.style.cssText = `left:${x}px;top:${y}px;width:${w}px`;
@@ -403,12 +440,12 @@ range(au, "autoSpeed", "SPEED", 199, 54, 46, 156);
 const spl = el("div", "speed-labels", au);
 spl.innerHTML = "<span>4×</span><span>2×</span><span class=\"speed-unity\">1×</span><span>½×</span><span>⅒×</span>";
 spl.style.left = "239px";
-const ch = section("CHARACTER", 924, 350, 235, 231, "white");
+const ch = section("CIRCUIT CHARACTER", 924, 350, 235, 231, "white");
 // Panel descriptions evoke each engine without changing its patch identity.
-const characters = [["SILK","levelJuno","enableJuno"],["GRAIN","levelP6","enableP6"],["BOLD","levelP5","enableP5"]];
+const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
 characters.forEach(([label,level,enabled],i) => {
  const x = 7 + i*75;
- range(ch,level,label,x,52,65,149);
+ rotary(ch,level,label,x+6,63,59);
  const sw = button(ch,"engine-"+enabled,"ON",x+7,199,49,24,()=>{
   setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
  },"engine-toggle");
@@ -439,7 +476,7 @@ for (const [name, x, w, controls] of [
 ]) {
   const s = section(name, x, 350, w, 231);
   controls.forEach(([k, l], i) =>
-    range(s, k, l, 6 + i * ((w - 12) / 3), 54, (w - 12) / 3, 159),
+    rotary(s,k,l,5 + i * ((w - 12) / 3),76,(w - 12)/3),
   );
 }
 const chorus = section("CHORUS", 1527, 350, 198, 231);
@@ -461,7 +498,13 @@ for (const [i, label, x, w] of [
       refreshSwitches();
     },
   );
-range(chorus, "chorusMix", "MIX", 147, 54, 44, 159);
+rotary(chorus, "chorusMix", "MIX", 139, 77, 52);
+// Punched red lamp bezels above independent chorus I / II switches.
+for(const [n,x] of [[1,37],[2,101]]){
+ const lamp=el("span","sf-chorus-lamp",chorus);
+ lamp.style.left=x+"px";
+ lamp.dataset.chorus=n;
+}
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 let t = el("span", "wheel-title", wheel);
