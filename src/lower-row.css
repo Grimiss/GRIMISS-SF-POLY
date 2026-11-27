@@ -1,0 +1,189 @@
+/* SF-POLY · Lower control row manufacturing pass · November 2026
+   Two 231px control tiers; compact instrument banner; tactile lower controls.
+   Additive, presentation-only; parameter IDs and transport behaviour are unchanged. */
+
+/* 1. Balanced 231px control tiers, compact fascia and relocated performance deck. */
+#brand{height:61px!important;top:11px!important;padding-top:0!important;padding-bottom:0!important}
+#brand .preset-launch{top:10px!important}
+#brand .preset-header-nav,#brand .preset-header-save{top:11px!important}
+#brand .stripes{top:18px!important}
+#brand .subtitle{top:22px!important}
+#patches{height:60px!important}
+#patches:before{top:10px!important}
+#patches .grimiss{top:18px!important}
+#patches strong{top:0!important;font-size:48px!important}
+#instrument .section.lower{
+ border:1.5px solid #e8dcc5!important;
+ border-top:0!important;
+ border-radius:12px!important;
+ background:#16191a url("./powder.svg") repeat!important;
+ box-shadow:inset 0 0 0 1px #080a0b33!important;
+ overflow:hidden!important;
+}
+#instrument .section.lower h2{
+ font:900 17px/35px Orbitron,Arial,sans-serif!important;
+ height:35px!important;line-height:35px!important;
+ background-size:100% 100%!important;
+}
+#instrument .wheel-panel{top:613px!important}
+#instrument .keyboard{top:620px!important}
+#instrument #seq-view{top:620px!important}
+
+/* 2. Performance switches beside the keyboard octave controls. */
+#instrument #viewKey,#instrument #viewSeq{
+ display:flex;align-items:center;justify-content:center;
+ height:25px!important;
+ font:700 10px Arial,sans-serif!important;
+ border-radius:3px!important;
+}
+#instrument .wheel-panel .wheel-title{font:700 11px/17px Arial,sans-serif!important}
+#instrument .wheel-panel .octave-value{
+ top:58px!important;height:28px!important;
+ font:21px/27px monospace!important;
+}
+#instrument .wheel-panel .wheel{top:117px!important;height:74px!important}
+#instrument .wheel-panel .wheel:after{max-height:68px!important}
+#instrument .wheel-panel .key-control-panel{bottom:8px!important}
+
+/* 3. Arpeggiator: tactile rocker, consistent engraved icons and separated labels. */
+#instrument #arpOn{
+ background:linear-gradient(#464949,#1e2224 54%,#0b0f11)!important;
+ color:#ddd7c9!important;
+ font:800 13px Arial,sans-serif!important;
+ box-shadow:inset 0 1px #dce5e438,0 2px 3px #000b!important;
+}
+#instrument #arpOn.on{
+ background:linear-gradient(#2c9be4,#155588 73%,#092f4e)!important;
+ color:#fff!important;
+ box-shadow:inset 0 1px #bfedff,0 0 6px #3095d988!important;
+}
+#instrument .section[data-section="ARPEGGIATOR"] .arp-icon{
+ width:25px;height:25px;display:block;margin:auto;
+ color:#e4e6df!important;
+}
+#instrument .section[data-section="ARPEGGIATOR"] .hardware.on .arp-icon{
+ color:#effaff!important;filter:drop-shadow(0 0 3px #8fd4ff80);
+}
+#instrument .section[data-section="ARPEGGIATOR"] .button-label{
+ font:700 12px Arial,sans-serif!important;
+ text-align:center;
+}
+#instrument .section[data-section="ARPEGGIATOR"] .arp-rate-slider{
+ top:173px!important;height:27px!important;
+}
+#instrument .section[data-section="ARPEGGIATOR"] .arp-rate-slider::before{
+ left:4px!important;right:4px!important;
+ height:7px!important;top:10px!important;
+ background:#050809!important;
+ border:0!important;border-radius:4px!important;
+ box-shadow:inset 0 2px 4px #000,0 1px #9ca29e75!important;
+}
+/* Two separate engraved graduation bands: never print ticks over the slot. */
+#instrument .section[data-section="ARPEGGIATOR"] .arp-rate-slider::after{
+ content:""!important;position:absolute!important;
+ left:4px!important;right:4px!important;top:1px!important;
+ bottom:1px!important;pointer-events:none!important;opacity:.82;
+ background:
+  repeating-linear-gradient(to right,#c7c7c0 0 1px,transparent 1px 10px) top left/100% 6px no-repeat,
+  repeating-linear-gradient(to right,#c7c7c0 0 1px,transparent 1px 10px) bottom left/100% 6px no-repeat!important;
+}
+#instrument .section[data-section="ARPEGGIATOR"] .arp-rate-slider .cap,
+#instrument .section[data-section="VOICES"] .analog-cap{
+ width:18px!important;height:24px!important;top:1px!important;
+ border:1px solid #070b0e!important;border-radius:2px!important;
+ background:linear-gradient(90deg,
+  #31363a 0%,#101418 31%,#5ab5f0 43%,#8cddff 51%,
+  #11181e 62%,#252b30 100%)!important;
+ box-shadow:inset 1px 0 #e7eff345,0 3px 4px #000b!important;
+}
+
+/* 4. Automation: compact transport buttons and quiet, legible speed legends. */
+#instrument .section[data-section="AUTOMATION"] .transport,
+#instrument .section[data-section="AUTOMATION"] .transport.on{
+ height:46px!important;
+ background:linear-gradient(#414545,#24292b 38%,#101416 85%)!important;
+ color:#e4e5e0!important;
+ box-shadow:inset 0 1px #aab3b333,0 2px 3px #000b!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon{height:24px!important}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon svg{width:24px!important;height:24px!important}
+#instrument .section[data-section="AUTOMATION"] .speed-labels{
+ top:83px!important;left:239px!important;
+ width:28px!important;display:flex!important;
+ flex-direction:column!important;gap:11px!important;
+ font:700 12px/16px Arial,sans-serif!important;
+ color:#d5d9d4!important;text-align:left!important;
+}
+#instrument .section[data-section="AUTOMATION"] .speed-labels span{
+ display:block;color:#ced1cc!important;
+}
+#instrument .section[data-section="AUTOMATION"] .speed-labels .speed-unity{
+ color:#f0e2c9!important;font-weight:800!important;
+}
+
+/* 5. VOICES horizontal sliders: mechanically registered tick bands and black caps. */
+#instrument .section[data-section="VOICES"] .voice-leds{top:54px!important}
+#instrument .section[data-section="VOICES"] .track6-controls{
+ top:108px!important;
+ align-items:flex-start!important;
+ justify-content:space-around!important;
+}
+#instrument .section[data-section="VOICES"] .analog-rail{
+ height:28px!important;
+ background:transparent!important;
+}
+#instrument .section[data-section="VOICES"] .analog-scale{
+ position:absolute!important;left:4px!important;right:4px!important;
+ top:1px!important;bottom:1px!important;
+ opacity:.8!important;
+ background:
+  repeating-linear-gradient(to right,#d4d0c6 0 1px,transparent 1px 11px) top left/100% 6px no-repeat,
+  repeating-linear-gradient(to right,#d4d0c6 0 1px,transparent 1px 11px) bottom left/100% 6px no-repeat!important;
+}
+#instrument .section[data-section="VOICES"] .analog-slot{
+ top:11px!important;height:6px!important;
+ background:#040708!important;border-radius:4px!important;
+ box-shadow:inset 0 2px 4px #000,0 1px #8a969777!important;
+}
+#instrument .section[data-section="VOICES"] .analog-cap{top:2px!important}
+#instrument .section[data-section="VOICES"] .track6-modes{bottom:13px!important}
+
+/* 6. CHARACTER: 3 long faders, descriptive original labels, switches below. */
+#instrument .section[data-section="CHARACTER"] .fader{
+ top:52px!important;height:149px!important;
+}
+#instrument .section[data-section="CHARACTER"] .fader label{
+ top:0!important;font:700 11px/18px Arial,sans-serif!important;
+ color:#e7e0d1!important;
+}
+#instrument .section[data-section="CHARACTER"] .fader .scale{
+ top:30px!important;
+ background:repeating-linear-gradient(to top,transparent 0 18px,#d1cbc0 18px 19.5px,transparent 19.5px 21px)!important;
+}
+#instrument .section[data-section="CHARACTER"] .fader .slot{top:27px!important}
+#instrument .section[data-section="CHARACTER"] .fader .cap{
+ width:34px!important;height:18px!important;
+ background:linear-gradient(#30383c,#0f1519 32%,#77c5f3 44%,#4fa5dc 53%,#090f13 61%,#252c30)!important;
+}
+#instrument .section[data-section="CHARACTER"] .engine-toggle{
+ top:199px!important;height:24px!important;
+ font:700 11px Arial,sans-serif!important;
+}
+
+/* 7. Delay/reverb: preserve existing controls, use new panel height. */
+#instrument .section[data-section="DELAY"] .fader,
+#instrument .section[data-section="REVERB"] .fader,
+#instrument .section[data-section="CHORUS"] .fader{
+ top:54px!important;height:159px!important;
+}
+
+/* 8. Chorus: two effects on one row; full-width OFF underneath. */
+#instrument #chorus1,#instrument #chorus2{top:76px!important;height:37px!important}
+#instrument #chorus0{
+ top:121px!important;left:12px!important;
+ width:121px!important;height:34px!important;
+ font:800 12px Arial,sans-serif!important;
+}
+#instrument .section[data-section="CHORUS"] .fader label{
+ font:700 12px Arial,sans-serif!important;
+}
