@@ -18,6 +18,7 @@ export const specs = {
   mixSub: [0, 1, 0.15],
   mixNoise: [0, 0.5, 0],
   hpf: [10, 3000, 10, "log"],
+  bassBoost: [0, 1, 0],
   cutoff: [20, 18000, 3200, "log"],
   resonance: [0, 0.94, 0.15],
   filterModel: [0, 7, 0], // 0 native, 1 Roland, 2 SSM, 3 Curtis
