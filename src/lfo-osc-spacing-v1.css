@@ -1,0 +1,41 @@
+/* SF-POLY — LFO / OSCILLATORS spacing pass
+   Frees 16px from the LFO for OSCILLATORS without moving the mixer.
+   Existing synthesis and waveform choices are unchanged. */
+
+/* RATE moves 2px to the right, and wave selectors sit nearer DELAY.
+   LFO panel spans x=52..206; oscillator panel begins at x=214. */
+#instrument .section[data-section="LFO"] .fader[data-param="lfoRate"]{
+ left:8px!important;
+}
+#instrument .section[data-section="LFO"] .fader[data-param="lfoDelay"]{
+ left:108px!important;
+}
+#instrument .section[data-section="LFO"] .hardware.wave{
+ left:77px!important;
+}
+
+/* Place OSC headings across the entire octave-display / waveform cluster
+   rather than merely above each OCTAVE readout. */
+#instrument .section[data-section="DCO"] .sf-osc-label[data-osc="1"]{
+ left:11px!important;
+ width:105px!important;
+ top:39px!important;
+ text-align:center!important;
+}
+#instrument .section[data-section="DCO"] .sf-osc-label[data-osc="2"]{
+ left:130px!important;
+ width:99px!important;
+ top:39px!important;
+ text-align:center!important;
+}
+/* Six-waveform stacks move down slightly and OSC2 is shifted left
+   far enough to clear the existing SUB OCT rail. */
+#instrument .section[data-section="DCO"] .osc-wave-stack{
+ top:56px!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack:nth-of-type(1){
+ left:82px!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack:nth-of-type(2){
+ left:195px!important;
+}
