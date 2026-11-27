@@ -244,7 +244,12 @@ export class MS20Filter {
   // Smooth, bounded cutoff-tracking feedback whistle above ~68% resonance.
   // Avoids the high-resonance null in the previous digital approximation.
   const amt=clamp((res-.64)/.30,0,1);
-  const target=amt*amt*(.20+.50*amt);
+  // Keep the fierce resonance, but shift the prominent whistle into
+  // the upper portion of the logarithmic cutoff fader travel.
+  const cutoffPosition=clamp(Math.log(pitch/20)/Math.log(18000/20),0,1);
+  const whistlePosition=clamp((cutoffPosition-.43)/.28,0,1);
+  const whistleMix=whistlePosition*whistlePosition*(3-2*whistlePosition);
+  const target=amt*amt*(.20+.50*amt)*whistleMix;
   this.oscLevel+=(target-this.oscLevel)*.004;
   this.oscPhase+=TAU*clamp(pitch,20,11000)/sr;
   if(this.oscPhase>=TAU)this.oscPhase-=TAU;
