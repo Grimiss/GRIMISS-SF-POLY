@@ -31,7 +31,7 @@ function paintFaceplateHeadings(){
   ctx.globalCompositeOperation="destination-out";
   // One readable Orbitron Black size for every physical nameplate.
   // Never autosize by caption length: consistency is a hardware requirement.
-  ctx.font='900 17px Orbitron, Arial, sans-serif';
+  ctx.font=label==='CIRCUIT CHARACTER'?'900 14px Orbitron, Arial, sans-serif':'900 17px Orbitron, Arial, sans-serif';
   ctx.textBaseline="middle";
   ctx.textAlign="left";
   ctx.fillStyle="#000";
