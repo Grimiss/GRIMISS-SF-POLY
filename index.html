@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#101111" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%274%27 fill=%27%23111111%27/%3E%3Cpath d=%27M6 9h20M6 16h20M6 23h20%27 stroke=%27%23fff0d6%27 stroke-width=%273%27/%3E%3C/svg%3E"
+    />
+    <title>GRIMISS SF-POLY · Alpha 2</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <main id="viewport">
+      <div
+        id="instrument"
+        aria-label="GRIMISS SF-POLY virtual analogue polysynth"
+      >
+        <header id="brand">
+          <button
+            id="patches"
+            title="Open presets and contextual synthesis settings"
+          >
+            <span class="grimiss">GRIMISS</span><strong>SF-POLY</strong></button
+          ><span class="subtitle">VIRTUAL ANALOG POLYSYNTH</span>
+          <div class="stripes"><i></i><i></i><i></i></div>
+          <span class="models">JUNO-106 · POLYSIX · PROPHET-5</span>
+        </header>
+        <div class="rail" style="top: 88px"></div>
+        <div class="rail" style="top: 343px"></div>
+        <div class="rail" style="top: 562px"></div>
+        <div id="panel"></div>
+        <div id="performance"></div>
+      </div>
+    </main>
+    <footer>
+      <button id="audio">START AUDIO</button
+      ><span id="status" role="status"
+        >Click START AUDIO or play a key · A W S E D F T G Y H U J K · Space:
+        panic</span
+      ><button id="midi">CONNECT MIDI</button><button id="panic">PANIC</button
+      ><span>ALPHA 2</span>
+    </footer>
+    <dialog id="patch-dialog">
+      <form method="dialog">
+        <button class="close" aria-label="Close patch manager">×</button>
+      </form>
+      <h2>GRIMISS SF-POLY</h2>
+      <label
+        >Patch
+        <select id="preset"></select
+      ></label>
+      <div class="actions">
+        <button id="save">Save as…</button><button id="rename">Rename</button
+        ><button id="delete">Delete user patch</button
+        ><button id="init">Initialize</button
+        ><button id="export">Export JSON</button
+        ><label class="file"
+          >Import JSON<input
+            id="import"
+            type="file"
+            accept="application/json,.json"
+        /></label>
+      </div>
+      <p id="patch-status" role="status"></p>
+      <h3>Oscillator interaction & modulation</h3>
+      <p class="hint">
+        Contextual settings for features without dedicated controls on the
+        approved panel.
+      </p>
+      <div id="context-controls"></div>
+      <p class="hint">
+        SHIFT-click, double-click or long-press UP selects UP/DOWN arpeggiation.
+        SHIFT + chorus I/II combines both modes. Pitch wheel springs to centre.
+        MIDI: notes, pitch bend, CC1 modulation, CC64 sustain, CC120/123 panic.
+        Patch changes stop notes and transports. Clicking SF-POLY opens this
+        panel.
+      </p>
+    </dialog>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

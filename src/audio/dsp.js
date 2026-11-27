@@ -1,0 +1,415 @@
+export function saturate(x) {
+  x = clamp(x, -3, 3);
+  const x2 = x * x;
+  return (x * (27 + x2)) / (27 + 9 * x2);
+}
+export const TAU = 2 * Math.PI;
+export const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+export const midiHz = (n) => 440 * 2 ** ((n - 69) / 12);
+export function blep(t, dt) {
+  if (t < dt) {
+    t /= dt;
+    return t + t - t * t - 1;
+  }
+  if (t > 1 - dt) {
+    t = (t - 1) / dt;
+    return t * t + t + t + 1;
+  }
+  return 0;
+}
+export class Oscillator {
+  constructor() {
+    this.phase = 0;
+    this.triangle = -1;
+    this.last = 0;
+    this.syncTail = 0;
+    this.lastWave = 0;
+    this.transition = 0;
+    this.transitionValue = 0;
+  }
+  tick(hz, sr, wave, pw = 0.5, reset = -1) {
+    const selected = wave < 0.5 ? 0 : wave < 1.5 ? 1 : 2;
+    if (selected !== this.lastWave) {
+      this.lastWave = selected;
+      this.transition = 1;
+      this.transitionValue = this.last;
+    }
+    const dt = clamp(hz / sr, 1e-8, 0.45);
+    let p = this.phase;
+    // A fractional master wrap resets the slave; a short causal BLEP smooths its jump.
+    if (reset >= 0) {
+      const before =
+        wave < 0.5 ? 2 * p - 1 : wave < 1.5 ? this.triangle : p < pw ? 1 : -1;
+      p = dt * reset;
+      const after =
+        wave < 0.5
+          ? 2 * p - 1
+          : wave < 1.5
+            ? 1 - 4 * Math.abs(p - 0.5)
+            : p < pw
+              ? 1
+              : -1;
+      if (wave >= 0.5 && wave < 1.5) this.triangle = after;
+      this.syncTail += before - after;
+    }
+    let out;
+    if (wave < 0.5) out = 2 * p - 1 - blep(p, dt);
+    else {
+      const duty = wave < 1.5 ? 0.5 : pw;
+      let shifted = p - duty;
+      if (shifted < 0) shifted += 1;
+      const pulse = (p < duty ? 1 : -1) + blep(p, dt) - blep(shifted, dt);
+      if (wave < 1.5) {
+        this.triangle = (this.triangle + 4 * dt * pulse) * (1 - 2 * dt * 0.001);
+        this.triangle = clamp(this.triangle, -1.2, 1.2);
+        out = this.triangle;
+      } else out = pulse;
+    }
+    out += this.syncTail;
+    this.syncTail *= 0.2;
+    if (this.transition > 0.0001) {
+      out =
+        out * (1 - this.transition) + this.transitionValue * this.transition;
+      this.transition *= 0.9;
+    }
+    this.phase = p + dt;
+    if (this.phase >= 1) this.phase -= 1;
+    this.last = out;
+    return out;
+  }
+}
+export class Envelope {
+  constructor(sr) {
+    this.sr = sr;
+    this.value = 0;
+    this.stage = 0;
+    this.age = 0;
+  }
+  on() {
+    this.stage = 1;
+    this.age = 0;
+  }
+  off() {
+    if (this.stage) this.stage = 4;
+  }
+  tick(a, d, s, r) {
+    let target = 0,
+      time = r;
+    if (this.stage === 1) {
+      target = 1.01;
+      time = a / 4.615;
+    } else if (this.stage === 2) {
+      target = s;
+      time = d / 4.605;
+    } else if (this.stage === 3) {
+      target = s;
+      time = 0.01;
+    } else if (this.stage === 4) {
+      time = r / 9.21;
+    } else return 0;
+    this.value +=
+      (target - this.value) *
+      Math.min(1, 1 / (Math.max(0.0001, time) * this.sr));
+    if (this.stage === 1 && this.value >= 1) {
+      this.value = 1;
+      this.stage = 2;
+    }
+    if (this.stage === 2 && Math.abs(this.value - s) < 0.001) this.stage = 3;
+    if (this.stage === 4 && this.value < 0.0001) {
+      this.value = 0;
+      this.stage = 0;
+    }
+    this.age++;
+    return this.value;
+  }
+}
+// Four TPT one-poles with an algebraic feedback solution; saturation in the drive.
+export class CEMFilter {
+  constructor() {
+    this.z = new Float64Array(4);
+    this.hz = -1;
+    this.G = 0;
+    this.targetG = 0;
+    this.inv = 1;
+  }
+  tick(x, hz, res, sr) {
+    if (hz !== this.hz) {
+      const g = Math.tan((Math.PI * clamp(hz, 10, sr * 0.43)) / sr);
+      this.targetG = g / (1 + g);
+      this.hz = hz;
+    }
+    this.G += (this.targetG - this.G) * 0.04;
+    const G = this.G,
+      z = this.z;
+    const S = (z[3] + G * z[2] + G * G * z[1] + G ** 3 * z[0]) * (1 - G);
+    let y =
+      saturate(((x - 3.85 * res * S) / (1 + 3.85 * res * G ** 4)) * 1.15) /
+      1.15;
+    for (let i = 0; i < 4; i++) {
+      const v = (y - z[i]) * G;
+      y = v + z[i];
+      z[i] = y + v;
+    }
+    return y * (1 + res * 0.7);
+  }
+}
+// Discrete two-integrator topology-preserving state-variable lowpass.
+export class OBFilter {
+  constructor() {
+    this.s1 = 0;
+    this.s2 = 0;
+    this.hz = -1;
+    this.g = 0;
+    this.targetG = 0;
+  }
+  tick(x, hz, res, sr) {
+    if (hz !== this.hz) {
+      this.targetG = Math.tan((Math.PI * clamp(hz, 10, sr * 0.43)) / sr);
+      this.hz = hz;
+    }
+    this.g += (this.targetG - this.g) * 0.04;
+    const g = this.g,
+      k = 2 - 1.94 * res,
+      a = 1 / (1 + g * (g + k));
+    const v1 = a * (this.s1 + g * (saturate(x) - this.s2)),
+      v2 = this.s2 + g * v1;
+    this.s1 = 2 * v1 - this.s1;
+    this.s2 = 2 * v2 - this.s2;
+    return v2;
+  }
+}
+// OTA-inspired four-stage cascade: soft-limited pole states and distributed drive.
+export class JunoFilter {
+  constructor() {
+    this.z = new Float64Array(4);
+    this.feedback = 0;
+    this.hz = -1;
+    this.g = 0;
+    this.targetG = 0;
+  }
+  tick(x, hz, res, sr) {
+    if (hz !== this.hz) {
+      this.targetG = 1 - Math.exp((-TAU * clamp(hz, 10, sr * 0.23)) / sr);
+      this.hz = hz;
+    }
+    this.g += (this.targetG - this.g) * 0.04;
+    const g = this.g;
+    let y = saturate(x - res * 3.65 * this.feedback);
+    for (let i = 0; i < 4; i++) {
+      this.z[i] += g * (saturate(y) - saturate(this.z[i]));
+      y = this.z[i];
+    }
+    this.feedback = y;
+    return y * (1 + res * 0.6);
+  }
+}
+export class Model {
+  constructor(sr, index, kind) {
+    this.sr = sr;
+    this.kind = kind;
+    this.osc = [new Oscillator(), new Oscillator(), new Oscillator()];
+    this.filter =
+      kind === 0
+        ? new CEMFilter()
+        : kind === 1
+          ? new CEMFilter()
+          : new JunoFilter();
+    this.cal = Math.sin((index + 1) * 13.71 + kind * 5.27);
+    this.drift = 0;
+    this.hpIn = 0;
+    this.hpOut = 0;
+    this.phase = (index * 1.7 + kind) % TAU;
+    this.counter = 0;
+    this.f1 = 0;
+    this.f2 = 0;
+    this.sub = 0;
+    this.pw = 0.5;
+    this.cutoff = 1000;
+    this.hp = 0.999;
+  }
+  tick(freq, p, env, lfo, noise) {
+    const k = this.kind,
+      sr = this.sr * 2;
+    if ((this.counter++ & 31) === 0) {
+      this.phase += 0.000096 * (1 + this.cal * 0.15);
+      this.drift += (Math.sin(this.phase) * this.cal - this.drift) * 0.00064;
+      const hz =
+        freq *
+        2 ** ((k === 2 ? 0 : this.cal * (0.008 + p.analogDetune * 0.28) + this.drift * (0.008 + p.analogDetune * 0.2)) / 12);
+      this.f1 = hz * 2 ** (p.osc1Tune / 12);
+      this.f2 = hz * 2 ** ((p.osc2Tune + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
+      this.sub = hz / (Math.round(p.subOct) === 2 ? 4 : 2);
+      this.pw = clamp(p.pw + lfo * (p.lfoPWM + p.mod * 0.25), 0.05, 0.95);
+      this.cutoff = clamp(
+        p.cutoff *
+          2 **
+            (env * p.envAmount +
+              lfo * (p.lfoFilter + p.mod * 2) +
+              this.cal * (k === 2 ? 0.015 : 0.08) * (0.3 + p.analog * 2.2)),
+        15,
+        this.sr * 0.42,
+      );
+      this.hp = Math.exp((-TAU * p.hpf) / sr);
+    }
+    const o = this.osc;
+    let out = 0;
+    for (let n = 0; n < 2; n++) {
+      let a, b;
+      if (k === 0) {
+        // Prophet: oscillator B is the sync source and an audio-rate Poly-Mod source for A.
+        const dtB = this.f2 / sr,
+          wrap = o[1].phase + dtB >= 1 ? (o[1].phase + dtB - 1) / dtB : -1;
+        b = o[1].tick(this.f2, sr, p.wave2, this.pw);
+        a = o[0].tick(
+          this.f1 * (1 + p.polyMod * (b * 0.15 + env * 0.03)),
+          sr,
+          p.wave1,
+          this.pw,
+          p.sync > 0.5 ? wrap : -1,
+        );
+      } else {
+        const dt = this.f1 / sr,
+          wrap = o[0].phase + dt >= 1 ? (o[0].phase + dt - 1) / dt : -1;
+        a = o[0].tick(this.f1, sr, p.wave1, this.pw);
+        b =
+          k === 2 || k === 1
+            ? 0
+            : o[1].tick(
+                this.f2 * (1 + p.polyMod * 0.12 * a),
+                sr,
+                p.wave2,
+                this.pw,
+                p.sync > 0.5 ? wrap : -1,
+              );
+      }
+      const sub = o[2].tick(this.sub, sr, 2, 0.5);
+      if (k === 2)
+        o[1].phase = (o[0].phase - this.f1 / sr + p.osc2Tune / 24 + 1) % 1;
+      let x =
+        k === 1 ? a * p.mix1 + sub * p.mixSub :
+        k === 2
+          ? a * p.mix1 +
+            o[1].tick(this.f1, sr, p.wave2, this.pw) * p.mix2 +
+            sub * p.mixSub
+          : a * p.mix1 + b * p.mix2 + sub * p.mixSub;
+      x += noise * p.mixNoise;
+      const high = x - this.hpIn + this.hp * this.hpOut;
+      this.hpIn = x;
+      this.hpOut = high;
+      const warm = Math.tanh(high * (1 + p.analog * (k === 1 ? 0.65 : 0.35))) / (1 + p.analog * (k === 1 ? 0.65 : 0.35));
+      out += this.filter.tick(warm, this.cutoff, p.resonance, sr) * 0.5;
+    }
+    return out;
+  }
+}
+export class Effects {
+  constructor(sr) {
+    this.sr = sr;
+    this.pos = 0;
+    this.phase = 0;
+    this.delay = [new Float32Array(sr * 3), new Float32Array(sr * 3)];
+    this.chorus = [new Float32Array(4096), new Float32Array(4096)];
+    this.cpos = 0;
+    this.color = [0, 0];
+    this.time = 0.375;
+    this.rvLengths = [
+      0.0297, 0.0371, 0.0411, 0.0437, 0.0313, 0.0353, 0.0397, 0.0479,
+    ].map((x) => Math.floor(x * sr));
+    this.rv = this.rvLengths.map((n) => new Float32Array(n));
+    this.rpos = new Int32Array(8);
+    this.damp = new Float64Array(8);
+    this.allpass = [
+      new Float32Array(Math.floor(sr * 0.005)),
+      new Float32Array(Math.floor(sr * 0.0017)),
+    ];
+    this.apos = new Int32Array(2);
+    this.left = 0;
+    this.right = 0;
+    this.dcIn = [0, 0];
+    this.dcOut = [0, 0];
+    this.dcPole = Math.exp((-TAU * 15) / sr);
+    this.chorusEnable = 0;
+  }
+  clear() {
+    for (const b of [
+      ...this.delay,
+      ...this.chorus,
+      ...this.rv,
+      ...this.allpass,
+    ])
+      b.fill(0);
+    this.damp.fill(0);
+    this.color.fill(0);
+    this.dcIn.fill(0);
+    this.dcOut.fill(0);
+    this.left = this.right = 0;
+  }
+  read(b, pos, delay) {
+    let i = (pos - delay + b.length * 2) % b.length,
+      j = Math.floor(i),
+      f = i - j;
+    return b[j] * (1 - f) + b[(j + 1) % b.length] * f;
+  }
+  tick(l, r, p) {
+    const mode = Math.round(p.chorusMode);
+    this.chorusEnable += ((mode ? 1 : 0) - this.chorusEnable) * 0.002;
+    this.phase =
+      (this.phase +
+        (TAU * (mode === 2 ? 0.83 : mode === 3 ? 1.2 : 0.48)) / this.sr) %
+      TAU;
+    for (let c = 0; c < 2; c++) {
+      let x = c ? r : l;
+      this.chorus[c][this.cpos] = x;
+      const d =
+        (0.008 +
+          (mode === 3 ? 0.0035 : 0.002) * Math.sin(this.phase + c * Math.PI)) *
+        this.sr;
+      const wet = this.read(this.chorus[c], this.cpos, d);
+      this.color[c] += 0.28 * (wet - this.color[c]);
+      const mix = p.chorusMix * this.chorusEnable;
+      x = x * (1 - mix * 0.5) + this.color[c] * mix * 0.7;
+      if (c) r = x;
+      else l = x;
+    }
+    this.cpos = (this.cpos + 1) % 4096;
+    this.time += (p.delayTime - this.time) * 0.00003;
+    const dl = this.read(this.delay[0], this.pos, this.time * this.sr),
+      dr = this.read(this.delay[1], this.pos, this.time * this.sr * 1.013);
+    this.delay[0][this.pos] = saturate(l + dr * p.delayFeedback);
+    this.delay[1][this.pos] = saturate(r + dl * p.delayFeedback);
+    this.pos = (this.pos + 1) % this.delay[0].length;
+    l += dl * p.delayMix;
+    r += dr * p.delayMix;
+    let input = (l + r) * 0.25;
+    for (let i = 0; i < 2; i++) {
+      const b = this.allpass[i],
+        j = this.apos[i],
+        v = b[j];
+      b[j] = input + v * 0.55;
+      input = v - input * 0.55;
+      this.apos[i] = (j + 1) % b.length;
+    }
+    let rl = 0,
+      rr = 0;
+    for (let i = 0; i < 8; i++) {
+      const b = this.rv[i],
+        j = this.rpos[i],
+        v = b[j];
+      this.damp[i] += (v - this.damp[i]) * (0.03 + (1 - p.reverbDamp) * 0.65);
+      b[j] = input + this.damp[i] * (0.45 + p.reverbSize * 0.49);
+      this.rpos[i] = (j + 1) % b.length;
+      if (i < 4) rl += v * 0.25;
+      else rr += v * 0.25;
+    }
+    const xl = l + rl * p.reverbMix,
+      xr = r + rr * p.reverbMix;
+    const yl = xl - this.dcIn[0] + this.dcPole * this.dcOut[0],
+      yr = xr - this.dcIn[1] + this.dcPole * this.dcOut[1];
+    this.dcIn[0] = xl;
+    this.dcIn[1] = xr;
+    this.dcOut[0] = yl;
+    this.dcOut[1] = yr;
+    this.left = saturate(yl * p.volume);
+    this.right = saturate(yr * p.volume);
+  }
+}
