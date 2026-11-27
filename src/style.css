@@ -1080,3 +1080,67 @@ input[type=range]{accent-color:#69b5f0}
 .section[data-section="DCO"] .osc-bank-label{position:absolute;color:#c0d8eb;font:700 12px Arial,sans-serif;letter-spacing:1px}
 .section[data-section="DCO"] .osc-wave-name{position:absolute;color:#d4dfe8;font:700 12px Arial,sans-serif;white-space:nowrap;pointer-events:none}
 .section[data-section="DCO"] .wave-select{position:absolute;display:flex;align-items:center;justify-content:center;padding:0!important;font-size:10px!important;line-height:1!important}
+
+/* STUDIO 1984: realistic blue anodised hardware, softer light and recessed aluminium */
+#instrument{
+ background:linear-gradient(90deg,#090b0e 0%,#252a2d 2%,#11161b 4%,#1b2024 50%,#11161b 96%,#252a2d 98%,#090b0e 100%);
+ border:2px solid #05090c;
+ box-shadow:inset 0 2px 2px #cbd6db66,inset 0 -12px 25px #000b,0 11px 22px #0009;
+}
+.section{
+ background:linear-gradient(125deg,#18334c 0%,#172f44 18%,#13293d 59%,#0d1e2c 100%);
+ border:2px solid #81909b;
+ border-top:0;
+ box-shadow:0 0 0 4px #040709,inset 0 1px 5px #9fb3c333,inset 0 -8px 14px #0007;
+}
+.section h2{background:linear-gradient(#4b86b5 0%,#2c638c 32%,#1c4466 100%);text-shadow:0 1px 1px #0e2534;color:#e2eef7}
+.section.red h2,.section.white h2{background:linear-gradient(#4b86b5,#2c638c 38%,#1c4466);color:#e2eef7}
+.section .fader .scale{background:repeating-linear-gradient(to top,transparent 0 17px,#bccbd4 17px 19px,transparent 19px 21px)}
+.section .fader .cap,.cap{background:linear-gradient(#cfd7dc,#f6f7f5 20%,#b5c5ce 42%,#5495bd 47%,#245f84 60%,#132c3d 68%,#242d31 90%);border:1px solid #263440;border-radius:2px;box-shadow:0 2px 5px #000b,inset 0 1px #fff9}
+.hardware{background:linear-gradient(#647786 0%,#3e5567 13%,#1c3041 54%,#142333 94%);border:1px solid #080f14;border-top:1px solid #aeb9c4;box-shadow:0 3px 4px #000b,inset 0 1px 2px #a5b7c266}
+.hardware.on,.wave-select.on,.hardware.selected{background:linear-gradient(#4487b9,#1c5079);box-shadow:inset 0 0 4px #acd8ff88,0 0 7px #65aeef77;color:#d9efff}
+#brand{background:linear-gradient(#20282e,#0c1318 75%,#06090b);box-shadow:inset 0 1px #bac1c366}
+#brand .stripes i{background:linear-gradient(#62a7d7,#2f719e);border-color:#3e6c8e}
+#brand .stripes i:nth-child(2){background:linear-gradient(#b3cada,#637f94)}
+.key.white{background:linear-gradient(90deg,#dec9ab,#f3e5ce 19%,#ffeed5 77%,#d1ba98);box-shadow:inset 2px 0 5px #7d6a53}
+.key.black{background:linear-gradient(90deg,#06090a,#2c3437 24%,#121a1e 74%,#050708);box-shadow:inset 2px 0 2px #abb1b52c,0 3px 5px #000}
+#instrument:before,#instrument:after{background:repeating-linear-gradient(90deg,#080b0f 0 3px,#222a2e 4px 5px,#07090c 6px 9px);box-shadow:inset 0 2px 6px #9aa8ae44}
+
+/* Seven tactile filter model selectors. Reclaim top of HPF panel for two rows. */
+.section[data-section="HPF / VCF"] h2{font-size:20px!important;padding-left:9px!important;max-width:none!important}
+.filter-button-board{position:absolute;top:39px;left:8px;right:8px;height:53px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;align-content:center;z-index:5}
+.filter-choice{min-width:0;height:23px;border:1px solid #758fa1;border-top-color:#c3d0d5;border-radius:3px;background:linear-gradient(#495863,#213647 40%,#142738);color:#d5e0e7;box-shadow:0 2px 3px #0008;font:700 10px "Arial Narrow",Arial,sans-serif;cursor:pointer;padding:0}
+.filter-choice.on{color:#e5f6ff;background:linear-gradient(#3f94cf,#205b86 65%,#153d5d);box-shadow:inset 0 0 3px #d5f3ff88,0 0 7px #59b5ef8c}
+.section[data-section="HPF / VCF"] .fader label{font-size:13px!important}
+.section[data-section="HPF / VCF"] .fader .scale{top:26px}
+.section[data-section="HPF / VCF"] .fader .slot{top:26px}
+
+/* Clean DCO waveform matrix beneath shortened faders */
+.section[data-section="DCO"] .osc-wave-row{position:absolute;left:8px;right:8px;display:flex;align-items:center;gap:3px;height:25px;z-index:5}
+.section[data-section="DCO"] .osc-row-name{font:700 11px Arial,sans-serif;color:#c5d6e0;white-space:nowrap;width:39px;flex-shrink:0}
+.section[data-section="DCO"] .osc-wave-button{font:700 9px Arial,sans-serif;padding:0;flex:1;min-width:0;height:23px;border:1px solid #758b99;border-radius:3px;color:#c7dce9;background:linear-gradient(#465666,#1c3042 55%,#0f2333);box-shadow:0 2px 3px #0009}
+.section[data-section="DCO"] .osc-wave-button.on{background:linear-gradient(#4496cc,#235a7f);color:#f0fbff;box-shadow:inset 0 0 4px #bbecff,0 0 6px #58a9e3}
+.section[data-section="DCO"] .fader label{font-size:13px}
+
+/* Proper recessed analogue horizontal tracks and separate cap graphics */
+.track6-analog .track6-controls{top:77px!important}
+.track6-analog .track6-knob{gap:4px!important;width:116px!important;font-size:12px}
+.track6-analog .analog-caption{color:#d2e3ed;font:700 12px Arial,sans-serif}
+.analog-rail{position:relative;width:110px;height:26px}
+.analog-scale{position:absolute;left:4px;right:4px;top:1px;bottom:1px;background:repeating-linear-gradient(to right,#a9bbc7 0 1px,transparent 1px 12px);opacity:.9}
+.analog-slot{position:absolute;left:7px;right:7px;top:11px;height:7px;background:#050d15;border-radius:5px;box-shadow:inset 1px 2px 4px #000,0 1px #7a9cac}
+.analog-cap{position:absolute;top:5px;width:19px;height:18px;border:1px solid #1d3448;border-radius:2px;box-shadow:0 2px 4px #000b;background:linear-gradient(90deg,#273e50,#b7c9d5 25%,#e0e5e6 45%,#5098c9 49%,#254865 60%,#263d4f 84%);pointer-events:none}
+.analog-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:2;margin:0}
+
+/* Matte-black pitch and mod wheel wells; no exposed white areas */
+.wheel{background:#05080b!important;box-shadow:inset 0 1px 8px #000,0 0 0 1px #4e6473!important}
+.wheel:after{background:linear-gradient(90deg,#0e1419,#313d46 28%,#4c5a62 48%,#26333b 70%,#060b10)!important;border:1px solid #425767!important;box-shadow:inset 0 1px 1px #9cadb766,0 2px 3px #000!important}
+
+/* Key controls under the wheels, in two compact hardware rows. */
+.wheel-panel{height:254px}
+.wheel{top:91px;height:94px}
+.wheel-title{font-size:13px}
+.key-control-panel{position:absolute;left:6px;right:6px;bottom:8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:24px 24px;gap:4px}
+.key-option{background:linear-gradient(#526b7b,#1d3040);border:1px solid #839cac;border-radius:3px;font:700 10px Arial,sans-serif;color:#d7e5ed;padding:0}
+.key-option.selected{background:linear-gradient(#4195c8,#1b5988);box-shadow:inset 0 1px #d1e9ff88,0 0 5px #6ab5e466;color:#f1fcff}
+.key-velocity{grid-column:span 3}
