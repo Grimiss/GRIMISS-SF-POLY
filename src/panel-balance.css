@@ -1,0 +1,95 @@
+/* SF-POLY | Manufacturing balance pass | 27 November 2026.
+   Applied after the existing styles. Shared fixed 8px panel gutters, more room
+   for dense controls, and a return to the original chunky fader caps. */
+
+/* The initial 1673px upper-row width is unchanged, so responsive fit-to-screen
+   scaling and the separator rails remain exactly where they were. */
+#instrument .section.upper .fader .cap{
+  width:35px!important;
+  height:18px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  border:1px solid #060a0c!important;
+  border-radius:2px!important;
+  background:linear-gradient(to bottom,
+    #323b40 0%,#11171b 31%,#7bc9fa 43%,#4fa5dc 53%,
+    #091015 61%,#242c30 100%)!important;
+  box-shadow:inset 0 1px #98a8aa70,0 3px 4px #000d!important;
+}
+/* One consistent slot and matching registration lines across all sections. */
+#instrument .section.upper .fader .scale{
+  width:37px!important;
+  background:repeating-linear-gradient(to top,
+   transparent 0px,transparent 17px,
+   #d1d0c8 17px,#d1d0c8 18.5px,
+   transparent 18.5px,transparent 21px)!important;
+  opacity:.86!important;
+}
+#instrument .section.upper .fader .slot{width:10px!important}
+
+/* Balanced DCO: the two oscillator lanes have a generous 112px pitch;
+   separate SUB OCT/PW lanes each have 46px clearance. */
+#instrument .section[data-section="DCO"] .osc-wave-stack{
+  top:60px!important;
+  width:34px!important;
+  height:152px!important;
+  gap:8px!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack .osc-wave-button{
+  width:34px!important;height:24px!important;min-height:24px!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="subOct"] label{
+  font:700 10px/18px "Arial Narrow",Arial,sans-serif!important;
+  letter-spacing:-.4px!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="pw"] label{
+  font:700 11px/18px "Arial Narrow",Arial,sans-serif!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="subOct"] .scale,
+#instrument .section[data-section="DCO"] .fader[data-param="pw"] .scale{
+  width:37px!important;
+}
+/* Shorter HPF section width, but longer throw and a switch immediately below. */
+#instrument .section[data-section="HPF"] .fader{
+  height:151px!important;
+  top:45px!important;
+}
+#instrument .section[data-section="HPF"] #bassBoost{
+  left:23px!important;top:195px!important;
+  width:36px!important;height:26px!important;
+  font:700 9px Arial,sans-serif!important;
+}
+/* Narrower filter model bank: no massive dead space under switch stack.
+   Five row-spacings fill a useful proportion of the 231px panel height. */
+#instrument .section[data-section="FILTER"] .filter-button-board{
+  left:200px!important;
+  right:10px!important;
+  width:92px!important;
+  top:49px!important;
+  height:171px!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(4,26px)!important;
+  gap:20px 4px!important;
+  align-content:start!important;
+}
+#instrument .section[data-section="FILTER"] .filter-choice{
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:26px!important;
+  min-height:26px!important;
+  font:700 8px/22px Arial,sans-serif!important;
+  letter-spacing:-.35px!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+#instrument .section[data-section="FILTER"] .fader label{font-size:12px!important}
+/* Enlarged envelope panels gain regular 52px intervals rather than being
+   squeezed into the old 49px grid. */
+#instrument .section[data-section="ENV 1 (FILTER)"] .fader label,
+#instrument .section[data-section="ENV 2 (AMP)"] .fader label{
+  font-size:12px!important;
+}
+#instrument .section[data-section="LFO"] .wave{width:28px!important}
+/* Header names remain true transparent Orbitron Black cutouts; their strips
+   are regenerated from each changed panel width by headers.js. */
