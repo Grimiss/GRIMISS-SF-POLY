@@ -229,13 +229,14 @@ upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[25,137],46,1
 upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[225,271],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
 // Shared engraved waveform pictograms, matching the LFO switch artwork.
-const waveLabels=["SAW","TRI","PLS","SQR","PWM"];
+const waveLabels=["SAW","TRI","PLS","SQR","PWM","SINE"];
 const waveformShapes=[
  '<path d="M3 19V3L18 19V3L33 19V3" />',
  '<path d="M3 19L10.5 3L18 19L25.5 3L33 19" />',
  '<path d="M3 19V3H12V19H21V3H33V19" />',
  '<path d="M3 19V3H18V19H33V3" />',
- '<path d="M3 19V3H9V19H16V3H27V19H33V3" /><path d="M3 1H33" stroke-dasharray="3 4" stroke-width="1.2"/>'
+ '<path d="M3 19V3H9V19H16V3H27V19H33V3" /><path d="M3 1H33" stroke-dasharray="3 4" stroke-width="1.2"/>',
+ '<path d="M2 11C6 -1 12 -1 17 11S28 23 34 11" />'
 ];
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
@@ -245,7 +246,7 @@ for(let osc=1;osc<=2;osc++){
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveLabels.forEach((name,i)=>{
   const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
-  b.type="button";b.innerHTML=waveSvg(i);
+  b.type="button";b.innerHTML=name==="PWM"?'<span class="sf-pwm-label">PWM</span>':waveSvg(i);
   b.title="Oscillator "+osc+": "+(name==="PLS"?"PULSE":name);
   b.setAttribute("aria-label",b.title);
   b.onclick=()=>{setParam("wave"+osc,i);refreshSwitches();};
