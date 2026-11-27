@@ -276,18 +276,22 @@ for (const [name, x, w, controls] of upper) {
       MASTER: [40, 113, 194],
     }[name];
   controls.forEach(([k, label], i) =>
-    range(s, k, label, centers[i] - 25, 46, 50, name === "LFO" ? 132 : 168),
+    range(s, k, label, centers[i] - 25, name === "HPF / VCF" ? 96 : 46, 50, name === "LFO" ? 132 : name === "DCO" ? 114 : name === "HPF / VCF" ? 116 : 168),
   );
 }
-const filterSelect = el("select","vcf-filter-model",vcfSection);
-filterSelect.setAttribute("aria-label","Filter model");
-for (const [value,name] of [["0","NATIVE"],["1","ROLAND"],["2","SSM"],["3","CURTIS"]]) {
- const opt=el("option",null,filterSelect);opt.value=String(Number(value)/3);opt.textContent=name;
-}
-filterSelect.addEventListener("change",()=>setParam("filterModel",filterSelect.selectedIndex));
-bind("filterModel",filterSelect, v => {
-  filterSelect.value=String(Math.round(v)/3);
-  filterSelect.title=["Each engine uses its native filter","Roland-style filter for all engines","SSM-style filter for all engines","Curtis-style filter for all engines"][Math.round(v)];
+// All filter models have dedicated on-panel hardware buttons, no dropdown.
+const filterChoices=["NATIVE","ROLAND","SSM","CURTIS","MS-20","SEM","LADDER"];
+const filterBoard=el("div","filter-button-board",vcfSection);
+filterChoices.forEach((name,i)=>{
+ const b=el("button","filter-choice",filterBoard);
+ b.type="button";b.textContent=name;b.title="VCF model: "+name;
+ b.setAttribute("aria-label",b.title);
+ b.onclick=()=>setParam("filterModel",i);
+ if(!bindings.has("filterModel"))bindings.set("filterModel",[]);
+ bindings.get("filterModel").push({input:{value:0},paint:v=>{
+  b.classList.toggle("on",Math.round(v)===i);
+  b.setAttribute("aria-pressed",Math.round(v)===i?"true":"false");
+ }});
 });
 ["∿", "⋀", "⊓"].forEach((label, i) =>
   button(
@@ -306,20 +310,19 @@ bind("filterModel",filterSelect, v => {
   ),
 );
 // Shared extended waveform palette. Original 0/1/2 codes remain compatible.
+// Compact hardware waveform rows clear of all four DCO faders.
 const waveLabels=["SAW","TRI","PULSE","SQR","PWM"];
-for(let osc=1;osc<=2;osc++) {
- const x=osc===1?43:153;
- const label=el("span","osc-bank-label",dcoSection);
- label.textContent="OSC "+osc;label.style.cssText=`left:${x}px;top:69px`;
- waveLabels.forEach((name,i)=>{
-  const y=95+i*25;
-  const b=button(dcoSection,`wave${osc}-${i}`,"●",x,y,19,19,()=>{
-    setParam("wave"+osc,i);refreshSwitches();
-  },"wave-select");
-  b.title=`Oscillator ${osc}: ${name}`;
+for(let osc=1;osc<=2;osc++){
+ const row=el("div","osc-wave-row",dcoSection);
+ row.style.top=(osc===1?173:202)+"px";
+ const name=el("span","osc-row-name",row);name.textContent="OSC "+osc;
+ waveLabels.forEach((label,i)=>{
+  const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
+  b.type="button";b.textContent=label==="PULSE"?"PLS":label;
+  b.title="Oscillator "+osc+" · "+label;
   b.setAttribute("aria-label",b.title);
-  const t=el("span","osc-wave-name",dcoSection);
-  t.textContent=name;t.style.cssText=`left:${x+24}px;top:${y+2}px`;
+  b.onclick=()=>{setParam("wave"+osc,i);refreshSwitches();};
+  toggles.set(b.id,b);
  });
 }
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
@@ -564,6 +567,35 @@ for (const [k, label, x] of [
     i.addEventListener("change",centre);
   }
 }
+// Physical-style keyboard latching. HOLD is independent of exclusive ADD/REPLACE.
+// These controls affect manual computer/on-screen notes; MIDI note velocity is also
+// handled by VELOCITY. Latches use stable IDs and are explicitly released on panic.
+let keyHold=false,keyHoldMode="add",velocitySensitive=true;
+const latchedKeys=new Map();
+const keyControlPanel=el("div","key-control-panel",wheel);
+const holdButton=el("button","key-option",keyControlPanel);
+holdButton.type="button";holdButton.textContent="HOLD";
+const addButton=el("button","key-option",keyControlPanel);
+addButton.type="button";addButton.textContent="ADD";
+const replaceButton=el("button","key-option",keyControlPanel);
+replaceButton.type="button";replaceButton.textContent="REPLACE";
+const velocityButton=el("button","key-option key-velocity",keyControlPanel);
+velocityButton.type="button";velocityButton.textContent="VEL ON";
+function releaseLatchedKeys(){
+ for(const [note,id] of latchedKeys){send({type:"off",id});visualNote(note,false);}
+ latchedKeys.clear();
+}
+function updateKeyOptions(){
+ for(const [b,on] of [[holdButton,keyHold],[addButton,keyHoldMode==="add"],[replaceButton,keyHoldMode==="replace"],[velocityButton,velocitySensitive]]){
+  b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on));
+ }
+ velocityButton.textContent=velocitySensitive?"VEL ON":"VEL OFF";
+}
+holdButton.onclick=()=>{keyHold=!keyHold;if(!keyHold)releaseLatchedKeys();updateKeyOptions();};
+addButton.onclick=()=>{keyHoldMode="add";updateKeyOptions();};
+replaceButton.onclick=()=>{keyHoldMode="replace";updateKeyOptions();};
+velocityButton.onclick=()=>{velocitySensitive=!velocitySensitive;updateKeyOptions();};
+updateKeyOptions();
 const keyboard = el("div", "keyboard", perf);
 keyboard.id = "keyboard-view";
 const whites = [];
@@ -587,13 +619,26 @@ for (let n = 48; n <= 96; n++)
 function visualNote(n, on) {
   keys.get(n)?.classList.toggle("pressed", on);
 }
-function noteOn(id, n, velocity = 0.8) {
-  visualNote(n, true);
-  send({ type: "on", id, note: n + octave * 12, velocity });
+function noteOn(id,n,velocity=.8){
+ if(keyHold){
+  if(keyHoldMode==="replace") releaseLatchedKeys();
+  if(latchedKeys.has(n)){
+   const old=latchedKeys.get(n);
+   send({type:"off",id:old});latchedKeys.delete(n);
+  }
+  const latchedId="latch:"+n+":"+octave;
+  latchedKeys.set(n,latchedId);
+  visualNote(n,true);
+  send({type:"on",id:latchedId,note:n+octave*12,velocity:velocitySensitive?velocity:1});
+  return;
+ }
+ visualNote(n,true);
+ send({type:"on",id,note:n+octave*12,velocity:velocitySensitive?velocity:1});
 }
-function noteOff(id, n) {
-  visualNote(n, false);
-  send({ type: "off", id });
+function noteOff(id,n){
+ if(keyHold) return;
+ visualNote(n,false);
+ send({type:"off",id});
 }
 keyboard.addEventListener("pointerdown", (e) => {
   const n = +e.target.dataset.note;
@@ -758,6 +803,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) releaseInputs();
 });
 function panic() {
+  latchedKeys.clear();
   midiQueues.clear();
   audio.send({ type: "panic" });
   heldPointers.clear();
@@ -781,7 +827,7 @@ function midiMessage(port, event) {
     const id = "midi:" + key + ":" + midiSerial++;
     if (!midiQueues.has(key)) midiQueues.set(key, []);
     midiQueues.get(key).push(id);
-    send({ type: "on", id, note: n, velocity: v / 127 });
+    send({ type: "on", id, note: n, velocity: velocitySensitive ? v / 127 : 1 });
     visualNote(n, true);
   } else if (type === 128 || (type === 144 && v === 0)) {
     const id = midiQueues.get(key)?.shift();
@@ -849,6 +895,7 @@ function fillPresets(selected = "init") {
   select.value = selected;
 }
 function loadPatch(p) {
+  releaseLatchedKeys();
   current = validatePatch(p);
   params = { ...current.params };
   music = {
@@ -998,8 +1045,9 @@ for (const [k, label] of [
   });
 }
 function scale() {
-  const w = Math.max(1000, window.innerWidth),
-    s = Math.min(1, w / 1774);
+  const w=Math.max(850,window.innerWidth);
+  // Fill available desktop width rather than artificially capping at 100%.
+  const s=Math.min(1.22,w/1774);
   $("#instrument").style.zoom = s;
   $("#instrument").style.transform = "none";
   $("#viewport").style.height = 887 * s + "px";
@@ -1044,9 +1092,14 @@ ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i clas
 const controls=el("div","track6-controls",analogPanel);
 for(const [label,k] of [["ANALOG","analog"],["DETUNE","analogDetune"]]){
  const wrap=el("label","track6-knob",controls);
- wrap.textContent=label;
- const input=el("input",null,wrap); input.type="range";input.min=0;input.max=1;input.step=.001;
- bind(k,input,v=>{input.title=label+": "+Math.round(v*100)+"%";});
+ const labelText=el("span","analog-caption",wrap);labelText.textContent=label;
+ const rail=el("div","analog-rail",wrap);
+ const scale=el("div","analog-scale",rail);
+ const slot=el("div","analog-slot",rail);
+ const cap=el("span","analog-cap",rail);
+ const input=el("input","analog-input",rail);
+ input.type="range";input.min=0;input.max=1;input.step=.001;input.setAttribute("aria-label",label);
+ bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=(5+u*84)+"px";input.title=label+": "+Math.round(v*100)+"%";});
 }
 const modes=el("div","track6-modes",analogPanel);
 for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]){
