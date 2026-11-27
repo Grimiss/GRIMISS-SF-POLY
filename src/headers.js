@@ -29,17 +29,13 @@ function paintFaceplateHeadings(){
   // Subtle silkscreen edge light, without a bordered software-panel look.
   ctx.fillStyle="rgba(255,255,255,.21)";ctx.fillRect(12,1,width-24,1);
   ctx.globalCompositeOperation="destination-out";
-  let fontSize=24;
-  if(label.length>13)fontSize=19;
+  // One readable Orbitron Black size for every physical nameplate.
+  // Never autosize by caption length: consistency is a hardware requirement.
+  ctx.font='900 17px Orbitron, Arial, sans-serif';
   ctx.textBaseline="middle";
   ctx.textAlign="left";
-  while(fontSize>13){
-   ctx.font="900 "+fontSize+"px Orbitron, Arial, sans-serif";
-   if(ctx.measureText(label).width<width-27)break;
-   fontSize--;
-  }
   ctx.fillStyle="#000";
-  ctx.fillText(label,16,height/2+1);
+  ctx.fillText(label,14,height/2+1);
   ctx.globalCompositeOperation="source-over";
   title.style.setProperty("background-image",'url("'+c.toDataURL("image/png")+'")',"important");
   title.style.setProperty("background-size","100% 100%","important");
@@ -47,7 +43,7 @@ function paintFaceplateHeadings(){
  }
 }
 const renderHeadings=async()=>{
- try{await document.fonts.load('900 24px "Orbitron"');}catch{}
+ try{await document.fonts.load('900 17px "Orbitron"');}catch{}
  paintFaceplateHeadings();
 };
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderHeadings,{once:true});
