@@ -1,0 +1,80 @@
+/* SF-POLY | Manufacturing balance pass: rotary master and lower effect bays.
+   Geometry is defined in app.js. These overrides only refine the final
+   physical finish and keep the original parameter bindings. */
+
+/* Master is now one 90px-wide, stacked instrument channel:
+   a prominent master VOLUME above the smaller TUNE potentiometer. */
+#instrument .section[data-section="MASTER"] .sf-rotary.master-volume {
+ top:43px!important;
+ left:7px!important;
+ width:76px!important;
+ height:94px!important;
+}
+#instrument .section[data-section="MASTER"] .sf-rotary.master-tune {
+ top:140px!important;
+ left:17px!important;
+ width:56px!important;
+ height:81px!important;
+}
+#instrument .section[data-section="MASTER"] .master-volume .sf-rotary-label {
+ font:800 12px/17px Arial,sans-serif!important;
+}
+#instrument .section[data-section="MASTER"] .master-tune .sf-rotary-label {
+ font:700 11px/17px Arial,sans-serif!important;
+}
+#instrument .section[data-section="MASTER"] .master-volume .sf-knob-face {
+ top:24px!important;
+ width:62px!important;
+ height:62px!important;
+}
+#instrument .section[data-section="MASTER"] .master-tune .sf-knob-face {
+ top:26px!important;
+ width:43px!important;
+ height:43px!important;
+}
+#instrument .section[data-section="MASTER"] .master-volume::after {
+ top:19px!important;
+ left:1px!important;
+ right:1px!important;
+ height:75px!important;
+ background:repeating-conic-gradient(from -142deg,#bcb3a6 0deg 1.5deg,transparent 1.5deg 23deg);
+}
+#instrument .section[data-section="MASTER"] .master-tune::after {
+ top:21px!important;
+ left:1px!important;
+ right:1px!important;
+ height:53px!important;
+ background:repeating-conic-gradient(from -142deg,#bcb3a6 0deg 1.5deg,transparent 1.5deg 23deg);
+}
+#instrument .section[data-section="MASTER"] .master-volume .sf-knob-marker::before {
+ width:4px;
+ height:16px;
+ left:calc(50% - 2px);
+}
+#instrument .section[data-section="MASTER"] .master-tune .sf-knob-marker::before {
+ height:11px;
+}
+/* Knobs in CIRCUIT CHARACTER, DELAY and REVERB use exactly the same
+   mechanical 59px centre pitch. Keep a single pot diameter across all. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-rotary,
+#instrument .section[data-section="DELAY"] .sf-rotary,
+#instrument .section[data-section="REVERB"] .sf-rotary {
+ width:54px!important;
+ height:95px!important;
+ top:76px!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-knob-face,
+#instrument .section[data-section="DELAY"] .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-knob-face{
+ width:46px!important;
+ height:46px!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-rotary-label,
+#instrument .section[data-section="DELAY"] .sf-rotary-label,
+#instrument .section[data-section="REVERB"] .sf-rotary-label{
+ font:700 10px/17px Arial,sans-serif!important;
+}
+/* Shorter character bay gets narrow, equal-size ON rockers. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle {
+ width:49px!important;
+}
