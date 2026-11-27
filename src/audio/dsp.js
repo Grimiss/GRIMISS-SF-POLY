@@ -346,7 +346,10 @@ export class Model {
       // Both oscillators share the PW and LFO depth, but independently
       // choose PLS or PWM. This preserves existing waveform index mappings.
       this.pw = clamp(p.pw, 0.05, 0.95);
-      this.pwmWidth = clamp(p.pw + lfo * (0.10 + p.lfoPWM + p.mod * 0.25), 0.05, 0.95);
+      // More audible movement: full LFO sweep around the shared PW centre.
+      // Even at low modulation settings both oscillators respond distinctly;
+      // existing PLS remains static under LFO changes.
+      this.pwmWidth = clamp(p.pw + lfo * (0.30 + p.lfoPWM * 1.15 + p.mod * 0.22), 0.035, 0.965);
       this.cutoff = clamp(
         p.cutoff *
           2 **
@@ -521,8 +524,8 @@ export class Effects {
     this.delay[0][this.pos] = saturate(l + dr * p.delayFeedback);
     this.delay[1][this.pos] = saturate(r + dl * p.delayFeedback);
     this.pos = (this.pos + 1) % this.delay[0].length;
-    l += dl * p.delayMix;
-    r += dr * p.delayMix;
+    l += dl * p.delayMix * (p.delayOn ?? 1);
+    r += dr * p.delayMix * (p.delayOn ?? 1);
     let input = (l + r) * 0.25;
     for (let i = 0; i < 2; i++) {
       const b = this.allpass[i],
@@ -544,7 +547,8 @@ export class Effects {
       if (i < 4) rl += v * 0.25;
       else rr += v * 0.25;
     }
-    const dryL=l+rl*p.reverbMix,dryR=r+rr*p.reverbMix;
+    const dryL=l+rl*p.reverbMix*(p.reverbOn??1),
+          dryR=r+rr*p.reverbMix*(p.reverbOn??1);
     // DeepMind-inspired post-VCA 100 Hz low-shelf, moderate +4.6 dB.
     // Single-pole low band is calculated continuously to prevent click on toggle.
     this.bassShelfState[0]+=this.bassShelfCoeff*(dryL-this.bassShelfState[0]);
