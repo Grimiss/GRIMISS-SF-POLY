@@ -992,3 +992,74 @@ body{background:#0b1927;color:#dce7f1}
 #performance .active, [data-step].active {background-color:#5caeea!important;box-shadow:0 0 9px #56a8e8!important}
 input[type=range]{accent-color:#69b5f0}
 #brand .models{color:#a7d6f7}
+
+/* Alpha 2 interface refinement: all seven lower-row blocks sit above the keys */
+.section.track6-analog{
+  padding:0;
+  background:radial-gradient(ellipse at 50% 0,#24425e,#102338 82%);
+  border:2px solid #8a9fad;
+  border-top:0;
+  border-radius:12px 12px 10px 10px;
+  overflow:hidden;
+}
+.track6-analog h2{font-size:20px!important;padding-left:13px!important}
+.track6-analog .voice-leds{
+  position:absolute;top:40px;left:8px;right:8px;margin:0;
+  display:flex;gap:2px;justify-content:space-between;
+}
+.track6-analog .voice-cell{min-width:0;gap:1px}
+.track6-analog .voice-light{width:11px;height:11px}
+.track6-analog .voice-cell small{font-size:9px}
+.track6-analog .track6-controls{
+  position:absolute;top:85px;left:7px;right:7px;display:flex;
+  align-items:flex-start;justify-content:space-around;gap:6px;
+}
+.track6-analog .track6-knob{width:115px;display:flex;flex-direction:column;align-items:center;font-size:13px;gap:6px}
+.track6-analog .track6-knob input{width:112px;cursor:pointer;accent-color:#69b5f0}
+.track6-analog .track6-modes{
+  position:absolute;left:9px;right:9px;bottom:8px;display:flex;gap:6px;margin:0;
+}
+.track6-analog .track6-modes button{flex:1;padding:5px 1px;font:700 12px Panel,"Arial Narrow",sans-serif;border-radius:4px}
+.section[data-section="CHARACTER / VIEW"] h2{font-size:20px;padding-left:12px}
+.section[data-section="CHARACTER / VIEW"] .fader label{font-size:13px;line-height:16px}
+.section[data-section="CHARACTER / VIEW"] .fader .scale{top:26px}
+.section[data-section="CHARACTER / VIEW"] .fader .slot{top:26px}
+.section[data-section="CHARACTER / VIEW"] .engine-toggle{
+  position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;
+  padding:0;border:1px solid #5685ab;border-radius:3px;font:700 11px Panel,Arial,sans-serif;
+  background:#102638;color:#9eb8cc;
+}
+.section[data-section="CHARACTER / VIEW"] .engine-toggle.on{background:#397db9;color:white;box-shadow:0 0 7px #397db9}
+.section[data-section="CHARACTER / VIEW"] #viewKey,
+.section[data-section="CHARACTER / VIEW"] #viewSeq{
+  font-size:12px;line-height:23px;padding:0;
+}
+.section[data-section="AUTOMATION"] h2{font-size:20px;padding-left:12px}
+.section[data-section="AUTOMATION"] .transport{font-size:11px;padding:2px}
+.section[data-section="AUTOMATION"] .transport span:not(.glyph):not(.round-led){font-size:12px}
+.section[data-section="AUTOMATION"] .fader label{font-size:13px}
+.section[data-section="DELAY"] h2,.section[data-section="REVERB"] h2,.section[data-section="CHORUS"] h2{font-size:21px;padding-left:12px}
+.section[data-section="DELAY"] .fader label,.section[data-section="REVERB"] .fader label,.section[data-section="CHORUS"] .fader label{font-size:13px}
+.section[data-section="CHORUS"] #chorus1,
+.section[data-section="CHORUS"] #chorus2,
+.section[data-section="CHORUS"] #chorus0{font:700 16px Panel,Arial,sans-serif;padding:0}
+.section[data-section="CHORUS"] #chorus1.on,
+.section[data-section="CHORUS"] #chorus2.on{box-shadow:inset 0 0 0 2px #a4d5ff,0 0 12px #397db9}
+#brand .models{display:none}
+#brand .preset-launch{
+  position:absolute;right:30px;top:18px;width:220px;height:43px;z-index:4;
+  border:1px solid #79b5e3;border-radius:5px;
+  background:linear-gradient(#2b6188,#173e5d);
+  color:#e4f2ff;font:700 17px Panel,Arial,sans-serif;letter-spacing:1px;
+  box-shadow:inset 0 1px 2px #b1dbff77,0 2px 6px #000;
+}
+#brand .preset-launch:hover{background:#326f9e}
+.wheel{--wheel-value:.5;cursor:ns-resize}
+.wheel:after{
+  inset:auto 3px auto 3px;top:calc((1 - var(--wheel-value)) * 67%);
+  height:36px;border-radius:5px;
+  background:linear-gradient(#d5dfe9,#788fa3 45%,#202e3a 55%,#111b24);
+  box-shadow:0 0 2px #b2d8fa;
+  pointer-events:none;transition:top .04s linear;
+}
+.wheel input{cursor:ns-resize}
