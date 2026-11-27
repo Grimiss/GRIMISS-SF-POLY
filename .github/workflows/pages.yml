@@ -22,5 +22,10 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
+          name: pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Allow artifact indexing
+        run: sleep 10
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: pages-${{ github.run_id }}-${{ github.run_attempt }}
