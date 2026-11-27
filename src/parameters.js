@@ -62,6 +62,7 @@ export const specs = {
   reverbDamp: [0, 1, 0.55],
   reverbMix: [0, 1, 0.5],
   chorusMode: [0, 3, 1],
+  chorusOn: [0, 1, 1],
   chorusMix: [0, 1, 0.5],
   autoSpeed: [0.1, 4, 1, "log"],
   arpRate: [0.05, 20, 5],
