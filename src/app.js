@@ -305,31 +305,22 @@ bind("filterModel",filterSelect, v => {
     "wave",
   ),
 );
-for (let osc = 1; osc <= 2; osc++) {
-  const x = osc === 1 ? 64 : 146;
-  const lab = el("span", "tiny-wave-label", dcoSection);
-  lab.textContent = "~∿";
-  lab.style.cssText = `left:${x - 23}px;top:73px`;
-  for (let i = 0; i < 3; i++) {
-    const b = button(
-      dcoSection,
-      `wave${osc}-${i}`,
-      "",
-      x,
-      101 + i * 27,
-      17,
-      18,
-      () => {
-        setParam("wave" + osc, i);
-        refreshSwitches();
-      },
-      "wave-select",
-    );
-    b.setAttribute(
-      "aria-label",
-      `Oscillator ${osc} ${["sawtooth", "triangle", "pulse"][i]}`,
-    );
-  }
+// Shared extended waveform palette. Original 0/1/2 codes remain compatible.
+const waveLabels=["SAW","TRI","SQR","PULSE","PWM"];
+for(let osc=1;osc<=2;osc++) {
+ const x=osc===1?43:153;
+ const label=el("span","osc-bank-label",dcoSection);
+ label.textContent="OSC "+osc;label.style.cssText=`left:${x}px;top:69px`;
+ waveLabels.forEach((name,i)=>{
+  const y=95+i*25;
+  const b=button(dcoSection,`wave${osc}-${i}`,"●",x,y,19,19,()=>{
+    setParam("wave"+osc,i);refreshSwitches();
+  },"wave-select");
+  b.title=`Oscillator ${osc}: ${name}`;
+  b.setAttribute("aria-label",b.title);
+  const t=el("span","osc-wave-name",dcoSection);
+  t.textContent=name;t.style.cssText=`left:${x+24}px;top:${y+2}px`;
+ });
 }
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
 function setArp(value) {
@@ -698,6 +689,7 @@ function refreshSwitches() {
     for (let osc = 1; osc <= 2; osc++)
       setOn(`wave${osc}-${i}`, Math.round(params["wave" + osc]) === i);
   }
+  for(let osc=1;osc<=2;osc++) for(let i=3;i<5;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
   setOn("arpOn", music.arp.on);
   setOn("arpHold", music.arp.hold);
   setOn("arpUp", ["up", "pendulum"].includes(music.arp.mode));
