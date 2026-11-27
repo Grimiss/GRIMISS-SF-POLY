@@ -306,7 +306,7 @@ bind("filterModel",filterSelect, v => {
   ),
 );
 // Shared extended waveform palette. Original 0/1/2 codes remain compatible.
-const waveLabels=["SAW","TRI","SQR","PULSE","PWM"];
+const waveLabels=["SAW","TRI","PULSE","SQR","PWM"];
 for(let osc=1;osc<=2;osc++) {
  const x=osc===1?43:153;
  const label=el("span","osc-bank-label",dcoSection);
