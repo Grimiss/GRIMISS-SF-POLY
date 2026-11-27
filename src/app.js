@@ -977,6 +977,17 @@ browser.innerHTML=`
 `;
 // Put the library above the advanced controls, not below them.
 dialog.insertBefore(browser,dialog.querySelector(".actions"));
+// Keep patch editing and modulation tools accessible, but collapsed to
+// preserve the full sound library on one screen. Original DOM IDs survive.
+const advanced=el("details","preset-advanced",dialog);
+const summary=el("summary","",advanced);
+summary.textContent="PATCH TOOLS & ADVANCED SYNTH CONTROLS";
+for(const child of [...dialog.children]){
+ if(child===advanced||child===browser||child.tagName==="FORM"||
+    (child.tagName==="H2"&&child.textContent.includes("GRIMISS")))continue;
+ advanced.append(child);
+}
+
 const presetResults=browser.querySelector("#preset-browser-list");
 const presetSearch=browser.querySelector("#preset-search");
 // Factory library is organised exclusively by sound category.
