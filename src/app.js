@@ -258,7 +258,8 @@ for(const [name,base,xs] of [
  ["ENV 1 (FILTER)",[["filterA","A"],["filterD","D"],["filterS","S"],["filterR","R"]],[25,74,123,172]],
  ["ENV 2 (AMP)",[["ampA","A"],["ampD","D"],["ampS","S"],["ampR","R"]],[25,74,123,172]]
 ])upperFaders(upperSections.get(name),base,[29,81,133,185],46,166,42);
-upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[40,114],46,166,42);
+rotary(upperSections.get("MASTER"),"tune","TUNE",10,62,63);
+rotary(upperSections.get("MASTER"),"volume","VOLUME",82,62,63);
 
 // Independent oscillator tune faders now have a full-size travel.
 upperFaders(dcoSection,[["osc1Tune","TUNE 1"],["osc2Tune","TUNE 2"]],[25,137],46,166,40);
@@ -751,6 +752,10 @@ function refreshSwitches() {
   setOn("autoOverdub", music.automation.overdub);
   for (const i of [0,1,2])
     setOn("chorus"+i,i===0 ? Math.round(params.chorusMode)===0 : !!(Math.round(params.chorusMode)&i));
+  for(const lamp of document.querySelectorAll(".sf-chorus-lamp")){
+    const on=!!(Math.round(params.chorusMode)&Number(lamp.dataset.chorus));
+    lamp.classList.toggle("lit",on);
+  }
   for (const [, , enabled] of characters) {
     const sw = $("#engine-"+enabled);
     if(sw) { sw.textContent = params[enabled] >= .5 ? "ON" : "OFF"; setOn(sw.id,params[enabled]>=.5); }
