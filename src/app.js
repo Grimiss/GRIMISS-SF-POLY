@@ -387,7 +387,7 @@ $("#arpUp").addEventListener("contextmenu", (e) => {
   e.preventDefault();
   setArp({ mode: "pendulum" });
 });
-const au = section("AUTOMATION", 377, 368, 422, 186, "white");
+const au = section("AUTOMATION", 377, 368, 269, 186, "white");
 const autoActions = [
   ["autoRec", '<span class="round-led"></span>', "REC", "autoRec"],
   [
@@ -421,10 +421,10 @@ autoActions.forEach(([id, icon, label, type], i) =>
     au,
     id,
     icon + "<span>" + label + "</span>",
-    17 + i * 51,
-    73,
-    45,
-    65,
+    13 + (i % 3) * 62,
+    47 + Math.floor(i / 3) * 61,
+    53,
+    53,
     () => {
       if (id === "autoLoop" || id === "autoOverdub") {
         const k = id === "autoLoop" ? "loop" : "overdub";
@@ -440,34 +440,27 @@ autoActions.forEach(([id, icon, label, type], i) =>
     "transport",
   ),
 );
-range(au, "autoSpeed", "SPEED", 332, 38, 50, 132);
+range(au, "autoSpeed", "SPEED", 203, 39, 43, 124);
 const spl = el("div", "speed-labels", au);
 spl.innerHTML = "4x<br>2x<br><b>1x</b><br>0.5x<br>0.1x";
-const ch = section("CHARACTER / VIEW", 814, 368, 250, 186, "white");
-ch.querySelector("h2").style.paddingLeft = "20px";
-const characterPanel = el("div", "triple-character", ch);
-for (const [label, level, enabled] of [["J-106","levelJuno","enableJuno"],["P-6","levelP6","enableP6"],["P-5","levelP5","enableP5"]]) {
-  const channel = el("div","character-channel",characterPanel);
-  el("span","character-name",channel).textContent=label;
-  const sw = el("button","engine-toggle",channel);
-  sw.type="button";
-  const paintSwitch = () => { sw.textContent = params[enabled] >= 0.5 ? "ON" : "OFF"; sw.classList.toggle("enabled",params[enabled] >= 0.5); };
-  sw.onclick=()=>{setParam(enabled,params[enabled]>=0.5?0:1);paintSwitch();};
-  const fader=el("input","character-fader",channel);
-  fader.type="range";fader.min="0";fader.max="1";fader.step="0.001";
-  bind(level,fader,()=>{paintSwitch();});
-}
-button(ch, "viewKey", '<span class="led"></span>KEY', 26, 132, 87, 37, () =>
-  setView("key"),
-);
-button(ch, "viewSeq", '<span class="led"></span>SEQ16', 135, 132, 91, 37, () =>
-  setView("seq"),
-);
+spl.style.left = "244px";
+const ch = section("CHARACTER / VIEW", 924, 368, 235, 186, "white");
+const characters = [["J-106","levelJuno","enableJuno"],["P-6","levelP6","enableP6"],["P-5","levelP5","enableP5"]];
+characters.forEach(([label,level,enabled],i) => {
+ const x = 7 + i*75;
+ range(ch,level,label,x,63,65,81);
+ const sw = button(ch,"engine-"+enabled,"ON",x+7,39,49,21,()=>{
+  setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
+ },"engine-toggle");
+ sw.setAttribute("aria-label",label+" engine enable");
+});
+button(ch,"viewKey","KEYBOARD",13,152,100,26,()=>setView("key"));
+button(ch,"viewSeq","SEQ16",122,152,100,26,()=>setView("seq"));
 for (const [name, x, w, controls] of [
   [
     "DELAY",
-    1073,
-    197,
+    1167,
+    177,
     [
       ["delayTime", "TIME"],
       ["delayFeedback", "FB"],
@@ -476,8 +469,8 @@ for (const [name, x, w, controls] of [
   ],
   [
     "REVERB",
-    1278,
-    192,
+    1352,
+    167,
     [
       ["reverbSize", "SIZE"],
       ["reverbDamp", "DAMP"],
@@ -487,29 +480,29 @@ for (const [name, x, w, controls] of [
 ]) {
   const s = section(name, x, 368, w, 186);
   controls.forEach(([k, l], i) =>
-    range(s, k, l, [40, 99, 157][i] - 25, 38, 50, 134),
+    range(s, k, l, 6 + i * ((w - 12) / 3), 38, (w - 12) / 3, 134),
   );
 }
-const chorus = section("CHORUS", 1479, 368, 246, 186);
+const chorus = section("CHORUS", 1527, 368, 198, 186);
 for (const [i, label, x, w] of [
-  [1, "I", 13, 57],
-  [2, "II", 76, 45],
-  [0, "OFF", 127, 54],
+  [1, "I", 8, 41],
+  [2, "II", 54, 41],
+  [0, "OFF", 100, 43],
 ])
   button(
     chorus,
     "chorus" + i,
-    (i === 1 ? '<span class="led"></span>' : "") + label,
+    label,
     x,
     87,
     w,
     40,
     (e) => {
-      setParam("chorusMode", e.shiftKey && i ? 3 : i);
+      setParam("chorusMode", i === 0 ? 0 : (Math.round(params.chorusMode) ^ i));
       refreshSwitches();
     },
   );
-range(chorus, "chorusMix", "MIX", 188, 38, 50, 134);
+range(chorus, "chorusMix", "MIX", 147, 38, 44, 134);
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 t = el("span", "wheel-title", wheel);
@@ -559,11 +552,14 @@ for (const [k, label, x] of [
   i.setAttribute("aria-label", label + " wheel");
   bind(k, i, (v) => {
     i.title = v.toFixed(2);
+    w.style.setProperty("--wheel-value",toUnit(k,v));
     w.style.filter = `brightness(${1 + Math.abs(v) * 0.12})`;
   });
   if (k === "bend") {
-    i.addEventListener("pointerup", () => setParam(k, 0));
-    i.addEventListener("pointercancel", () => setParam(k, 0));
+    const centre = () => setParam(k,0);
+    i.addEventListener("pointerup",centre);
+    i.addEventListener("pointercancel",centre);
+    i.addEventListener("change",centre);
   }
 }
 const keyboard = el("div", "keyboard", perf);
@@ -702,11 +698,12 @@ function refreshSwitches() {
   for (let i = 1; i <= 4; i++) setOn("range" + i, music.arp.range === i);
   setOn("autoLoop", music.automation.loop);
   setOn("autoOverdub", music.automation.overdub);
-  for (const i of [0, 1, 2])
-    setOn(
-      "chorus" + i,
-      Math.round(params.chorusMode) === i || (params.chorusMode > 2.5 && i),
-    );
+  for (const i of [0,1,2])
+    setOn("chorus"+i,i===0 ? Math.round(params.chorusMode)===0 : !!(Math.round(params.chorusMode)&i));
+  for (const [, , enabled] of characters) {
+    const sw = $("#engine-"+enabled);
+    if(sw) { sw.textContent = params[enabled] >= .5 ? "ON" : "OFF"; setOn(sw.id,params[enabled]>=.5); }
+  }
 }
 const computerCodes = [
   "KeyA",
@@ -819,6 +816,9 @@ $("#midi").onclick = async () => {
     status("MIDI: " + e.message);
   }
 };
+const presetButton = el("button","preset-launch",$("#brand"));
+presetButton.type="button";
+presetButton.textContent="FACTORY PRESETS  ▾";
 const dialog = $("#patch-dialog"),
   select = $("#preset");
 function fillPresets(selected = "init") {
@@ -889,10 +889,9 @@ async function capture(name = current.name) {
 function patchError(e) {
   $("#patch-status").textContent = e.message;
 }
-$("#patches").onclick = () => {
-  releaseInputs();
-  dialog.showModal();
-};
+const openPresets=()=>{releaseInputs();dialog.showModal();select.focus();};
+$("#patches").onclick=openPresets;
+presetButton.onclick=openPresets;
 select.onchange = () =>
   loadPatch(
     select.value === "init"
@@ -1006,6 +1005,15 @@ function scale() {
 window.addEventListener("resize", scale);
 scale();
 fillPresets();
+document.addEventListener("wheel",e=>{
+ const input=e.target.closest?.('input[type="range"]');
+ if(!input || input.disabled) return;
+ e.preventDefault();
+ const min=Number(input.min||0),max=Number(input.max||1),configured=Number(input.step);
+ const step=Number.isFinite(configured)&&configured>=.1?configured:(max-min)/(e.shiftKey?100:50);
+ input.value=Math.max(min,Math.min(max,Number(input.value)+(e.deltaY<0?step:-step)));
+ input.dispatchEvent(new Event("input",{bubbles:true}));
+},{passive:false});
 refreshSwitches();
 setView(view);
 paintArp();
@@ -1025,22 +1033,23 @@ window.sfpoly = {
   },
 };
 
-// Track 6 performance controls, intentionally separate from the legacy panel grid.
-const analogPanel = el("section","track6-analog",document.querySelector("#instrument"));
-analogPanel.innerHTML = '<div class="track6-heading">TRACK 06 · ANALOGUE VOICES</div><div class="voice-leds">'+Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join('')+'</div>';
+// Track 6 analogue hardware inside the main control row.
+const analogPanel=section("ANALOGUE VOICES",654,368,262,186);
+analogPanel.classList.add("track6-analog");
+const ledRow=el("div","voice-leds",analogPanel);
+ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
 const controls=el("div","track6-controls",analogPanel);
-for(const [label,k] of [["ANALOG","analog"],["ANALOG DETUNE","analogDetune"]]) {
+for(const [label,k] of [["ANALOG","analog"],["DETUNE","analogDetune"]]){
  const wrap=el("label","track6-knob",controls);
  wrap.textContent=label;
- const input=el("input",null,wrap);input.type="range";input.min=0;input.max=1;input.step=.001;
- bind(k,input,()=>{});
+ const input=el("input",null,wrap); input.type="range";input.min=0;input.max=1;input.step=.001;
+ bind(k,input,v=>{input.title=label+": "+Math.round(v*100)+"%";});
 }
-const modes=el("div","track6-modes",controls);
-for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]) {
- const btn=el("button",null,modes);btn.textContent=label;
+const modes=el("div","track6-modes",analogPanel);
+for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]){
+ const btn=el("button",null,modes);btn.type="button";btn.textContent=label;
  btn.onclick=()=>setParam("voiceMode",value);
- const observer=()=>btn.classList.toggle("selected",Math.round(params.voiceMode)===value);
- // Repaint when a preset or automation updates the mode.
- if(!bindings.has("voiceMode")) bindings.set("voiceMode",[]);
- bindings.get("voiceMode").push({input:{value:0},paint:observer});observer();
+ const paint=()=>btn.classList.toggle("selected",Math.round(params.voiceMode)===value);
+ if(!bindings.has("voiceMode"))bindings.set("voiceMode",[]);
+ bindings.get("voiceMode").push({input:{value:0},paint});paint();
 }
