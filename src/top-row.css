@@ -1,0 +1,82 @@
+
+/* SF-POLY: 27 November 2026 - top row architectural layout.
+   Dedicated HPF/BOOST, large FILTER, stacked DCO selector columns.
+   Last-loaded stylesheet: no changes to engine or lower-panel style. */
+#instrument .section.upper{
+ border:1.5px solid #e8dcc5!important;border-top:0!important;
+ border-radius:12px!important;
+ box-shadow:inset 0 0 0 1px #080a0b33!important;
+}
+#instrument .section.upper h2{
+ font:900 16px/35px Orbitron,Arial,sans-serif!important;
+}
+/* Compact LFO: narrower rails, smaller waveform buttons */
+#instrument .section[data-section="LFO"] .fader .scale{width:26px!important}
+#instrument .section[data-section="LFO"] .fader .slot{width:9px!important}
+#instrument .section[data-section="LFO"] .fader .cap{width:28px!important}
+#instrument .section[data-section="LFO"] .wave{border-radius:3px!important;padding:2px!important}
+#instrument .section[data-section="LFO"] .lfo-symbol{width:27px!important;height:19px!important}
+/* DCO: independent tall OSC faders and five stacked wave choices each */
+#instrument .section[data-section="DCO"] .fader .scale{width:30px!important}
+#instrument .section[data-section="DCO"] .fader .cap{width:31px!important}
+#instrument .section[data-section="DCO"] .fader label{font-size:11px!important;letter-spacing:-.4px!important}
+#instrument .section[data-section="DCO"] .fader:nth-child(n+5) .scale{width:22px!important}
+#instrument .osc-wave-stack{
+ position:absolute;top:48px;width:47px;height:156px;
+ display:flex;flex-direction:column;gap:7px;z-index:5;
+}
+#instrument .osc-wave-stack .osc-wave-button{
+ display:flex;align-items:center;justify-content:center;
+ height:25px;min-height:25px;width:46px;padding:0!important;
+ font:700 10px/22px Arial,sans-serif!important;
+ border:1px solid #5b6568!important;border-radius:3px!important;
+ background:linear-gradient(#3d4244,#14191a)!important;
+ color:#f0e5d5!important;box-shadow:0 2px 3px #000b!important;
+}
+#instrument .osc-wave-stack .osc-wave-button.on{
+ background:linear-gradient(#238cdb,#155381)!important;
+ color:#fff!important;box-shadow:inset 0 1px #a4dfff,0 0 5px #298dc288!important;
+}
+/* Single HPF plus tactile blue-lit bass boost, clearly separated from VCF */
+#instrument .section[data-section="HPF"] .fader .scale{width:39px!important}
+#instrument .section[data-section="HPF"] .fader label{font-size:12px!important}
+#instrument #bassBoost{
+ font:800 12px Arial,sans-serif!important;
+ background:linear-gradient(#4b4c4a,#1a1d1e)!important;
+ color:#e7ded0!important;border:1px solid #747a78!important;
+ box-shadow:inset 0 1px #f4eddd55,0 2px 3px #0009!important;
+}
+#instrument #bassBoost.on{
+ background:linear-gradient(#268fd5,#155788)!important;
+ color:#fff!important;box-shadow:inset 0 1px #9bddff,0 0 7px #168ef088!important;
+}
+/* Longer three VCF faders; filter models in a narrow, right-hand switch bank */
+#instrument .section[data-section="FILTER"] .fader .scale{width:46px!important}
+#instrument .section[data-section="FILTER"] .fader label{font-size:14px!important}
+#instrument .section[data-section="FILTER"] .filter-button-board{
+ top:48px!important;left:236px!important;right:9px!important;
+ width:119px!important;height:158px!important;
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-rows:repeat(4,30px)!important;
+ gap:8px 4px!important;
+ align-content:start!important;
+}
+#instrument .section[data-section="FILTER"] .filter-choice{
+ height:29px!important;min-width:0!important;
+ font:700 9px Arial,sans-serif!important;padding:1px!important;
+}
+#instrument .section[data-section="FILTER"] .fader .cap{width:39px!important}
+#instrument .section[data-section="MASTER"] .fader .scale{width:39px!important}
+#instrument .section[data-section="MASTER"] .fader label{font-size:13px!important}
+/* Space behind header action and give Save Preset full unobstructed lettering */
+#brand .preset-header-save{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ top:18px!important;right:16px!important;width:108px!important;height:41px!important;
+ font:700 12px/1 Arial,sans-serif!important;letter-spacing:0!important;
+ white-space:nowrap!important;padding:0 3px!important;
+}
+#brand .preset-previous{right:178px!important}
+#brand .preset-next{right:133px!important}
+#brand .preset-launch{right:225px!important;width:275px!important}
+#brand .stripes{left:1080px!important;width:135px!important}
