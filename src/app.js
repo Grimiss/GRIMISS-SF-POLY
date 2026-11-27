@@ -280,73 +280,86 @@ const lfoWaveIcons=[5,1,3].map(waveSvg);
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
   59,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 350, 316, 231, "white");
-function setArp(value) {
-  Object.assign(music.arp, value);
-  send({ type: "arp", value });
-  refreshSwitches();
-  markPatchDirty();
+arp.classList.add("arp-vintage");
+function setArp(value){
+ Object.assign(music.arp,value);
+ send({type:"arp",value});
+ refreshSwitches();
+ markPatchDirty();
 }
-const arpButtons = [
-  [
-    "arpOn",
-    "ON",
-    "ON",
-    () => setArp({ on: !music.arp.on }),
-  ],
-  ["arpUp", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M5 11l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/></svg>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
-  ["arpDown", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 13l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/></svg>', "DOWN", () => setArp({ mode: "down" })],
-  ["arpRandom", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h4l10 12h4M16 14l5 4-5 3M3 18h4L17 6h4M16 3l5 3-5 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></svg>', "RND", () => setArp({ mode: "random" })],
-  ["arpHold", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="12" cy="15.7" r="1.3" fill="currentColor"/></svg>', "HOLD", () => setArp({ hold: !music.arp.hold })],
-];
-arpButtons.forEach(([id, text, label, fn], i) => {
-  button(
-    arp,
-    id,
-    text,
-    [22, 88, 146, 204, 259][i],
-    58,
-    [43, 45, 45, 45, 45][i],
-    34,
-    fn,
-  );
-  const l = el("span", "button-label", arp);
-  l.textContent = label;
-  l.style.cssText = `left:${[17, 86, 144, 202, 257][i]}px;top:104px;width:52px`;
-});
-let t = el("span", "button-label", arp);
-t.textContent = "RANGE";
-t.style.cssText = "left:22px;top:145px";
-for (let i = 1; i <= 4; i++)
-  button(arp, "range" + i, "" + i, 22 + (i - 1) * 43, 173, 37, 29, () =>
-    setArp({ range: i }),
-  );
-t = el("span", "button-label", arp);
-t.textContent = "RATE";
-t.style.cssText = "left:239px;top:145px";
-const ar = el("div", "horizontal arp-rate-slider", arp);
-ar.style.cssText = "left:205px;top:173px;width:96px";
-const arc = el("span", "cap", ar),
-  ari = el("input", "", ar);
-ari.type = "range";
-ari.min = 0.05;
-ari.max = 20;
-ari.step = 0.01;
-ari.value = music.arp.rate;
-ari.setAttribute("aria-label", "Arpeggiator rate");
-function paintArp(v = music.arp.rate) {
-  music.arp.rate = v;
-  ari.value = music.arp.rate;
-  arc.style.left = ((music.arp.rate - 0.05) / 19.95) * 77 + "px";
-}
-ari.oninput = () => {
-  setParam("arpRate", +ari.value);
+const arpText=(text,x,y,w,cls="")=>{
+ const e=el("span","arp-panel-label "+cls,arp);
+ e.textContent=text;
+ e.style.cssText="left:"+x+"px;top:"+y+"px;width:"+w+"px";
+ return e;
 };
-bindings.set("arpRate", [{ input: ari, paint: paintArp }]);
-$("#arpUp").addEventListener("dblclick", () => setArp({ mode: "pendulum" }));
-$("#arpUp").addEventListener("contextmenu", (e) => {
-  e.preventDefault();
-  setArp({ mode: "pendulum" });
-});
+arpText("CLOCK",10,44,74);
+arpText("POWER",92,44,36);
+arpText("HOLD",134,44,34);
+arpText("MODE",173,44,45);
+arpText("RANGE",226,44,31);
+arpText("TEMPO",265,44,45);
+button(arp,"arpClockInternal","INT",11,66,69,25,()=>setArp({clock:"internal"}),"arp-clock");
+button(arp,"arpClockMIDI","MIDI",11,97,69,25,()=>setArp({clock:"midi"}),"arp-clock");
+button(arp,"arpOn","ON",91,74,37,35,()=>setArp({on:!music.arp.on}),"arp-on");
+button(arp,"arpHold","HOLD",131,74,36,35,()=>setArp({hold:!music.arp.hold}),"arp-hold");
+const clockReadout=el("div","arp-clock-status",arp);
+clockReadout.style.cssText="left:11px;top:137px;width:69px";
+clockReadout.textContent="INTERNAL";
+const clockDescription=el("span","arp-clock-note",arp);
+clockDescription.style.cssText="left:10px;top:185px;width:71px";
+clockDescription.textContent="FREE RUN";
+for(const [id,mode,label,y] of [
+ ["arpUp","up","UP",66],
+ ["arpPendulum","pendulum","UP/DN",98],
+ ["arpDown","down","DOWN",130],
+ ["arpRandom","random","RND",162]
+])button(arp,id,label,172,y,46,26,()=>setArp({mode}),"arp-mode");
+for(let n=1;n<=4;n++)
+ button(arp,"range"+n,String(n),229,66+(n-1)*32,27,26,
+ ()=>setArp({range:n}),"arp-range");
+// Vertical fader uses the standard registered scale, with a readable BPM display.
+// Existing arpRate (steps/sec) is retained: 4 steps per quarter note (16ths).
+const arpTempo=range(arp,"arpRate","",267,66,37,150);
+arpTempo.classList.add("arp-tempo");
+const tempoDisplay=el("output","arp-tempo-display",arp);
+tempoDisplay.style.cssText="left:260px;top:197px;width:53px";
+function paintArp(v=music.arp.rate){
+ music.arp.rate=v;
+ tempoDisplay.textContent=Math.round(v*15)+" BPM";
+ if(music.arp.clock==="midi"&&midiClockBpm>0)
+  clockReadout.textContent=Math.round(midiClockBpm)+" BPM";
+ else clockReadout.textContent=music.arp.clock==="midi"?"WAIT":"INTERNAL";
+ clockDescription.textContent=music.arp.clock==="midi"?"MIDI TEMPO":"FREE RUN";
+}
+let midiClockBpm=0,midiClockTicks=0,midiClockTime=0,midiClockLast=0;
+function receiveArpMidiClock(event){
+ const code=event.data?.[0];
+ if(code===0xFA||code===0xFB){midiClockTicks=0;midiClockTime=0;return true;}
+ if(code===0xFC){midiClockTicks=0;midiClockTime=0;clockReadout.textContent="STOP";return true;}
+ if(code!==0xF8)return false;
+ const now=event.timeStamp||performance.now();
+ if(midiClockLast&&now-midiClockLast>500){midiClockTicks=0;midiClockTime=0;}
+ midiClockLast=now;
+ if(!midiClockTime)midiClockTime=now;
+ if(++midiClockTicks>=24){
+  const elapsed=now-midiClockTime;
+  midiClockTime=now;midiClockTicks=0;
+  if(elapsed>80&&elapsed<6000){
+   const measured=Math.max(15,Math.min(300,60000/elapsed));
+   midiClockBpm=midiClockBpm?midiClockBpm*.7+measured*.3:measured;
+   if(music.arp.clock==="midi"){
+    const hz=Math.max(.05,Math.min(20,midiClockBpm/15));
+    music.arp.rate=hz;params.arpRate=hz;
+    update("arpRate");
+    send({type:"arp",value:{rate:hz}});
+    paintArp(hz);
+   }
+  }
+ }
+ return true;
+}
+paintArp();
 const au = section("AUTOMATION", 377, 350, 269, 231, "white");
 // Uniform screen-printed transport icons; colour belongs to the glyph, not the switch.
 const ico = (paths,viewBox="0 0 24 24") =>
@@ -681,14 +694,13 @@ function refreshSwitches() {
   }
   for(let osc=1;osc<=2;osc++) for(let i=3;i<6;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
   setOn("bassBoost",params.bassBoost>=.5);
-  setOn("arpOn", music.arp.on);
-  setOn("arpHold", music.arp.hold);
-  setOn("arpUp", ["up", "pendulum"].includes(music.arp.mode));
-  $("#arpUp").title =
-    "UP · Shift-click: UP/DOWN" +
-    (music.arp.mode === "pendulum" ? " (active)" : "");
-  setOn("arpDown", music.arp.mode === "down");
-  setOn("arpRandom", music.arp.mode === "random");
+  setOn("arpOn",music.arp.on);
+  setOn("arpHold",music.arp.hold);
+  setOn("arpClockInternal",music.arp.clock!=="midi");
+  setOn("arpClockMIDI",music.arp.clock==="midi");
+  for(const [id,mode] of [["arpUp","up"],["arpPendulum","pendulum"],["arpDown","down"],["arpRandom","random"]])
+   setOn(id,music.arp.mode===mode);
+  if(typeof paintArp==="function")paintArp(music.arp.rate);
   for (let i = 1; i <= 4; i++) setOn("range" + i, music.arp.range === i);
   setOn("autoLoop", music.automation.loop);
   setOn("autoOverdub", music.automation.overdub);
@@ -765,6 +777,7 @@ let midiAccess;
 const midiQueues = new Map();
 let midiSerial = 0;
 function midiMessage(port, event) {
+  if(receiveArpMidiClock(event))return;
   const [code, n, v = 0] = event.data,
     ch = code & 15,
     type = code & 240,
