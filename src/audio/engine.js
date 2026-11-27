@@ -463,7 +463,7 @@ export class SynthEngine {
           p.filterR,
         ),
         freq = midiHz(
-          v.note + p.tune + p.bend + lf * (p.lfoPitch + p.mod * 0.3),
+          v.note + p.tune + p.bend + lf * (p.lfoPitch + p.mod * 1.2),
         );
       const kind = v.kind;
       const sample = enabled[kind] >= 0.5 && levels[kind] > 0.0001
