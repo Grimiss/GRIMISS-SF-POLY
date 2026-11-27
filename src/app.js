@@ -201,36 +201,46 @@ const lfoSection=upperSections.get("LFO"),
 function upperFaders(section,keys,centres,top=46,height=166,width=46){
  keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
-upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[36,90],46,130,39);
-upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[27,73,118,163],46,168,39);
+// LFO waveform keys are now in the middle; both faders have full 166px travel.
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[20,104],46,166,35);
+upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[26,71,116,161],46,166,38);
 upperFaders(hpfSection,[["hpf","HPF"]],[53],45,145,54);
-const boostButton=button(hpfSection,"bassBoost","BOOST",16,192,74,27,()=>{
+const boostButton=button(hpfSection,"bassBoost","BOOST",35,192,36,26,()=>{
  setParam("bassBoost",params.bassBoost>=.5?0:1);
  refreshSwitches();
 });
 boostButton.title="100 Hz low-frequency shelving boost";
 boostButton.setAttribute("aria-label","Bass boost");
-upperFaders(vcfSection,[["cutoff","CUTOFF"],["resonance","RES"],["envAmount","ENV"]],[39,110,183],46,170,57);
+upperFaders(vcfSection,[["cutoff","CUTOFF"],["resonance","RES"],["envAmount","ENV"]],[46,104,162],46,166,48);
 for(const [name,base,xs] of [
  ["ENV 1 (FILTER)",[["filterA","A"],["filterD","D"],["filterS","S"],["filterR","R"]],[25,74,123,172]],
  ["ENV 2 (AMP)",[["ampA","A"],["ampD","D"],["ampS","S"],["ampR","R"]],[25,74,123,172]]
-])upperFaders(upperSections.get(name),base,xs,46,168,40);
-upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[48,129],46,168,52);
+])upperFaders(upperSections.get(name),base,xs,46,166,40);
+upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[48,127],46,166,42);
 
 // Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[23,119],46,170,39);
-// Shared SUB and PW remain available as two compact right-side faders.
-upperFaders(dcoSection,[["subOct","SUB"],["pw","PW"]],[211,238],55,125,24);
+upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[21,118],46,166,36);
+// SUB OCT and pulse width use the common mechanical travel and scale.
+upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[210,237],46,166,24);
 // Each oscillator has its own vertical, tactile five-waveform column.
+// Shared engraved waveform pictograms, matching the LFO switch artwork.
 const waveLabels=["SAW","TRI","PLS","SQR","PWM"];
+const waveformShapes=[
+ '<path d="M3 19V3L18 19V3L33 19V3" />',
+ '<path d="M3 19L10.5 3L18 19L25.5 3L33 19" />',
+ '<path d="M3 19V3H12V19H21V3H33V19" />',
+ '<path d="M3 19V3H18V19H33V3" />',
+ '<path d="M3 19V3H9V19H16V3H27V19H33V3" /><path d="M3 1H33" stroke-dasharray="3 4" stroke-width="1.2"/>'
+];
+const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?46:141)+"px";
+ row.style.left=(osc===1?44:140)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveLabels.forEach((name,i)=>{
   const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
-  b.type="button";b.textContent=name;
+  b.type="button";b.innerHTML=waveSvg(i);
   b.title="Oscillator "+osc+": "+(name==="PLS"?"PULSE":name);
   b.setAttribute("aria-label",b.title);
   b.onclick=()=>{setParam("wave"+osc,i);refreshSwitches();};
@@ -257,8 +267,9 @@ const lfoWaveIcons=[
  '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 L11 2 L21 20 L31 2 L41 20" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>',
  '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 V2 H21 V20 H41" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>'
 ];
+// The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  6+i*39,189,34,29,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
+  48,70+i*43,28,28,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
 function setArp(value) {
   Object.assign(music.arp, value);
