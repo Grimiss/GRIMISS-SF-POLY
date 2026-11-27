@@ -93,3 +93,12 @@
 #instrument .section[data-section="LFO"] .wave{width:28px!important}
 /* Header names remain true transparent Orbitron Black cutouts; their strips
    are regenerated from each changed panel width by headers.js. */
+
+/* Six DCO waveforms, preserving the original 0–4 patch indices. */
+#instrument .section[data-section="DCO"] .osc-wave-stack{top:48px!important;height:164px!important;gap:5px!important}
+#instrument .section[data-section="DCO"] .osc-wave-stack .osc-wave-button{height:23px!important;min-height:23px!important;width:34px!important}
+#instrument .section[data-section="DCO"] .osc-wave-stack .sf-wave-icon{width:26px!important;height:17px!important}
+#instrument .section[data-section="DCO"] .sf-pwm-label{font:800 9px/22px Arial,sans-serif;letter-spacing:-.4px;color:inherit}
+/* Legibility tuning: slightly larger filter legends; subtler, smaller BOOST legend. */
+#instrument .section[data-section="FILTER"] .filter-choice{font:800 10px/23px Arial,sans-serif!important;letter-spacing:-.4px!important}
+#instrument .section[data-section="HPF"] #bassBoost{font:700 8px/23px Arial,sans-serif!important;letter-spacing:-.35px!important}
