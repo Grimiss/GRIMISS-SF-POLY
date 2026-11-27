@@ -969,10 +969,7 @@ browser.innerHTML=`
  <div class="preset-browser-head">
    <div><span class="preset-eyebrow">SOUND LIBRARY</span><h3>Factory &amp; User Presets</h3></div>
    <div class="preset-browser-tools">
-     <div class="preset-group-tabs" role="group" aria-label="Group factory presets">
-       <button type="button" class="selected" data-group="engine" aria-pressed="true">BY SYNTH</button>
-       <button type="button" data-group="category" aria-pressed="false">BY SOUND</button>
-     </div>
+     <span class="preset-sound-count">8 SOUND GROUPS · 160 PATCHES</span>
      <input id="preset-search" type="search" placeholder="Find a sound…" aria-label="Search presets">
    </div>
  </div>
@@ -982,50 +979,41 @@ browser.innerHTML=`
 dialog.insertBefore(browser,dialog.querySelector(".actions"));
 const presetResults=browser.querySelector("#preset-browser-list");
 const presetSearch=browser.querySelector("#preset-search");
-let presetGrouping="engine";
-browser.querySelectorAll("[data-group]").forEach(b=>b.onclick=()=>{
- presetGrouping=b.dataset.group;
- browser.querySelectorAll("[data-group]").forEach(el=>{
-  const selected=el===b;
-  el.classList.toggle("selected",selected);
-  el.setAttribute("aria-pressed",String(selected));
- });
- renderPresetBrowser();
-});
+// Factory library is organised exclusively by sound category.
 presetSearch.addEventListener("input",renderPresetBrowser);
 function renderPresetBrowser(){
  const filter=presetSearch.value.trim().toLowerCase();
  presetResults.replaceChildren();
- const sections=new Map();
+ const allFactory=el("div","preset-sound-columns",presetResults);
  for(const group of factoryGroups){
-  const key=presetGrouping==="engine"?group.engine:group.category;
-  if(!sections.has(key))sections.set(key,[]);
-  for(const idx of group.indices){
-   const label=factory[idx].name.replace(/^\d+\s*[·.-]\s*/,"");
-   const meta=presetGrouping==="engine"?group.category:group.engine;
-   if((label+" "+meta+" "+key).toLowerCase().includes(filter))
-    sections.get(key).push({id:"f"+idx,label,meta});
+  const entries=group.indices
+   .map(idx=>({id:"f"+idx,label:factory[idx].name}))
+   .filter(item=>(item.label+" "+group.category).toLowerCase().includes(filter));
+  if(!entries.length)continue;
+  const col=el("section","preset-sound-column",allFactory);
+  const title=el("h4","",col);
+  title.textContent=group.category.toUpperCase()+" · "+entries.length;
+  for(const entry of entries){
+   const b=el("button","preset-sound-item",col);
+   b.type="button";b.textContent=entry.label;b.title=entry.label;
+   b.classList.toggle("selected",activePresetId===entry.id);
+   b.setAttribute("aria-pressed",String(activePresetId===entry.id));
+   b.onclick=()=>{loadPatch(presetEntry(entry.id),entry.id);select.value=entry.id;dialog.close();};
   }
  }
- const userMatches=users.map((p,i)=>({id:"u"+i,label:p.name,meta:"USER"}))
-  .filter(x=>(x.label+" user").toLowerCase().includes(filter));
- const appendGroup=(name,entries,userGroup=false)=>{
-  if(!entries.length)return;
-  const group=el("section","preset-browser-group",presetResults);
-  const title=el("h4","",group);title.textContent=name+"  ·  "+entries.length;
-  const grid=el("div","preset-browser-grid",group);
-  for(const item of entries){
-   const b=el("button","preset-tile",grid);b.type="button";
-   b.classList.toggle("selected",activePresetId===item.id);
-   b.setAttribute("aria-pressed",String(activePresetId===item.id));
-   const label=el("strong","",b);label.textContent=item.label;
-   const meta=el("small","",b);meta.textContent=item.meta;
-   b.onclick=()=>{loadPatch(presetEntry(item.id),item.id);select.value=item.id;};
-  }
- };
- for(const [name,entries] of sections)appendGroup(name,entries);
- appendGroup("USER PRESETS",userMatches,true);
- if(!presetResults.children.length)el("p","preset-empty",presetResults).textContent="No matching presets.";
+ if(!allFactory.children.length)el("p","preset-empty",allFactory).textContent="No matching factory presets.";
+ const userMatches=users.map((p,i)=>({id:"u"+i,label:p.name}))
+  .filter(entry=>(entry.label+" user").toLowerCase().includes(filter));
+ const user=el("section","preset-user-section",presetResults);
+ const title=el("h4","",user);title.textContent="USER PRESETS · "+userMatches.length;
+ const grid=el("div","preset-user-grid",user);
+ if(!userMatches.length)el("span","preset-no-users",grid).textContent=users.length?"No matching user presets":"Saved sounds appear here";
+ for(const entry of userMatches){
+  const b=el("button","preset-sound-item",grid);
+  b.type="button";b.textContent=entry.label;
+  b.classList.toggle("selected",activePresetId===entry.id);
+  b.onclick=()=>{loadPatch(presetEntry(entry.id),entry.id);select.value=entry.id;dialog.close();};
+ }
 }
 
 function fillPresets(selected = "init") {
@@ -1033,10 +1021,10 @@ function fillPresets(selected = "init") {
   const initOption = el("option", "", select);
   initOption.value = "init";
   initOption.textContent = "Initialize";
-  // HTML supports one optgroup level; labels combine engine and sound category.
+  // HTML selection is grouped by sound only; no engine-level duplication.
   for (const group of factoryGroups) {
     const g = el("optgroup", "", select);
-    g.label = `${group.engine} / ${group.category}`;
+    g.label = group.category;
     for (const i of group.indices) {
       const o = el("option", "", g);
       o.value = "f" + i;
@@ -1102,7 +1090,18 @@ async function capture(name = current.name) {
 function patchError(e) {
   $("#patch-status").textContent = e.message;
 }
-const openPresets=()=>{releaseInputs();renderPresetBrowser();dialog.showModal();presetSearch.focus();};
+const openPresets=()=>{
+ releaseInputs();renderPresetBrowser();
+ if(!dialog.open)dialog.show();
+ presetSearch.focus();
+};
+// Non-modal, so the instrument and keyboard remain visible without dimming.
+// An outside click dismisses the library, rather than blocking performance.
+document.addEventListener("pointerdown",event=>{
+ if(dialog.open&&!dialog.contains(event.target)&&event.target!==presetButton&&event.target!==$("#patches")){
+  dialog.close();
+ }
+},true);
 $("#patches").onclick=openPresets;
 presetButton.onclick=openPresets;
 select.onchange = () => loadPatch(presetEntry(select.value),select.value);
