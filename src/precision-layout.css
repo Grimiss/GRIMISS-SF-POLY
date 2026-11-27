@@ -1,0 +1,117 @@
+/* SF-POLY precision fit - 27 November 2026.
+   Applied after the manufacturing-standard skin.
+   A single mechanical scale and spacing rhythm throughout the top row. */
+
+/* Full shared fader/tick grid: same slot, scale, cap, and graduation interval.
+   The dedicated HPF keeps a shorter slot for BOOST. */
+#instrument .section.upper .fader .scale{
+  width:34px!important;
+  top:31px!important;
+  bottom:0!important;
+  opacity:.86!important;
+  background:repeating-linear-gradient(to top,
+    transparent 0px, transparent 17px,
+    #d3d0c7 17px, #d3d0c7 18.5px,
+    transparent 18.5px, transparent 21px)!important;
+}
+#instrument .section.upper .fader .slot{
+  width:10px!important;
+  top:27px!important;
+  bottom:0!important;
+}
+#instrument .section.upper .fader .cap{width:27px!important;height:17px!important}
+#instrument .section.upper .fader label{
+  white-space:nowrap!important;
+  font:700 12px/18px "Arial Narrow",Arial,sans-serif!important;
+}
+/* Six logically separate DCO control lanes; note that old positional selectors
+   had incorrectly styled the SUB/PW labels and caused them to read as one. */
+#instrument .section[data-section="DCO"] .fader[data-param="osc1Tune"] label,
+#instrument .section[data-section="DCO"] .fader[data-param="osc2Tune"] label{
+  font-size:11px!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="subOct"] label{
+  font-size:9px!important;
+  letter-spacing:-.3px!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="pw"] label{
+  font-size:11px!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack{
+  top:60px!important;
+  width:34px!important;
+  height:152px!important;
+  gap:8px!important;
+  overflow:visible!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack .osc-wave-button{
+  width:34px!important;
+  height:24px!important;
+  min-height:24px!important;
+  padding:0!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack .sf-wave-icon{
+  width:26px!important;height:18px!important;
+}
+#instrument .section[data-section="DCO"] .fader[data-param="subOct"] .scale,
+#instrument .section[data-section="DCO"] .fader[data-param="pw"] .scale{
+  width:31px!important;
+}
+/* A deliberate centre column for the three LFO waveform keys.
+   Neither waveform buttons nor their hit areas intrude on either fader. */
+#instrument .section[data-section="LFO"] .wave{
+  width:28px!important;height:26px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  margin:0!important;
+}
+#instrument .section[data-section="LFO"] .lfo-symbol{
+  width:24px!important;height:18px!important;
+}
+/* HPF: one shortened fader and its small directly-associated BOOST switch. */
+#instrument .section[data-section="HPF"] .fader{
+  height:134px!important;top:45px!important;
+}
+#instrument .section[data-section="HPF"] #bassBoost{
+  top:185px!important;left:35px!important;
+  width:36px!important;height:26px!important;
+  font-size:9px!important;
+}
+/* FILTER: equal-width buttons in two columns, evenly occupying the full
+   fader travel rather than clustering in the top quarter of the panel. */
+#instrument .section[data-section="FILTER"] .filter-button-board{
+  top:53px!important;
+  left:226px!important;
+  right:10px!important;
+  width:129px!important;
+  height:158px!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(4,26px)!important;
+  column-gap:5px!important;
+  row-gap:18px!important;
+  align-content:start!important;
+}
+#instrument .section[data-section="FILTER"] .filter-choice{
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:26px!important;
+  min-height:26px!important;
+  font:700 9px/22px Arial,sans-serif!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+/* Same registration-line language and restrained lettering on long headers.
+   Font remains the same 17px Orbitron Black throughout. */
+#instrument .section.upper h2{
+  font-family:Orbitron,Arial,sans-serif!important;
+  font-size:17px!important;
+  letter-spacing:0!important;
+}
+#instrument .section[data-section="ENV 1 (FILTER)"] h2,
+#instrument .section[data-section="ENV 2 (AMP)"] h2{
+  background-position:center!important;
+}
+/* Value changes use accessible aria-valuetext instead of blocking native
+   mouse-hover title tooltips, as implemented in the fader component. */
