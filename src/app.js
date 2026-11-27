@@ -293,10 +293,10 @@ const arpButtons = [
     "ON",
     () => setArp({ on: !music.arp.on }),
   ],
-  ["arpUp", '<span class="arp-symbol arp-arrow">⬆</span>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
-  ["arpDown", '<span class="arp-symbol arp-arrow">⬇</span>', "DOWN", () => setArp({ mode: "down" })],
-  ["arpRandom", '<span class="arp-symbol">⤨</span>', "RND", () => setArp({ mode: "random" })],
-  ["arpHold", '<span class="arp-symbol hold-symbol">⏸</span>', "HOLD", () => setArp({ hold: !music.arp.hold })],
+  ["arpUp", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M5 11l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/></svg>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
+  ["arpDown", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M5 13l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/></svg>', "DOWN", () => setArp({ mode: "down" })],
+  ["arpRandom", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h4l10 12h4M16 14l5 4-5 3M3 18h4L17 6h4M16 3l5 3-5 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></svg>', "RND", () => setArp({ mode: "random" })],
+  ["arpHold", '<svg class="arp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="12" cy="15.7" r="1.3" fill="currentColor"/></svg>', "HOLD", () => setArp({ hold: !music.arp.hold })],
 ];
 arpButtons.forEach(([id, text, label, fn], i) => {
   button(
