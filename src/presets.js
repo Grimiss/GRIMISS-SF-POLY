@@ -96,6 +96,7 @@ export function validatePatch(input) {
   out.arp = {
     on: !!a.on,
     hold: !!a.hold,
+    clock: a.clock === "midi" ? "midi" : "internal",
     mode: ["up", "down", "pendulum", "random"].includes(a.mode) ? a.mode : "up",
     range: Math.max(1, Math.min(4, Math.round(a.range) || 1)),
     rate: Math.max(0.05, Math.min(20, +a.rate || 5)),
