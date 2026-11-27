@@ -39,17 +39,17 @@ export class Oscillator {
     // A fractional master wrap resets the slave; a short causal BLEP smooths its jump.
     if (reset >= 0) {
       const before =
-        selected===0?2*p-1:selected===1?this.triangle:p<(selected>=3?pw:.5)?1:-1;
+        selected===0?2*p-1:selected===1?this.triangle:p<((selected===2||selected===4)?pw:.5)?1:-1;
       p = dt * reset;
       const after =
-        selected===0?2*p-1:selected===1?1-4*Math.abs(p-.5):p<(selected>=3?pw:.5)?1:-1;
+        selected===0?2*p-1:selected===1?1-4*Math.abs(p-.5):p<((selected===2||selected===4)?pw:.5)?1:-1;
       if (selected===1) this.triangle = after;
       this.syncTail += before - after;
     }
     let out;
     if (selected===0) out = 2 * p - 1 - blep(p, dt);
     else {
-      const duty = selected<=2?.5:pw;
+      const duty = selected===2 || selected===4 ? pw : .5;
       let shifted = p - duty;
       if (shifted < 0) shifted += 1;
       const pulse = (p < duty ? 1 : -1) + blep(p, dt) - blep(shifted, dt);
