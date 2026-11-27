@@ -1,0 +1,126 @@
+/* SF-POLY lower panel spacing refinement — 27 Nov 2026.
+   Display-only overrides for the agreed control layout. */
+
+/* VOICES: two long, full-width horizontal strips, stacked ANALOG then DETUNE.
+   End-to-end travel is bound by the slider's real width in app.js. */
+#instrument .section[data-section="VOICES"] .track6-controls{
+  left:13px!important;
+  right:13px!important;
+  top:83px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  width:auto!important;
+}
+#instrument .section[data-section="VOICES"] .track6-knob{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:2px!important;
+  margin:0!important;
+}
+#instrument .section[data-section="VOICES"] .analog-caption{
+  display:block!important;
+  text-align:center!important;
+  font:700 11px/14px "Arial Narrow",Arial,sans-serif!important;
+  letter-spacing:.1px!important;
+}
+#instrument .section[data-section="VOICES"] .analog-rail{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:100%!important;
+  height:24px!important;
+  min-width:0!important;
+}
+#instrument .section[data-section="VOICES"] .analog-input{
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+}
+#instrument .section[data-section="VOICES"] .analog-scale{
+  left:8px!important;right:8px!important;
+  background:
+    repeating-linear-gradient(to right,#c4c6bf 0 1px,transparent 1px 14px)
+    top left/100% 6px no-repeat,
+    repeating-linear-gradient(to right,#c4c6bf 0 1px,transparent 1px 14px)
+    bottom left/100% 6px no-repeat!important;
+}
+#instrument .section[data-section="VOICES"] .analog-slot{
+  left:8px!important;right:8px!important;
+  top:9px!important;height:6px!important;
+}
+#instrument .section[data-section="VOICES"] .analog-cap{
+  top:2px!important;
+  width:19px!important;
+  height:20px!important;
+}
+#instrument .section[data-section="VOICES"] .track6-modes{
+  bottom:10px!important;
+}
+
+/* FX: prominent MIX first; smaller paired controls beneath.
+   Small control labels and MIX have the same engraved font size. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-mix-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-mix-knob{
+  top:38px!important;
+  height:92px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob{
+  top:126px!important;
+  height:77px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-top-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-top-knob .sf-knob-face{
+  top:27px!important;
+  width:39px!important;
+  height:39px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-top-knob::after,
+#instrument .section[data-section="REVERB"] .sf-fx-top-knob::after{
+  top:23px!important;
+  height:50px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary-label,
+#instrument .section[data-section="REVERB"] .sf-rotary-label,
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob .sf-rotary-label,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob .sf-rotary-label{
+  font:700 10px/17px Arial,sans-serif!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-on,
+#instrument .section[data-section="REVERB"] .sf-fx-on{
+  top:203px!important;
+}
+
+/* AUTOMATION: hardware buttons shrink to 28px while symbols stay centred.
+   Silkscreened labels sit outside the switch casing with unobstructed space. */
+#instrument .section[data-section="AUTOMATION"] .transport,
+#instrument .section[data-section="AUTOMATION"] .transport.on{
+  width:44px!important;
+  height:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon{
+  height:26px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon svg{
+  width:21px!important;
+  height:21px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport span:last-child:not(.transport-icon){
+  position:absolute!important;
+  top:32px!important;
+  left:-3px!important;
+  right:-3px!important;
+  font:700 10px/13px Arial,sans-serif!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  pointer-events:none!important;
+}
