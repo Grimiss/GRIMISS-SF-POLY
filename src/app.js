@@ -224,7 +224,7 @@ for(const [name,base,xs] of [
 upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[40,114],46,166,42);
 
 // Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[25,137],46,166,40);
+upperFaders(dcoSection,[["osc1Tune","TUNE 1"],["osc2Tune","TUNE 2"]],[25,137],46,166,40);
 // SUB OCT and pulse width use the common mechanical travel and scale.
 upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[225,271],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
@@ -464,7 +464,7 @@ for (const [i, label, x, w] of [
 range(chorus, "chorusMix", "MIX", 147, 54, 44, 159);
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
-t = el("span", "wheel-title", wheel);
+let t = el("span", "wheel-title", wheel);
 t.textContent = "OCTAVE";
 t.style.cssText = "left:40px;top:36px;width:90px";
 // The only display-mode selector is next to the keyboard octave controls.
