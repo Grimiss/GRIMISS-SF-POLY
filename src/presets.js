@@ -153,6 +153,20 @@ export function validatePatch(input) {
       out.params[k] = clampParam(k, v);
     }
   }
+  // Import legacy semitone tune into the new octave/fine display while
+  // preserving exact original sound even for offsets outside ±100 cents.
+  for(const osc of [1,2]){
+    const octKey="osc"+osc+"Octave",fineKey="osc"+osc+"Fine";
+    const tuneKey="osc"+osc+"Tune";
+    if(input.params?.[octKey]===undefined && input.params?.[fineKey]===undefined){
+      const original=out.params[tuneKey];
+      const octave=Math.max(-2,Math.min(2,Math.round(original/12)));
+      const fine=Math.max(-1,Math.min(1,original-octave*12));
+      out.params[octKey]=octave;
+      out.params[fineKey]=fine;
+      out.params[tuneKey]=original-octave*12-fine;
+    }
+  }
   const a = input.arp || {},
     s = input.seq || {},
     u = input.automation || {};
