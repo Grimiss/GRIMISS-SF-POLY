@@ -200,3 +200,28 @@
  font:700 11px/15px Arial,sans-serif!important;
  pointer-events:none!important;
 }
+
+/* Final fascia correction: preserve one knockout print font across every plate. */
+#instrument .section h2,
+#instrument .section.upper h2,
+#instrument .section.lower h2 {
+  font-size:14px!important;
+}
+/* Wood must be the outermost physical shell, not masked by the control deck
+   or keyboard backplate. Previous mid-section-only wood was stacking overlap. */
+#instrument::before,#instrument::after {
+  z-index:1000!important;
+  pointer-events:none!important;
+  top:0!important;bottom:0!important;
+  background:
+   linear-gradient(90deg,rgba(0,0,0,.60),rgba(255,215,154,.10) 19%,rgba(255,255,255,.04) 42%,rgba(0,0,0,.46) 96%),
+   url("./walnut.svg") center top/100% 100% no-repeat!important;
+}
+/* The character rotary row is lowered to the delay/reverb baseline. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-rotary{
+ top:76px!important;
+}
+/* A unified six-button transport block centred vertically on the speed fader. */
+#instrument .section[data-section="AUTOMATION"] .transport:nth-of-type(n){
+ height:43px!important;
+}
