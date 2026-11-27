@@ -5,8 +5,14 @@ export const specs = {
   lfoPitch: [0, 2, 0],
   lfoPWM: [0, 0.45, 0.06],
   lfoFilter: [0, 4, 0],
+  // Legacy semitone tuning remains for backward-compatible user patches.
+  // New faceplate has separate 5-detent octave and ±100-cent fine controls.
   osc1Tune: [-24, 24, 0],
-  osc2Tune: [-12, 12, 0.07],
+  osc2Tune: [-12, 12, 0],
+  osc1Octave: [-2, 2, 0],
+  osc2Octave: [-2, 2, 0],
+  osc1Fine: [-1, 1, 0],
+  osc2Fine: [-1, 1, 0],
   subOct: [1, 2, 1],
   pw: [0.05, 0.95, 0.5],
   wave1: [0, 5, 0],
