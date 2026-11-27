@@ -1,4 +1,4 @@
-import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261127-oscpitch-v2";
+import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261127-toggle-default-on";
 export function patch(name, params = {}) {
   return {
     format: "grimiss-sf-poly",
@@ -156,6 +156,13 @@ export function validatePatch(input) {
       if (!Number.isFinite(v)) throw Error("Invalid parameter: " + k);
       out.params[k] = clampParam(k, v);
     }
+  }
+  // Respect older saved patches that intentionally combined several circuits.
+  // New patches use the new exclusive-character default.
+  if(input.params?.characterToggle===undefined){
+    const active=["enableJuno","enableP6","enableP5"]
+      .filter(id=>out.params[id]>=.5).length;
+    out.params.characterToggle=active===1?1:0;
   }
   // Import legacy semitone tune into the new octave/fine display while
   // preserving exact original sound even for offsets outside ±100 cents.
