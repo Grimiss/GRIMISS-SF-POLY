@@ -182,15 +182,17 @@ function section(name, x, y, w, h, color = "blue", upper = false) {
 }
 // New 1980s panel layout: separate HPF/BOOST, large VCF and stacked DCO waves.
 // All original parameter names and patch storage remain compatible.
+// Balanced manufacturing grid, 8 mm-style consistent panel gaps.
+// Main control-dense sections receive space reclaimed from HPF/FILTER/MASTER.
 const upperLayout=[
- ["LFO",52,124],
- ["DCO",184,255],
- ["MIXER",447,189],
- ["HPF",644,106],
- ["FILTER",758,365],
- ["ENV 1 (FILTER)",1131,201],
- ["ENV 2 (AMP)",1340,201],
- ["MASTER",1549,176]
+ ["LFO",52,146],
+ ["DCO",206,292],
+ ["MIXER",506,211],
+ ["HPF",725,82],
+ ["FILTER",815,302],
+ ["ENV 1 (FILTER)",1125,215],
+ ["ENV 2 (AMP)",1348,215],
+ ["MASTER",1571,154]
 ];
 const upperSections=new Map();
 for(const [name,x,w] of upperLayout)
@@ -205,26 +207,26 @@ function upperFaders(section,keys,centres,top=46,height=166,width=46){
  keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
 // LFO waveform keys are now in the middle; both faders have full 166px travel.
-upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[20,104],46,166,35);
-upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[26,71,116,161],46,166,38);
-upperFaders(hpfSection,[["hpf","HPF"]],[53],45,134,54);
-const boostButton=button(hpfSection,"bassBoost","BOOST",35,185,36,26,()=>{
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[23,123],46,166,38);
+upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[33,81,129,177],46,166,40);
+upperFaders(hpfSection,[["hpf","HPF"]],[41],45,151,46);
+const boostButton=button(hpfSection,"bassBoost","BOOST",23,195,36,26,()=>{
  setParam("bassBoost",params.bassBoost>=.5?0:1);
  refreshSwitches();
 });
 boostButton.title="100 Hz low-frequency shelving boost";
 boostButton.setAttribute("aria-label","Bass boost");
-upperFaders(vcfSection,[["cutoff","CUTOFF"],["resonance","RES"],["envAmount","ENV"]],[46,104,162],46,166,48);
+upperFaders(vcfSection,[["cutoff","CUTOFF"],["resonance","RES"],["envAmount","ENV"]],[36,91,146],46,166,44);
 for(const [name,base,xs] of [
  ["ENV 1 (FILTER)",[["filterA","A"],["filterD","D"],["filterS","S"],["filterR","R"]],[25,74,123,172]],
  ["ENV 2 (AMP)",[["ampA","A"],["ampD","D"],["ampS","S"],["ampR","R"]],[25,74,123,172]]
-])upperFaders(upperSections.get(name),base,xs,46,166,40);
-upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[48,127],46,166,42);
+])upperFaders(upperSections.get(name),base,[29,81,133,185],46,166,42);
+upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[40,114],46,166,42);
 
 // Independent oscillator tune faders now have a full-size travel.
-upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[22,111],46,166,34);
+upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[25,137],46,166,40);
 // SUB OCT and pulse width use the common mechanical travel and scale.
-upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[194,234],46,166,24);
+upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[225,271],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
 // Shared engraved waveform pictograms, matching the LFO switch artwork.
 const waveLabels=["SAW","TRI","PLS","SQR","PWM"];
@@ -238,7 +240,7 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?43:132)+"px";
+ row.style.left=(osc===1?49:160)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveLabels.forEach((name,i)=>{
@@ -251,7 +253,9 @@ for(let osc=1;osc<=2;osc++){
  });
 }
 // Eight filter models form a compact column at right; no menus.
-const filterChoices=["NATIVE","ROLAND","SSM","CURTIS","MS-20","SEM","LADDER","COMB"];
+// Descriptive, original circuit-inspired sounds without borrowed instrument names.
+// IDs and indices are unchanged, so existing saved presets select identical DSP.
+const filterChoices=["NATIVE","SOFT","WARM","BITE","SCREAM","MORPH","LADDER","COMB"];
 const filterBoard=el("div","filter-button-board",vcfSection);
 filterChoices.forEach((name,i)=>{
  const b=el("button","filter-choice",filterBoard);
@@ -272,7 +276,7 @@ const lfoWaveIcons=[
 ];
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  48,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
+  59,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
 function setArp(value) {
   Object.assign(music.arp, value);
