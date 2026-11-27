@@ -336,14 +336,14 @@ function setArp(value) {
 const arpButtons = [
   [
     "arpOn",
-    '<span class="led"></span>',
+    '<span class="arp-power-symbol">⏻</span><i class="arp-power-led"></i>',
     "ON",
     () => setArp({ on: !music.arp.on }),
   ],
-  ["arpUp", "▱", "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
-  ["arpDown", "▱", "DOWN", () => setArp({ mode: "down" })],
-  ["arpRandom", "▥", "RND", () => setArp({ mode: "random" })],
-  ["arpHold", "Hᴅ", "HOLD", () => setArp({ hold: !music.arp.hold })],
+  ["arpUp", '<span class="arp-symbol">↑</span>', "UP", (e) => setArp({ mode: e.shiftKey ? "pendulum" : "up" })],
+  ["arpDown", '<span class="arp-symbol">↓</span>', "DOWN", () => setArp({ mode: "down" })],
+  ["arpRandom", '<span class="arp-symbol">⤨</span>', "RND", () => setArp({ mode: "random" })],
+  ["arpHold", '<span class="arp-symbol hold-symbol">Ⅱ</span>', "HOLD", () => setArp({ hold: !music.arp.hold })],
 ];
 arpButtons.forEach(([id, text, label, fn], i) => {
   button(
@@ -370,7 +370,7 @@ for (let i = 1; i <= 4; i++)
 t = el("span", "button-label", arp);
 t.textContent = "RATE";
 t.style.cssText = "left:239px;top:115px";
-const ar = el("div", "horizontal", arp);
+const ar = el("div", "horizontal arp-rate-slider", arp);
 ar.style.cssText = "left:205px;top:138px;width:96px";
 const arc = el("span", "cap", ar),
   ari = el("input", "", ar);
@@ -395,33 +395,16 @@ $("#arpUp").addEventListener("contextmenu", (e) => {
   setArp({ mode: "pendulum" });
 });
 const au = section("AUTOMATION", 377, 368, 269, 186, "white");
+// Uniform screen-printed transport icons; colour belongs to the glyph, not the switch.
+const ico = (paths,viewBox="0 0 24 24") =>
+  '<span class="transport-icon"><svg viewBox="'+viewBox+'" aria-hidden="true">'+paths+'</svg></span>';
 const autoActions = [
-  ["autoRec", '<span class="round-led"></span>', "REC", "autoRec"],
-  [
-    "autoPlay",
-    '<span class="glyph"><svg viewBox="0 0 24 24"><path d="M5 2L21 12 5 22Z"/></svg></span>',
-    "PLAY",
-    "autoPlay",
-  ],
-  [
-    "autoStop",
-    '<span class="glyph"><svg viewBox="0 0 24 24"><path d="M4 4H20V20H4Z"/></svg></span>',
-    "STOP",
-    "autoStop",
-  ],
-  ["autoLoop", '<span class="glyph">↻</span>', "LOOP", null],
-  [
-    "autoOverdub",
-    '<span class="glyph"><svg viewBox="0 0 24 24"><path d="M4 4H20V20H4Z"/></svg></span>',
-    "OVR",
-    null,
-  ],
-  [
-    "autoClear",
-    '<span class="glyph"><svg viewBox="0 0 24 24"><path d="M4 4H20V20H4Z"/></svg></span>',
-    "CLR",
-    "autoClear",
-  ],
+ ["autoRec",ico('<circle cx="12" cy="12" r="7" fill="currentColor"/>'),"REC","autoRec"],
+ ["autoPlay",ico('<path d="M7 4L20 12 7 20Z" fill="currentColor"/>'),"PLAY","autoPlay"],
+ ["autoStop",ico('<rect x="5" y="5" width="14" height="14" rx="1" fill="currentColor"/>'),"STOP","autoStop"],
+ ["autoLoop",ico('<path d="M5 10a8 8 0 0 1 14-3l2 3M21 5v5h-5M19 14a8 8 0 0 1-14 3l-2-3M3 19v-5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'),"LOOP",null],
+ ["autoOverdub",ico('<rect x="4" y="4" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="2.3"/><path d="M15 12v9M10.5 16.5h9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>'),"OVR",null],
+ ["autoClear",ico('<path d="M6 7h12M9 7V4h6v3M8 9l1 11h6l1-11M11 11v6M13 11v6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>'),"CLR","autoClear"]
 ];
 autoActions.forEach(([id, icon, label, type], i) =>
   button(
@@ -451,7 +434,7 @@ range(au, "autoSpeed", "SPEED", 203, 39, 43, 124);
 const spl = el("div", "speed-labels", au);
 spl.innerHTML = "4x<br>2x<br><b>1x</b><br>0.5x<br>0.1x";
 spl.style.left = "244px";
-const ch = section("CHARACTER / VIEW", 924, 368, 235, 186, "white");
+const ch = section("CHARACTER", 924, 368, 235, 186, "white");
 const characters = [["J-106","levelJuno","enableJuno"],["P-6","levelP6","enableP6"],["P-5","levelP5","enableP5"]];
 characters.forEach(([label,level,enabled],i) => {
  const x = 7 + i*75;
@@ -1093,7 +1076,7 @@ window.sfpoly = {
 };
 
 // Track 6 analogue hardware inside the main control row.
-const analogPanel=section("ANALOGUE VOICES",654,368,262,186);
+const analogPanel=section("VOICES",654,368,262,186);
 analogPanel.classList.add("track6-analog");
 const ledRow=el("div","voice-leds",analogPanel);
 ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
