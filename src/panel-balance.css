@@ -102,3 +102,16 @@
 /* Legibility tuning: slightly larger filter legends; subtler, smaller BOOST legend. */
 #instrument .section[data-section="FILTER"] .filter-choice{font:800 10px/23px Arial,sans-serif!important;letter-spacing:-.4px!important}
 #instrument .section[data-section="HPF"] #bassBoost{font:700 8px/23px Arial,sans-serif!important;letter-spacing:-.35px!important}
+
+/* Final oscillator ergonomics: six short, equally spaced keys per engine. */
+#instrument .section[data-section="DCO"] .osc-wave-stack{top:52px!important;height:156px!important;gap:6px!important}
+#instrument .section[data-section="DCO"] .osc-wave-stack .osc-wave-button{height:21px!important;min-height:21px!important;width:34px!important}
+#instrument .section[data-section="DCO"] .osc-wave-stack .sf-wave-icon{width:26px!important;height:17px!important}
+#instrument .section[data-section="DCO"] .sf-pwm-label{font:800 9px/20px Arial,sans-serif!important}
+/* Unified wave engravings for LFO and DCO (identical vector geometry). */
+#instrument .section[data-section="LFO"] .lfo-symbol,#instrument .section[data-section="LFO"] .sf-wave-icon{width:26px!important;height:17px!important;stroke-width:2.4!important}
+/* Drop BOOST 7px, maintaining clearance from the panel's lower edge. */
+#instrument .section[data-section="HPF"] #bassBoost{top:202px!important}
+/* Slightly wider filter switches, lighter engravings and an inward-left shift. */
+#instrument .section[data-section="FILTER"] .filter-button-board{left:193px!important;right:9px!important;width:100px!important}
+#instrument .section[data-section="FILTER"] .filter-choice{font:700 9.5px/23px Arial,sans-serif!important;letter-spacing:-.3px!important}
