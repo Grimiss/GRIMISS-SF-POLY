@@ -424,9 +424,9 @@ autoActions.forEach(([id, icon, label, type], i) =>
     id,
     icon + "<span>" + label + "</span>",
     13 + (i % 3) * 62,
-    73 + Math.floor(i / 3) * 73,
+    66 + Math.floor(i / 3) * 78,
     53,
-    46,
+    37,
     () => {
       if (id === "autoLoop" || id === "autoOverdub") {
         const k = id === "autoLoop" ? "loop" : "overdub";
@@ -450,43 +450,58 @@ spl.style.left = "239px";
 const ch = section("CIRCUIT CHARACTER", 924, 350, 205, 231, "white");
 // Panel descriptions evoke each engine without changing its patch identity.
 const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
+const characterIds=characters.map(c=>c[2]);
+const characterToggle=button(ch,"characterToggle","TOGGLE",78,165,49,22,()=>{
+ const enabled=params.characterToggle<.5;
+ setParam("characterToggle",enabled?1:0);
+ if(enabled){
+   // Deterministic initial selection; when already using multiple circuits
+   // favour DIGITAL, otherwise retain the currently enabled circuit.
+   const selected=characterIds.find(id=>params[id]>=.5) || characterIds[0];
+   for(const id of characterIds){
+     if(params[id]!==+(id===selected))setParam(id,+(id===selected));
+   }
+ }
+ refreshSwitches();
+},"character-toggle");
+characterToggle.title="When ON, only one character circuit can be enabled at once";
 characters.forEach(([label,level,enabled],i) => {
  const x = 16 + i*59;
- rotary(ch,level,label,x,76,54);
- const sw = button(ch,"engine-"+enabled,"ON",x+2,199,49,24,()=>{
-  setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
+ rotary(ch,level,label,x,65,54);
+ const sw=button(ch,"engine-"+enabled,"ON",x+2,199,49,24,()=>{
+   const next=params[enabled]>=.5?0:1;
+   if(next&&params.characterToggle>=.5){
+     for(const other of characterIds){
+       if(other!==enabled&&params[other]!==0)setParam(other,0);
+     }
+   }
+   setParam(enabled,next);
+   refreshSwitches();
  },"engine-toggle");
  sw.setAttribute("aria-label",label+" engine enable");
 });
 // KEYBOARD and SEQ16 have moved to the performance controls by OCTAVE.
-for (const [name, x, w, controls] of [
-  [
-    "DELAY",
-    1137,
-    192,
-    [
-      ["delayTime", "TIME"],
-      ["delayFeedback", "FB"],
-      ["delayMix", "MIX"],
-    ],
-  ],
-  [
-    "REVERB",
-    1337,
-    182,
-    [
-      ["reverbSize", "SIZE"],
-      ["reverbDamp", "DAMP"],
-      ["reverbMix", "MIX"],
-    ],
-  ],
-]) {
-  const s = section(name, x, 350, w, 231);
-  // Common 59px knob pitch shared by all three lower analogue sections.
-  const leftMargin=name==="DELAY"?9:5;
-  controls.forEach(([k, l], i) =>
-    rotary(s,k,l,leftMargin + i*59,76,54),
-  );
+// Physical two-tier FX strips: two compact controls above one large
+// MIX potentiometer, followed by a dedicated effect ON/OFF rocker.
+for(const [name,x,w,top] of [
+ ["DELAY",1137,192,[["delayTime","TIME"],["delayFeedback","FB"]]],
+ ["REVERB",1337,182,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
+]){
+ const sec=section(name,x,350,w,231);
+ const inset=26;
+ const right=w-26-54;
+ top.forEach(([k,label],i)=>{
+   const knob=rotary(sec,k,label,i?right:inset,48,54);
+   knob.classList.add("sf-fx-top-knob");
+ });
+ const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,117,76);
+ mix.classList.add("sf-fx-mix-knob");
+ const key=name==="DELAY"?"delayOn":"reverbOn";
+ const onOff=button(sec,"fx-"+key,"ON",(w-74)/2,203,74,24,()=>{
+  setParam(key,params[key]>=.5?0:1);
+  refreshSwitches();
+ },"sf-fx-on");
+ onOff.setAttribute("aria-label",name+" effect on/off");
 }
 const chorus = section("CHORUS", 1527, 350, 198, 231);
 for (const [i, label, x, w] of [
@@ -748,6 +763,13 @@ function refreshSwitches() {
   }
   for(let osc=1;osc<=2;osc++) for(let i=3;i<6;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
   setOn("bassBoost",params.bassBoost>=.5);
+  setOn("characterToggle",params.characterToggle>=.5);
+  setOn("fx-delayOn",params.delayOn>=.5);
+  setOn("fx-reverbOn",params.reverbOn>=.5);
+  for(const [id,key] of [["fx-delayOn","delayOn"],["fx-reverbOn","reverbOn"]]){
+    const sw=document.getElementById(id);
+    if(sw)sw.textContent=params[key]>=.5?"ON":"OFF";
+  }
   setOn("arpOn",music.arp.on);
   setOn("arpHold",music.arp.hold);
   setOn("arpClockInternal",music.arp.clock!=="midi");
