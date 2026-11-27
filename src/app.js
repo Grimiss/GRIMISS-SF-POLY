@@ -243,8 +243,8 @@ function section(name, x, y, w, h, color = "blue", upper = false) {
 // Balanced manufacturing grid, 8 mm-style consistent panel gaps.
 // Main control-dense sections receive space reclaimed from HPF/FILTER/MASTER.
 const upperLayout=[
- ["LFO",52,170],
- ["DCO",230,332],
+ ["LFO",52,154],
+ ["DCO",214,348],
  ["MIXER",570,211],
  ["HPF",789,82],
  ["FILTER",879,302],
@@ -269,7 +269,7 @@ function upperFaders(section,keys,centres,top=46,height=166,width=46){
  keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
 // LFO waveform keys are now in the middle; both faders have full 166px travel.
-upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[25,145],46,166,38);
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[27,127],46,166,38);
 upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[33,81,129,177],46,166,40);
 upperFaders(hpfSection,[["hpf","HPF"]],[41],45,151,46);
 const boostButton=button(hpfSection,"bassBoost","BOOST",23,195,36,26,()=>{
@@ -291,9 +291,10 @@ masterTune.classList.add("master-tune");
 // Each oscillator uses a discrete octave display and two hardware arrows
 // above a centred ±100-cent TUNE potentiometer. Saved parameter IDs remain
 // unchanged, including legacy semitone offset compatibility.
-for(const [osc,x] of [[1,11],[2,143]]){
+for(const [osc,x] of [[1,11],[2,130]]){
  const heading=el("span","sf-osc-label",dcoSection);
  heading.textContent="OSC "+osc;
+ heading.dataset.osc=String(osc);
  heading.style.left=x+"px";
  const key="osc"+osc+"Octave";
  const assembly=el("div","sf-octave-control",dcoSection);
@@ -349,7 +350,7 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?82:209)+"px";
+ row.style.left=(osc===1?82:195)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
  waveDisplayOrder.forEach(i=>{
@@ -383,7 +384,7 @@ filterChoices.forEach((name,i)=>{
 const lfoWaveIcons=[5,1,3].map(waveSvg);
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  71,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
+  77,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 350, 316, 231, "white");
 arp.classList.add("arp-vintage");
 function setArp(value){
