@@ -423,10 +423,10 @@ autoActions.forEach(([id, icon, label, type], i) =>
     au,
     id,
     icon + "<span>" + label + "</span>",
-    13 + (i % 3) * 62,
-    66 + Math.floor(i / 3) * 78,
-    53,
-    37,
+    18 + (i % 3) * 55,
+    71 + Math.floor(i / 3) * 79,
+    44,
+    28,
     () => {
       if (id === "autoLoop" || id === "autoOverdub") {
         const k = id === "autoLoop" ? "loop" : "overdub";
@@ -491,10 +491,10 @@ for(const [name,x,w,top] of [
  const inset=26;
  const right=w-26-54;
  top.forEach(([k,label],i)=>{
-   const knob=rotary(sec,k,label,i?right:inset,48,54);
+   const knob=rotary(sec,k,label,i?right:inset,126,54);
    knob.classList.add("sf-fx-top-knob");
  });
- const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,117,76);
+ const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,38,76);
  mix.classList.add("sf-fx-mix-knob");
  const key=name==="DELAY"?"delayOn":"reverbOn";
  const onOff=button(sec,"fx-"+key,"ON",(w-74)/2,203,74,24,()=>{
@@ -1277,7 +1277,7 @@ for(const [label,k] of [["ANALOG","analog"],["DETUNE","analogDetune"]]){
  const cap=el("span","analog-cap",rail);
  const input=el("input","analog-input",rail);
  input.type="range";input.min=0;input.max=1;input.step=.001;input.setAttribute("aria-label",label);
- bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=(5+u*84)+"px";input.title=label+": "+Math.round(v*100)+"%";});
+ bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=`calc(${(u*100).toFixed(3)}% - ${(u*19).toFixed(2)}px)`;input.setAttribute("aria-valuetext",Math.round(v*100)+"%");});
 }
 const modes=el("div","track6-modes",analogPanel);
 for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]){
