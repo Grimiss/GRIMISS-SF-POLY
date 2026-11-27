@@ -125,6 +125,7 @@ function button(parent, id, text, x, y, w, h, fn, cls = "") {
 }
 function range(parent, k, label, x, y, w, h) {
   const box = el("div", "fader", parent);
+  box.dataset.param = k;
   box.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
   const lab = el("label", "", box);
   lab.textContent = label;
