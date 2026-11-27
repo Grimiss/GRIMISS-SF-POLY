@@ -340,8 +340,12 @@ export class Model {
       this.f1 = hz * 2 ** (p.osc1Tune / 12);
       this.f2 = hz * 2 ** ((p.osc2Tune + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
       this.sub = hz / (Math.round(p.subOct) === 2 ? 4 : 2);
-      this.pw = clamp(p.pw + lfo * (p.lfoPWM + p.mod * 0.25), 0.05, 0.95);
-      this.pwmWidth=clamp(.5+.32*Math.sin(this.phase*4+lfo*2)+lfo*p.lfoPWM,.08,.92);
+      // PLS: the PW slider sets a fixed duty cycle.
+      // PWM: PW sets the centre and the LFO moves around that centre.
+      // Both oscillators share the PW and LFO depth, but independently
+      // choose PLS or PWM. This preserves existing waveform index mappings.
+      this.pw = clamp(p.pw, 0.05, 0.95);
+      this.pwmWidth = clamp(p.pw + lfo * (0.10 + p.lfoPWM + p.mod * 0.25), 0.05, 0.95);
       this.cutoff = clamp(
         p.cutoff *
           2 **
