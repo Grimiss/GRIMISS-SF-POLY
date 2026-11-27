@@ -5,7 +5,7 @@ import {
   fromUnit,
   initialMusic,
 } from "./parameters.js";
-import { AudioClient } from "./audio/client.js";
+import { AudioClient } from "./audio/client.js?v=20261127-lower2-v1";
 import {
   factory,
   factoryGroups,
