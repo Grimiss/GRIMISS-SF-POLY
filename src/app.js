@@ -860,7 +860,7 @@ const nextPresetButton=el("button","preset-header-nav preset-next",$("#brand"));
 nextPresetButton.type="button";nextPresetButton.textContent="›";nextPresetButton.title="Next preset";
 nextPresetButton.setAttribute("aria-label","Next preset");
 const headerSaveButton=el("button","preset-header-save",$("#brand"));
-headerSaveButton.type="button";headerSaveButton.textContent="SAVE";
+headerSaveButton.type="button";headerSaveButton.textContent="SAVE PRESET";
 headerSaveButton.title="Save current sound as a user preset";
 function updatePresetHeader(){
  presetButton.textContent=current.name+(patchDirty?" *":"");
