@@ -1,0 +1,153 @@
+/* SF-POLY | 1982 HARDWARE FACEPLATE | high-priority visual skin.
+   Added after legacy styles deliberately; no audio/interaction code altered. */
+:root{--cream:#f3e3c9!important;--text:#efe5d6!important;--metal:#c7b9a2!important;color-scheme:dark}
+html,body{background:#0b0c0d!important;color:#eee4d3!important}
+#instrument{
+ border:2px solid #060809!important;border-radius:20px!important;
+ background:#161819 url("./powder.svg") repeat!important;
+ box-shadow:inset 0 2px 2px #878e8c85,inset 0 -7px 13px #050505,0 6px 12px #000b!important;
+}
+#instrument::before,#instrument::after{
+ top:0!important;bottom:0!important;width:39px!important;
+ background:url("./walnut.svg") repeat-y center / 100% auto!important;
+ border:1px solid #4e200d!important;border-radius:12px 4px 4px 12px!important;
+ box-shadow:inset 4px 0 8px #f7a04845,inset -4px 0 8px #1a0704bb,0 0 2px #000!important;
+ z-index:8!important;
+}
+#instrument::after{border-radius:4px 12px 12px 4px!important;transform:none!important}
+#brand{
+ background:#121516 url("./powder.svg") repeat!important;
+ border:1px solid #666962!important;border-top:1px solid #acaaa2!important;
+ box-shadow:inset 0 1px #fff3,0 2px 4px #000c!important;
+ color:#f4e3c9!important;
+}
+#patches{left:18px!important;top:0!important;width:700px!important;height:77px!important;cursor:pointer}
+#patches::before{
+ content:""!important;display:block!important;position:absolute!important;
+ left:0!important;top:19px!important;width:59px!important;height:42px!important;
+ transform:skewX(-19deg)!important;
+ background:linear-gradient(90deg,#2c9bdf 0 24%,transparent 24% 34%,#2c9bdf 34% 58%,transparent 58% 68%,#2c9bdf 68% 92%,transparent 92%)!important;
+ border-bottom:3px solid #2899e2!important;pointer-events:none;
+}
+#patches .grimiss{
+ position:absolute!important;left:77px!important;top:25px!important;
+ font:bold italic 23px "Arial Narrow",Arial,sans-serif!important;
+ letter-spacing:0!important;color:#f5e5ce!important;
+ text-transform:uppercase;white-space:nowrap!important;text-shadow:0 1px #0009!important;
+}
+#patches strong{
+ position:absolute!important;left:378px!important;top:7px!important;
+ font:italic 900 51px "Arial Narrow",Arial,sans-serif!important;
+ transform:none!important;letter-spacing:-1px!important;
+ color:#f4e4cb!important;text-shadow:0 2px 1px #000!important;
+}
+#brand .subtitle{
+ position:absolute!important;left:760px!important;top:27px!important;
+ font:17px "Arial Narrow",Arial,sans-serif!important;
+ letter-spacing:2px!important;color:#e5dac9!important;white-space:nowrap;
+}
+#brand .stripes{
+ position:absolute!important;left:1150px!important;top:23px!important;
+ width:240px!important;display:grid!important;gap:4px!important;pointer-events:none;
+}
+#brand .stripes i,#brand .stripes i:nth-child(2){
+ background:#2998d9!important;height:5px!important;border:0!important;border-radius:1px!important;
+ box-shadow:inset 0 1px #98dcff5c,0 1px 2px #000c!important;
+}
+#brand .preset-launch{
+ top:14px!important;right:13px!important;width:220px!important;height:47px!important;
+ background:linear-gradient(#2c2d2c,#070b0d 55%,#1a1b1b)!important;
+ color:#f4eadc!important;border:2px solid #81847d!important;
+ box-shadow:inset 0 0 0 3px #111,0 2px 5px #000d!important;
+ font:700 16px "Arial Narrow",Arial,sans-serif!important;
+}
+#brand .preset-launch::before{
+ content:"";display:inline-block;width:10px;height:10px;margin-right:12px;
+ background:#32b4ff;box-shadow:0 0 7px #1aaaff;border:2px solid #206a94;
+}
+#instrument .rail{
+ border-top:2px solid #2aabea!important;border-bottom:1px solid #197db2!important;
+ height:11px!important;
+ background:linear-gradient(#061119 0%,#1d577b 40%,#236f9f 55%,#06090d 85%)!important;
+ box-shadow:0 2px 3px #000c!important;
+}
+/* Old blue moulded panels become individual black powder-coated metal bays. */
+#instrument .section,#instrument .section.upper,#instrument .section.lower,#instrument .section.track6-analog{
+ background:#151819 url("./powder.svg") repeat!important;
+ background-blend-mode:normal!important;
+ border:2px solid #c5bba8!important;border-top:0!important;
+ border-radius:14px 14px 13px 13px!important;
+ box-shadow:0 0 0 4px #080a0b,inset 0 1px 4px #fff2,inset 0 -5px 8px #0009!important;
+}
+#instrument .section h2,#instrument .section.blue h2,#instrument .section.white h2,#instrument .section.red h2{
+ background:linear-gradient(#fff0d6 0%,#e9dcc6 66%,#d1c0a3 100%)!important;
+ color:#131619!important;text-shadow:none!important;
+ font:italic 900 25px/30px "Arial Narrow",Arial,sans-serif!important;
+ border:1px solid #b5a68e!important;border-bottom:1px solid #6c6257!important;
+ box-shadow:inset 0 1px #fffaf0,0 2px 3px #000c!important;
+}
+#instrument .section.lower h2{height:34px!important;line-height:30px!important}
+#instrument .section[data-section="HPF / VCF"] h2,
+#instrument .section[data-section="CHARACTER / VIEW"] h2,
+#instrument .section[data-section="ANALOGUE VOICES"] h2{font-size:21px!important;padding-left:13px!important}
+#instrument .section .fader label,#instrument .section .button-label,
+#instrument .section .osc-row-name,#instrument .section .osc-wave-name,
+#instrument .section .analog-caption,
+#instrument .section .speed-labels{
+ color:#f1e5d5!important;font-family:"Arial Narrow",Arial,sans-serif!important;
+ font-weight:700!important;text-shadow:0 1px 1px #000c!important;
+}
+#instrument .section .fader .scale,#instrument .section.upper .fader .scale{
+ background:repeating-linear-gradient(to top,transparent 0 18px,#e6dcc7 18px 19.5px,transparent 19.5px 21px)!important;
+ opacity:.7!important;
+}
+#instrument .section .fader .slot{background:#040505!important;border-radius:8px;box-shadow:inset 2px 0 4px #000,1px 0 #ccc6b56c!important}
+#instrument .section .fader .cap,
+#instrument .section[data-section="CHARACTER / VIEW"] .fader .cap{
+ background:linear-gradient(#fff4dc 0%,#ecdfca 43%,#c4b8a7 53%,#3b3e3d 56%,#141719 94%)!important;
+ border:1px solid #3b3936!important;box-shadow:0 2px 5px #000d,inset 0 1px #fff9!important;
+ width:35px;height:16px;border-radius:2px;
+}
+#instrument .hardware,#instrument .filter-choice,#instrument .osc-wave-button,
+#instrument .key-option,#instrument .track6-modes button,#instrument .engine-toggle{
+ background:linear-gradient(#474849 0%,#292b2c 24%,#121617 66%,#070909 100%)!important;
+ color:#eee3d2!important;
+ border:1px solid #060707!important;border-top:1px solid #858883!important;
+ border-radius:4px!important;
+ box-shadow:inset 0 1px #e6e1d52b,0 3px 4px #000d!important;
+ text-shadow:0 1px #000!important;
+}
+#instrument .hardware.on,#instrument .filter-choice.on,#instrument .osc-wave-button.on,
+#instrument .key-option.selected,#instrument .track6-modes button.selected,
+#instrument .engine-toggle.on{
+ background:linear-gradient(#2ca2f4,#1273c4 55%,#063b6c)!important;
+ border-color:#4087b2!important;color:white!important;
+ box-shadow:inset 0 1px #bcf2ff,0 0 6px #119af687,0 2px 4px #000c!important;
+}
+#instrument .filter-choice{font:700 10px Arial,sans-serif!important}
+#instrument .section[data-section="DCO"] .osc-wave-button{font:700 10px Arial,sans-serif!important}
+#instrument .section[data-section="HPF / VCF"] .fader label{font-size:13px!important}
+#instrument .section .voice-light{background:#060809!important;border-color:#48515a!important;box-shadow:inset 0 1px 2px #000!important}
+#instrument .section .voice-light.lit{background:#51b6fa!important;box-shadow:0 0 8px #26a4fa!important}
+#instrument .section .analog-scale{background:repeating-linear-gradient(to right,#e0d5c1 0 1px,transparent 1px 12px)!important}
+#instrument .section .analog-slot{background:#050608!important}
+#instrument .section .analog-cap{
+ background:linear-gradient(90deg,#1d2020,#e6d9c5 22%,#fff0d7 44%,#a99d8b 51%,#282c2d 82%)!important;
+ border:1px solid #30312f!important;
+}
+#instrument .wheel-panel{
+ background:#141719 url("./powder.svg") repeat!important;
+ border:1px solid #0b0e0e!important;
+}
+#instrument .wheel{background:#050607!important;border-color:#313f47!important;box-shadow:inset 0 2px 5px #000,0 0 1px #aab0a65e!important}
+#instrument .wheel::after{
+ background:repeating-linear-gradient(to bottom,#4b4d4b 0 1px,#15191a 1px 3px)!important;
+ border:1px solid #181919!important;box-shadow:inset 1px 0 #ccc1ac66,0 2px 3px #000!important;
+}
+#instrument .wheel-title{color:#f2e6d3!important}
+#instrument .octave-value{color:#4eb5ff!important}
+#instrument .keyboard{border:3px solid #111!important;box-shadow:0 0 0 6px #07090a,0 7px 7px #000!important}
+#instrument .key.white{background:linear-gradient(90deg,#d9c7aa,#f7e9d1 26%,#fff1d9 72%,#ccb99b)!important;border-bottom-color:#bca78c!important}
+#instrument .key.black{background:linear-gradient(90deg,#050708,#303436 20%,#101417 80%,#040607)!important}
+#instrument .key-velocity:not(.selected){color:#c3bdb0!important}
+#instrument #seq-view{background:#17191a url("./powder.svg") repeat!important}
