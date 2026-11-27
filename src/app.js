@@ -280,7 +280,7 @@ for (const [name, x, w, controls] of upper) {
   );
 }
 // All filter models have dedicated on-panel hardware buttons, no dropdown.
-const filterChoices=["NATIVE","ROLAND","SSM","CURTIS","MS-20","SEM","LADDER"];
+const filterChoices=["NATIVE","ROLAND","SSM","CURTIS","MS-20","SEM","LADDER","COMB"];
 const filterBoard=el("div","filter-button-board",vcfSection);
 filterChoices.forEach((name,i)=>{
  const b=el("button","filter-choice",filterBoard);
@@ -1047,13 +1047,17 @@ for (const [k, label] of [
   });
 }
 function scale() {
-  const w=Math.max(850,window.innerWidth);
-  // Fill available desktop width rather than artificially capping at 100%.
-  const s=Math.min(1.22,w/1774);
-  $("#instrument").style.zoom = s;
-  $("#instrument").style.transform = "none";
-  $("#viewport").style.height = 887 * s + "px";
-  $("#instrument").style.marginBottom = "0px";
+  // Fit the complete 1774×887 panel within the usable viewport. No scrollbars.
+  // Reserve footer height and a few pixels for browser rounding.
+  const footer = document.querySelector("footer");
+  const footerHeight = footer ? footer.getBoundingClientRect().height : 48;
+  const availW = Math.max(1,window.innerWidth-8);
+  const availH = Math.max(1,window.innerHeight-footerHeight-8);
+  const s=Math.min(availW/1774,availH/887);
+  $("#instrument").style.zoom=s;
+  $("#instrument").style.transform="none";
+  $("#viewport").style.height=Math.floor(887*s)+"px";
+  $("#instrument").style.marginBottom="0px";
 }
 window.addEventListener("resize", scale);
 scale();
