@@ -338,8 +338,8 @@ export class Model {
       const hz =
         freq *
         2 ** ((k === 2 ? 0 : this.cal * (0.008 + p.analogDetune * 0.28) + this.drift * (0.008 + p.analogDetune * 0.2)) / 12);
-      this.f1 = hz * 2 ** (p.osc1Tune / 12);
-      this.f2 = hz * 2 ** ((p.osc2Tune + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
+      this.f1 = hz * 2 ** ((p.osc1Tune + 12*Math.round(p.osc1Octave||0) + (p.osc1Fine||0)) / 12);
+      this.f2 = hz * 2 ** ((p.osc2Tune + 12*Math.round(p.osc2Octave||0) + (p.osc2Fine||0) + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
       this.sub = hz / (Math.round(p.subOct) === 2 ? 4 : 2);
       // PLS: the PW slider sets a fixed duty cycle.
       // PWM: PW sets the centre and the LFO moves around that centre.
@@ -396,13 +396,11 @@ export class Model {
               );
       }
       const sub = o[2].tick(this.sub, sr, 2, 0.5);
-      if (k === 2)
-        o[1].phase = (o[0].phase - this.f1 / sr + p.osc2Tune / 24 + 1) % 1;
       let x =
         k === 1 ? a * p.mix1 + b * p.mix2 * 0.5 + sub * p.mixSub :
         k === 2
           ? a * p.mix1 +
-            o[1].tick(this.f1, sr, p.wave2, pwm2) * p.mix2 +
+            o[1].tick(this.f2, sr, p.wave2, pwm2) * p.mix2 +
             sub * p.mixSub
           : a * p.mix1 + b * p.mix2 + sub * p.mixSub;
       const body=clamp(p.analog,0,1);
