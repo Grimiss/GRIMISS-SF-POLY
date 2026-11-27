@@ -1,4 +1,4 @@
-import { defaults, initialMusic, clampParam, specs } from "./parameters.js";
+import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261127-oscpitch-v2";
 export function patch(name, params = {}) {
   return {
     format: "grimiss-sf-poly",
