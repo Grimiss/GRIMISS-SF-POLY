@@ -286,6 +286,8 @@ filterChoices.forEach((name,i)=>{
  const b=el("button","filter-choice",filterBoard);
  b.type="button";b.textContent=name;b.title="VCF model: "+name;
  b.setAttribute("aria-label",b.title);
+ b.classList.toggle("on",Math.round(params.filterModel)===i);
+ b.setAttribute("aria-pressed",String(Math.round(params.filterModel)===i));
  b.onclick=()=>setParam("filterModel",i);
  if(!bindings.has("filterModel"))bindings.set("filterModel",[]);
  bindings.get("filterModel").push({input:{value:0},paint:v=>{
@@ -545,7 +547,7 @@ for (const [k, label, x] of [
 ]) {
   t = el("span", "wheel-title", wheel);
   t.textContent = label;
-  t.style.cssText = `left:${x - 8}px;top:85px;width:54px`;
+  t.style.cssText = `left:${x - 8}px;top:73px;width:54px`;
   const w = el("div", "wheel", wheel);
   w.style.left = x + "px";
   const i = el("input", "", w);
@@ -557,7 +559,7 @@ for (const [k, label, x] of [
   i.setAttribute("aria-label", label + " wheel");
   bind(k, i, (v) => {
     i.title = v.toFixed(2);
-    w.style.setProperty("--wheel-px",Math.round((1-toUnit(k,v))*85)+"px");
+    w.style.setProperty("--wheel-px",Math.round((1-toUnit(k,v))*52+3)+"px");
     w.style.filter = `brightness(${1 + Math.abs(v) * 0.12})`;
   });
   if (k === "bend") {
