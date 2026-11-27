@@ -31,7 +31,7 @@ function paintFaceplateHeadings(){
   ctx.globalCompositeOperation="destination-out";
   // One readable Orbitron Black size for every physical nameplate.
   // Never autosize by caption length: consistency is a hardware requirement.
-  ctx.font=label==='CIRCUIT CHARACTER'?'900 14px Orbitron, Arial, sans-serif':'900 17px Orbitron, Arial, sans-serif';
+  ctx.font='900 14px Orbitron, Arial, sans-serif';
   ctx.textBaseline="middle";
   ctx.textAlign="left";
   ctx.fillStyle="#000";
@@ -43,7 +43,7 @@ function paintFaceplateHeadings(){
  }
 }
 const renderHeadings=async()=>{
- try{await document.fonts.load('900 17px "Orbitron"');}catch{}
+ try{await document.fonts.load('900 14px "Orbitron"');}catch{}
  paintFaceplateHeadings();
 };
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderHeadings,{once:true});
