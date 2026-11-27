@@ -320,12 +320,13 @@ for(let n=1;n<=4;n++)
  ()=>setArp({range:n}),"arp-range");
 // Vertical fader uses the standard registered scale, with a readable BPM display.
 // Existing arpRate (steps/sec) is retained: 4 steps per quarter note (16ths).
-const arpTempo=range(arp,"arpRate","",267,66,37,150);
+const arpTempo=range(arp,"arpRate","",267,66,37,129);
 arpTempo.classList.add("arp-tempo");
 const tempoDisplay=el("output","arp-tempo-display",arp);
 tempoDisplay.style.cssText="left:260px;top:197px;width:53px";
 function paintArp(v=music.arp.rate){
  music.arp.rate=v;
+ arpTempo.querySelector("input").disabled=music.arp.clock==="midi";
  tempoDisplay.textContent=Math.round(v*15)+" BPM";
  if(music.arp.clock==="midi"&&midiClockBpm>0)
   clockReadout.textContent=Math.round(midiClockBpm)+" BPM";
@@ -359,6 +360,7 @@ function receiveArpMidiClock(event){
  }
  return true;
 }
+bindings.get("arpRate").push({input:{value:0},paint:paintArp});
 paintArp();
 const au = section("AUTOMATION", 377, 350, 269, 231, "white");
 // Uniform screen-printed transport icons; colour belongs to the glyph, not the switch.
