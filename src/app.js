@@ -512,13 +512,13 @@ for(const [name,x,w,top] of [
  const inset=26;
  const right=w-26-54;
  top.forEach(([k,label],i)=>{
-   const knob=rotary(sec,k,label,i?right:inset,126,54);
+   const knob=rotary(sec,k,label,i?right:inset,120,54);
    knob.classList.add("sf-fx-top-knob");
  });
  const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,38,76);
  mix.classList.add("sf-fx-mix-knob");
  const key=name==="DELAY"?"delayOn":"reverbOn";
- const onOff=button(sec,"fx-"+key,"ON",(w-49)/2,195,49,24,()=>{
+ const onOff=button(sec,"fx-"+key,"ON",(w-49)/2,199,49,24,()=>{
   setParam(key,params[key]>=.5?0:1);
   refreshSwitches();
  },"sf-fx-on");
@@ -781,10 +781,8 @@ function refreshSwitches() {
   setOn("characterToggle",params.characterToggle>=.5);
   setOn("fx-delayOn",params.delayOn>=.5);
   setOn("fx-reverbOn",params.reverbOn>=.5);
-  for(const [id,key] of [["fx-delayOn","delayOn"],["fx-reverbOn","reverbOn"]]){
-    const sw=document.getElementById(id);
-    if(sw)sw.textContent=params[key]>=.5?"ON":"OFF";
-  }
+  // Faceplate legends are permanently engraved, regardless of switch state.
+  // Active state is indicated only by the blue switch illumination.
   setOn("arpOn",music.arp.on);
   setOn("arpHold",music.arp.hold);
   setOn("arpClockInternal",music.arp.clock!=="midi");
@@ -803,7 +801,7 @@ function refreshSwitches() {
   }
   for (const [, , enabled] of characters) {
     const sw = $("#engine-"+enabled);
-    if(sw) { sw.textContent = params[enabled] >= .5 ? "ON" : "OFF"; setOn(sw.id,params[enabled]>=.5); }
+    if(sw){sw.textContent="ON";setOn(sw.id,params[enabled]>=.5);}
   }
 }
 const computerCodes = [
