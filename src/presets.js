@@ -131,6 +131,10 @@ for(const [category,names] of Object.entries(namesByCategory)){
  const group={category,indices:[]};
  names.forEach((name,index)=>{
    const params=designSound(category,index);
+   // Exclusive selection is the initial default. Presets intentionally
+   // blending multiple circuits opt out to retain their programmed sound.
+   const activeCircuits=Number(params.enableJuno>=.5)+Number(params.enableP6>=.5)+Number(params.enableP5>=.5);
+   params.characterToggle=activeCircuits===1?1:0;
    const item=patch(name,params);
    if(category==="Arpeggios")item.arp={
     ...item.arp,on:true,mode:["up","pendulum","down","random"][index%4],
