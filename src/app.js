@@ -28,7 +28,9 @@ let current = patch("Initialize"),
   octave = 0,
   initialized = false,
   activeInput = null,
-  view = "key";
+  view = "key",
+  patchDirty = false,
+  activePresetId = "init";
 const bindings = new Map(),
   toggles = new Map(),
   keys = new Map(),
@@ -105,6 +107,7 @@ function setParam(k, v) {
   params[k] = v;
   update(k);
   send({ type: "param", k, v });
+  markPatchDirty();
 }
 function setOn(id, on) {
   toggles.get(id)?.classList.toggle("on", !!on);
@@ -332,6 +335,7 @@ function setArp(value) {
   Object.assign(music.arp, value);
   send({ type: "arp", value });
   refreshSwitches();
+  markPatchDirty();
 }
 const arpButtons = [
   [
@@ -421,6 +425,7 @@ autoActions.forEach(([id, icon, label, type], i) =>
         music.automation[k] = !music.automation[k];
         send({ type: "autoOptions", value: { [k]: music.automation[k] } });
         refreshSwitches();
+        markPatchDirty();
       } else if (
         id !== "autoClear" ||
         confirm("Clear all recorded parameter automation?")
@@ -707,6 +712,7 @@ for (const [id, k, min, max] of [
     music.seq[k] = v;
     e.target.value = v;
     send({ type: "seq", value: { [k]: v } });
+    markPatchDirty();
   };
 function setView(v) {
   view = v;
@@ -854,9 +860,105 @@ $("#midi").onclick = async () => {
 };
 const presetButton = el("button","preset-launch",$("#brand"));
 presetButton.type="button";
-presetButton.textContent="FACTORY PRESETS  ▾";
+presetButton.textContent="Initialize";
+presetButton.setAttribute("aria-label","Open full preset browser");
+presetButton.title="Current preset · click to browse";
+const prevPresetButton=el("button","preset-header-nav preset-previous",$("#brand"));
+prevPresetButton.type="button";prevPresetButton.textContent="‹";prevPresetButton.title="Previous preset";
+prevPresetButton.setAttribute("aria-label","Previous preset");
+const nextPresetButton=el("button","preset-header-nav preset-next",$("#brand"));
+nextPresetButton.type="button";nextPresetButton.textContent="›";nextPresetButton.title="Next preset";
+nextPresetButton.setAttribute("aria-label","Next preset");
+const headerSaveButton=el("button","preset-header-save",$("#brand"));
+headerSaveButton.type="button";headerSaveButton.textContent="SAVE";
+headerSaveButton.title="Save current sound as a user preset";
+function updatePresetHeader(){
+ presetButton.textContent=current.name+(patchDirty?" *":"");
+ presetButton.title=(patchDirty?"Modified · ":"")+"Open preset browser";
+}
+function markPatchDirty(){
+ if(!patchDirty){patchDirty=true;updatePresetHeader();}
+}
+function presetEntry(id){
+ if(id==="init") return patch("Initialize");
+ return id?.startsWith("u")?users[Number(id.slice(1))]:factory[Number(id.slice(1))];
+}
+function navigatePresets(direction){
+ const ids=[...factory.map((_,i)=>"f"+i),...users.map((_,i)=>"u"+i)];
+ if(!ids.length)return;
+ const ix=ids.indexOf(activePresetId);
+ const next=ix<0?(direction>0?0:ids.length-1):(ix+direction+ids.length)%ids.length;
+ const id=ids[next];
+ loadPatch(presetEntry(id),id);
+}
+prevPresetButton.onclick=()=>navigatePresets(-1);
+nextPresetButton.onclick=()=>navigatePresets(1);
+headerSaveButton.onclick=()=>$("#save").click();
+
 const dialog = $("#patch-dialog"),
   select = $("#preset");
+const browser=el("div","preset-browser",dialog);
+browser.innerHTML=`
+ <div class="preset-browser-head">
+   <div><span class="preset-eyebrow">SOUND LIBRARY</span><h3>Factory &amp; User Presets</h3></div>
+   <div class="preset-browser-tools">
+     <div class="preset-group-tabs" role="group" aria-label="Group factory presets">
+       <button type="button" class="selected" data-group="engine" aria-pressed="true">BY SYNTH</button>
+       <button type="button" data-group="category" aria-pressed="false">BY SOUND</button>
+     </div>
+     <input id="preset-search" type="search" placeholder="Find a sound…" aria-label="Search presets">
+   </div>
+ </div>
+ <div class="preset-browser-list" id="preset-browser-list" role="region" aria-label="All factory and user presets"></div>
+`;
+const presetResults=browser.querySelector("#preset-browser-list");
+const presetSearch=browser.querySelector("#preset-search");
+let presetGrouping="engine";
+browser.querySelectorAll("[data-group]").forEach(b=>b.onclick=()=>{
+ presetGrouping=b.dataset.group;
+ browser.querySelectorAll("[data-group]").forEach(el=>{
+  const selected=el===b;
+  el.classList.toggle("selected",selected);
+  el.setAttribute("aria-pressed",String(selected));
+ });
+ renderPresetBrowser();
+});
+presetSearch.addEventListener("input",renderPresetBrowser);
+function renderPresetBrowser(){
+ const filter=presetSearch.value.trim().toLowerCase();
+ presetResults.replaceChildren();
+ const sections=new Map();
+ for(const group of factoryGroups){
+  const key=presetGrouping==="engine"?group.engine:group.category;
+  if(!sections.has(key))sections.set(key,[]);
+  for(const idx of group.indices){
+   const label=factory[idx].name.replace(/^\\d+\\s*[·.-]\\s*/,"");
+   const meta=presetGrouping==="engine"?group.category:group.engine;
+   if((label+" "+meta+" "+key).toLowerCase().includes(filter))
+    sections.get(key).push({id:"f"+idx,label,meta});
+  }
+ }
+ const userMatches=users.map((p,i)=>({id:"u"+i,label:p.name,meta:"USER"}))
+  .filter(x=>(x.label+" user").toLowerCase().includes(filter));
+ const appendGroup=(name,entries,userGroup=false)=>{
+  if(!entries.length)return;
+  const group=el("section","preset-browser-group",presetResults);
+  const title=el("h4","",group);title.textContent=name+"  ·  "+entries.length;
+  const grid=el("div","preset-browser-grid",group);
+  for(const item of entries){
+   const b=el("button","preset-tile",grid);b.type="button";
+   b.classList.toggle("selected",activePresetId===item.id);
+   b.setAttribute("aria-pressed",String(activePresetId===item.id));
+   const label=el("strong","",b);label.textContent=item.label;
+   const meta=el("small","",b);meta.textContent=item.meta;
+   b.onclick=()=>{loadPatch(presetEntry(item.id),item.id);select.value=item.id;};
+  }
+ };
+ for(const [name,entries] of sections)appendGroup(name,entries);
+ appendGroup("USER PRESETS",userMatches,true);
+ if(!presetResults.children.length)el("p","preset-empty",presetResults).textContent="No matching presets.";
+}
+
 function fillPresets(selected = "init") {
   select.replaceChildren();
   const initOption = el("option", "", select);
@@ -881,8 +983,10 @@ function fillPresets(selected = "init") {
   });
   select.value = selected;
 }
-function loadPatch(p) {
+function loadPatch(p,sourceId) {
   releaseLatchedKeys();
+  activePresetId=sourceId??activePresetId;
+  patchDirty=false;
   current = validatePatch(p);
   params = { ...current.params };
   music = {
@@ -908,6 +1012,8 @@ function loadPatch(p) {
   setOn("autoRec", false);
   setOn("autoPlay", false);
   $("#patch-status").textContent = "Loaded " + current.name;
+  updatePresetHeader();
+  renderPresetBrowser();
 }
 async function capture(name = current.name) {
   let state = { params, ...music };
@@ -926,15 +1032,10 @@ async function capture(name = current.name) {
 function patchError(e) {
   $("#patch-status").textContent = e.message;
 }
-const openPresets=()=>{releaseInputs();dialog.showModal();select.focus();};
+const openPresets=()=>{releaseInputs();renderPresetBrowser();dialog.showModal();presetSearch.focus();};
 $("#patches").onclick=openPresets;
 presetButton.onclick=openPresets;
-select.onchange = () =>
-  loadPatch(
-    select.value === "init"
-      ? patch("Initialize")
-      : (select.value[0] === "f" ? factory : users)[+select.value.slice(1)],
-  );
+select.onchange = () => loadPatch(presetEntry(select.value),select.value);
 $("#save").onclick = async () => {
   const name = prompt("Name this patch", current.name);
   if (!name) return;
@@ -944,6 +1045,9 @@ $("#save").onclick = async () => {
     writeUsers(users);
     fillPresets("u" + (users.length - 1));
     current = p;
+    activePresetId="u"+(users.length-1);
+    patchDirty=false;
+    updatePresetHeader();renderPresetBrowser();
     $("#patch-status").textContent = "Saved " + name;
   } catch (e) {
     patchError(e);
@@ -962,6 +1066,7 @@ $("#rename").onclick = () => {
     try {
       writeUsers(users);
       fillPresets("u" + i);
+      updatePresetHeader();renderPresetBrowser();
     } catch (e) {
       patchError(e);
     }
@@ -974,13 +1079,13 @@ $("#delete").onclick = () => {
     try {
       writeUsers(users);
       fillPresets();
-      loadPatch(factory[0]);
+      loadPatch(factory[0],"f0");
     } catch (e) {
       patchError(e);
     }
   }
 };
-$("#init").onclick = () => loadPatch(patch("Initialize"));
+$("#init").onclick = () => loadPatch(patch("Initialize"),"init");
 $("#export").onclick = async () => {
   try {
     const p = await capture(),
@@ -1003,7 +1108,7 @@ $("#import").onchange = async (e) => {
     if (!file) return;
     if (file.size > 10e6) throw Error("Patch file exceeds 10 MB.");
     const p = validatePatch(JSON.parse(await file.text()));
-    loadPatch(p);
+    loadPatch(p,"init");
     $("#patch-status").textContent =
       "Imported " + p.name + " · Save as to keep in browser";
   } catch (e) {
@@ -1047,6 +1152,7 @@ function scale() {
 window.addEventListener("resize", scale);
 scale();
 fillPresets();
+updatePresetHeader();renderPresetBrowser();
 document.addEventListener("wheel",e=>{
  const input=e.target.closest?.('input[type="range"]');
  if(!input || input.disabled) return;
