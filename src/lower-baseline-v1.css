@@ -1,0 +1,64 @@
+/* SF-POLY – lower hardware baseline alignment, 27 Nov 2026.
+   The 231px panel has a unified switch row at y=199–223.
+   Geometry only; original values and hardware event handlers unchanged. */
+
+/* Three DIGITAL/VINTAGE/CLASSIC ON rockers line up with FX switch row. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle{
+ top:199px!important;
+ height:24px!important;
+}
+
+/* Voices' MONO/UNISON/POLY rocker bottoms match the same 223px line. */
+#instrument .section[data-section="VOICES"] .track6-modes {
+ position:absolute!important;
+ bottom:8px!important;
+ top:auto!important;
+ height:24px!important;
+ align-items:stretch!important;
+}
+#instrument .section[data-section="VOICES"] .track6-modes button{
+ box-sizing:border-box!important;
+ height:24px!important;
+ min-height:24px!important;
+ padding:0 2px!important;
+ line-height:22px!important;
+}
+
+/* All MIX pots and their MIX captions shift down together by 4px.
+   Heading labels stay anchored to their respective rotary assemblies. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-mix-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-mix-knob,
+#instrument .section[data-section="CHORUS"] .sf-rotary.sf-fx-mix-knob{
+ top:42px!important;
+}
+
+/* Secondary effect pots move 12px further apart and 10px down.
+   Their labels follow each pot, so scales and buttons stay aligned. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob {
+ top:130px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob:first-of-type,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob:first-of-type{
+ left:14px!important;
+}
+/* Knob identity is stable across both effects; select by parameter key
+   instead of DOM order, which can include non-rotary children. */
+#instrument .section[data-section="DELAY"] .sf-rotary[data-param="delayTime"],
+#instrument .section[data-section="REVERB"] .sf-rotary[data-param="reverbSize"]{
+ left:14px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary[data-param="delayFeedback"]{
+ left:124px!important;
+}
+#instrument .section[data-section="REVERB"] .sf-rotary[data-param="reverbDamp"]{
+ left:114px!important;
+}
+
+/* Common bottom centreline for all individual effect switches. */
+#instrument .section[data-section="DELAY"] .sf-fx-on,
+#instrument .section[data-section="REVERB"] .sf-fx-on,
+#instrument .section[data-section="CHORUS"] #chorus0{
+ top:199px!important;
+ height:24px!important;
+}
