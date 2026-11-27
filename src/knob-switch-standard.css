@@ -1,0 +1,114 @@
+/* SF-POLY · Mechanical scale and rocker consistency | 27 November 2026
+   Eleven index marks (0 through 10) define ten equal intervals on the
+   actual -135° .. +135° pot travel. No markings appear in the dead zone. */
+
+/* Retire the earlier all-round conic ticks, which incorrectly suggested
+   unlimited travel and competed with the new precise marks. */
+#instrument .sf-rotary::after,
+#instrument .section[data-section="MASTER"] .master-volume::after,
+#instrument .section[data-section="MASTER"] .master-tune::after,
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob::after,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob::after {
+  content:none!important;display:none!important;
+}
+#instrument .sf-knob-face .sf-knob-ticks{
+  position:absolute!important;
+  top:-12px!important;left:-12px!important;
+  width:calc(100% + 24px)!important;
+  height:calc(100% + 24px)!important;
+  overflow:visible!important;
+  z-index:5!important;
+  pointer-events:none!important;
+  fill:none!important;
+}
+#instrument .sf-knob-face .sf-knob-ticks line{
+  stroke:#d4d0c7!important;
+  stroke-linecap:round!important;
+}
+#instrument .sf-knob-face .sf-knob-major-tick{
+  stroke-width:2!important;opacity:.95!important;
+}
+#instrument .sf-knob-face .sf-knob-minor-tick{
+  stroke-width:1.55!important;opacity:.85!important;
+}
+#instrument .sf-knob-marker{z-index:4!important}
+
+/* Shared 49 x 24 rocker size: same black body and illuminated-blue active.
+   Engraved legend never changes from ON to OFF when toggled. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] #characterToggle,
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle,
+#instrument .section[data-section="DELAY"] .sf-fx-on,
+#instrument .section[data-section="REVERB"] .sf-fx-on,
+#instrument .section[data-section="CHORUS"] .sf-chorus-mode,
+#instrument .section[data-section="CHORUS"] .sf-chorus-off{
+  box-sizing:border-box!important;
+  width:49px!important;height:24px!important;min-height:24px!important;
+  border-radius:3px!important;
+  padding:0!important;
+  font:700 10px/22px Arial,sans-serif!important;
+  color:#c8ccc9!important;
+  background:linear-gradient(#3e4345,#1e2325 65%,#0b1114)!important;
+  border:1px solid #6c7374!important;
+  box-shadow:inset 0 1px #eff0ef22,0 2px 3px #000b!important;
+  text-shadow:none!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] #characterToggle.on,
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle.on,
+#instrument .section[data-section="DELAY"] .sf-fx-on.on,
+#instrument .section[data-section="REVERB"] .sf-fx-on.on,
+#instrument .section[data-section="CHORUS"] .sf-chorus-mode.on,
+#instrument .section[data-section="CHORUS"] .sf-chorus-off.on{
+  background:linear-gradient(#3ba4e6,#126397 68%,#073952)!important;
+  border-color:#53a5d0!important;
+  box-shadow:inset 0 1px #c5ebff,0 0 7px #258bd296!important;
+  color:#fff!important;
+}
+
+/* Exclusive-selection toggle sits a few pixels above its previous position,
+   directly over the central vintage switch. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] #characterToggle{
+  left:77px!important;top:158px!important;
+  font-size:8px!important;
+}
+
+/* FX rocker is centred between the two lower mini-pots, and raised.
+   Reduce mini-pot diameter slightly so ticks clear the rocker above it. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob{
+  top:120px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-top-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-top-knob .sf-knob-face{
+  top:25px!important;width:36px!important;height:36px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-on,
+#instrument .section[data-section="REVERB"] .sf-fx-on{
+  top:199px!important;
+  height:24px!important;
+}
+
+/* CHORUS MIX matches the prominent DELAY / REVERB MIX in size and position.
+   Mode I/II are below the MIX pot, with red pilot lamps above those switches.
+   OFF is centred beneath them and is the same rocker size. */
+#instrument .section[data-section="CHORUS"] .sf-rotary.sf-fx-mix-knob{
+  left:61px!important;top:38px!important;
+  width:76px!important;height:92px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-fx-mix-knob .sf-knob-face{
+  top:25px!important;width:63px!important;height:63px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-fx-mix-knob .sf-rotary-label{
+  font:700 10px/17px Arial,sans-serif!important;
+}
+#instrument .section[data-section="CHORUS"] #chorus1,
+#instrument .section[data-section="CHORUS"] #chorus2{
+  top:158px!important;height:24px!important;
+}
+#instrument .section[data-section="CHORUS"] #chorus0{
+  top:195px!important;left:74.5px!important;
+  width:49px!important;height:24px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-chorus-lamp{
+  top:143px!important;
+  width:10px!important;height:10px!important;
+}
