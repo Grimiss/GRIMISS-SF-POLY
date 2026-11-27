@@ -418,7 +418,7 @@ autoActions.forEach(([id, icon, label, type], i) =>
     id,
     icon + "<span>" + label + "</span>",
     13 + (i % 3) * 62,
-    55 + Math.floor(i / 3) * 73,
+    73 + Math.floor(i / 3) * 73,
     53,
     46,
     () => {
@@ -446,7 +446,7 @@ const ch = section("CIRCUIT CHARACTER", 924, 350, 235, 231, "white");
 const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
 characters.forEach(([label,level,enabled],i) => {
  const x = 7 + i*75;
- rotary(ch,level,label,x+6,63,59);
+ rotary(ch,level,label,x+6,76,59);
  const sw = button(ch,"engine-"+enabled,"ON",x+7,199,49,24,()=>{
   setParam(enabled,params[enabled] >= .5 ? 0 : 1); refreshSwitches();
  },"engine-toggle");
