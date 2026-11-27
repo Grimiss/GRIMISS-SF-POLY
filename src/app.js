@@ -585,8 +585,20 @@ const velocityButton=el("button","key-option key-velocity",keyControlPanel);
 velocityButton.type="button";velocityButton.textContent="VELOCITY";
 velocityButton.title="Enable note velocity sensitivity (off by default)";
 function releaseLatchedKeys(){
- for(const [note,id] of latchedKeys){send({type:"off",id});visualNote(note,false);}
+ for(const [note,id] of latchedKeys){send({type:"off",id});visualNote(note-octave*12,false);visualNote(note,false);}
  latchedKeys.clear();
+}
+let latchSerial=0;
+function latchNote(note, velocity, visual=note){
+ if(keyHoldMode==="replace") releaseLatchedKeys();
+ if(latchedKeys.has(note)){
+   send({type:"off",id:latchedKeys.get(note)});
+   latchedKeys.delete(note);
+ }
+ const id="latch:"+note+":"+(++latchSerial);
+ latchedKeys.set(note,id);
+ visualNote(visual,true);
+ send({type:"on",id,note,velocity:velocitySensitive?velocity:1});
 }
 function updateKeyOptions(){
  for(const [b,on] of [[holdButton,keyHold],[addButton,keyHoldMode==="add"],[replaceButton,keyHoldMode==="replace"],[velocityButton,velocitySensitive]]){
@@ -623,18 +635,7 @@ function visualNote(n, on) {
   keys.get(n)?.classList.toggle("pressed", on);
 }
 function noteOn(id,n,velocity=.8){
- if(keyHold){
-  if(keyHoldMode==="replace") releaseLatchedKeys();
-  if(latchedKeys.has(n)){
-   const old=latchedKeys.get(n);
-   send({type:"off",id:old});latchedKeys.delete(n);
-  }
-  const latchedId="latch:"+n+":"+octave;
-  latchedKeys.set(n,latchedId);
-  visualNote(n,true);
-  send({type:"on",id:latchedId,note:n+octave*12,velocity:velocitySensitive?velocity:1});
-  return;
- }
+ if(keyHold){latchNote(n+octave*12,velocity,n);return;}
  visualNote(n,true);
  send({type:"on",id,note:n+octave*12,velocity:velocitySensitive?velocity:1});
 }
@@ -830,12 +831,12 @@ function midiMessage(port, event) {
     const id = "midi:" + key + ":" + midiSerial++;
     if (!midiQueues.has(key)) midiQueues.set(key, []);
     midiQueues.get(key).push(id);
-    send({ type: "on", id, note: n, velocity: velocitySensitive ? v / 127 : 1 });
-    visualNote(n, true);
+    if(keyHold) latchNote(n,v/127,n);
+    else {send({type:"on",id,note:n,velocity:velocitySensitive?v/127:1});visualNote(n,true);}
   } else if (type === 128 || (type === 144 && v === 0)) {
     const id = midiQueues.get(key)?.shift();
-    if (id) send({ type: "off", id });
-    visualNote(n, false);
+    if (id && !keyHold) send({ type: "off", id });
+    if (!keyHold) visualNote(n, false);
   } else if (type === 176) {
     if (n === 64) send({ type: "sustain", on: v >= 64 });
     else if (n === 1) setParam("mod", v / 127);
