@@ -1,0 +1,68 @@
+/* SF-POLY — Oscillator digital octave selectors
+   Replaces octave knobs only. Fine-tune rotary knobs stay unchanged. */
+#instrument .section[data-section="DCO"] .sf-octave-control{
+  box-sizing:border-box!important;
+  position:absolute!important;
+  top:57px!important;
+  width:53px!important;
+  height:79px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  z-index:8!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-caption{
+  display:block!important;
+  height:15px!important;
+  text-align:center!important;
+  font:700 9px/15px Arial,sans-serif!important;
+  color:#e7dfd1!important;
+  letter-spacing:0!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-display{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:49px!important;
+  height:27px!important;
+  border:1px solid #495961!important;
+  border-radius:3px!important;
+  box-shadow:inset 0 2px 6px #000b,0 1px #9993!important;
+  background:linear-gradient(180deg,#040b10,#081c26)!important;
+  color:#70deff!important;
+  text-align:center!important;
+  font:800 19px/26px "Courier New",monospace!important;
+  text-shadow:0 0 6px #2fa5e8a8!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-arrows{
+  display:flex!important;
+  justify-content:space-between!important;
+  gap:5px!important;
+  width:53px!important;
+  margin-top:5px!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-arrow{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:24px!important;
+  height:25px!important;
+  padding:0!important;
+  border-radius:3px!important;
+  border:1px solid #737a7a!important;
+  background:linear-gradient(#42484a,#1a2023)!important;
+  color:#e7e5df!important;
+  box-shadow:inset 0 1px #f4fcfc29,0 2px 3px #000a!important;
+  font:700 13px/23px Arial,sans-serif!important;
+  cursor:pointer!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-arrow:hover:not(:disabled){
+  background:linear-gradient(#28668c,#16445f)!important;
+  color:white!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-arrow:active:not(:disabled){
+  background:#217dad!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-arrow:disabled{
+  opacity:.35!important;
+  cursor:default!important;
+}
