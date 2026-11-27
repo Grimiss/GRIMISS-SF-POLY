@@ -1063,3 +1063,6 @@ input[type=range]{accent-color:#69b5f0}
   pointer-events:none;transition:top .04s linear;
 }
 .wheel input{cursor:ns-resize}
+
+.wheel:after{top:var(--wheel-px,42px)}
+.section[data-section="CHARACTER / VIEW"] .fader .cap{background:linear-gradient(#cfd8e1,#b7c8d7 45%,#5096d0 50%,#1b4e75 65%,#101b25 72%)}
