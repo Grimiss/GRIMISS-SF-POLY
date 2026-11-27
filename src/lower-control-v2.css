@@ -1,0 +1,99 @@
+/* SF-POLY · Lower row hardware balance 2
+   Original parameter IDs and preset mapping remain unchanged.
+   New FX MIX and character circuit selector are functional rotary controls. */
+
+/* Six compact AUTOMATION switches mirror the 37px CHORUS I/II rockers.
+   Legends stay below the buttons; 16px row clearance for the label band. */
+#instrument .section[data-section="AUTOMATION"] .transport,
+#instrument .section[data-section="AUTOMATION"] .transport.on{
+  height:37px!important;
+  min-height:37px!important;
+  padding:0!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon{
+  height:32px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon svg{
+  width:24px!important;height:24px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport span:last-child:not(.transport-icon){
+  top:40px!important;
+}
+
+/* CIRCUIT CHARACTER: raised three-pot row and explicit small
+   exclusive-selection TOGGLE above central engine switch. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-rotary{
+  top:65px!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] #characterToggle{
+  left:78px!important;top:165px!important;
+  height:22px!important;width:49px!important;
+  border:1px solid #6b7474!important;
+  border-radius:3px!important;
+  background:linear-gradient(#434749,#1d2224 65%,#0b1114)!important;
+  color:#e7e1d7!important;
+  font:700 8px/20px Arial,sans-serif!important;
+  padding:0!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] #characterToggle.on{
+  background:linear-gradient(#268fd5,#145a8c)!important;
+  box-shadow:inset 0 1px #bdefff,0 0 5px #1984c0aa!important;
+  color:#fff!important;
+}
+
+/* DELAY and REVERB: two identical top-row pots, then a clearly larger
+   centre MIX pot and a narrow ON/OFF rocker below. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob{
+  top:48px!important;
+  width:54px!important;
+  height:83px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-top-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-top-knob .sf-knob-face{
+  width:42px!important;height:42px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-mix-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-mix-knob{
+  top:105px!important;
+  width:76px!important;
+  height:94px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob .sf-rotary-label,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob .sf-rotary-label{
+  font:800 12px/17px Arial,sans-serif!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob .sf-knob-face{
+  top:25px!important;
+  width:63px!important;height:63px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob::after,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob::after{
+  left:2px!important;right:2px!important;
+  top:19px!important;height:74px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob .sf-knob-marker::before,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob .sf-knob-marker::before{
+  width:4px;height:17px;left:calc(50% - 2px);
+}
+#instrument .section[data-section="DELAY"] .sf-fx-on,
+#instrument .section[data-section="REVERB"] .sf-fx-on{
+  top:203px!important;
+  width:74px!important;
+  height:24px!important;
+  font:800 11px/22px Arial,sans-serif!important;
+  padding:0!important;
+  color:#e9e2d5!important;
+  border:1px solid #717a7b!important;
+  border-radius:3px!important;
+  background:linear-gradient(#4b5051,#1b2022)!important;
+  box-shadow:inset 0 1px #dce5e544,0 2px 3px #000b!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-on.on,
+#instrument .section[data-section="REVERB"] .sf-fx-on.on{
+  background:linear-gradient(#309cdb,#155e94)!important;
+  border-color:#4c95ba!important;
+  color:white!important;
+  box-shadow:inset 0 1px #c5eeff,0 0 5px #1993d0a6!important;
+}
