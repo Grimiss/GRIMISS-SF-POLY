@@ -1,4 +1,4 @@
-import { SynthEngine } from "./engine.js";
+import { SynthEngine } from "./engine.js?v=20261127-oscpitch-v2";
 class SFPolyProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
