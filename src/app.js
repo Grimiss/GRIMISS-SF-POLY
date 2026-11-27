@@ -901,6 +901,8 @@ browser.innerHTML=`
  </div>
  <div class="preset-browser-list" id="preset-browser-list" role="region" aria-label="All factory and user presets"></div>
 `;
+// Put the library above the advanced controls, not below them.
+dialog.insertBefore(browser,dialog.querySelector(".actions"));
 const presetResults=browser.querySelector("#preset-browser-list");
 const presetSearch=browser.querySelector("#preset-search");
 let presetGrouping="engine";
@@ -977,6 +979,7 @@ function loadPatch(p,sourceId) {
   releaseLatchedKeys();
   activePresetId=sourceId??activePresetId;
   patchDirty=false;
+  if(select)select.value=activePresetId;
   current = validatePatch(p);
   params = { ...current.params };
   music = {
