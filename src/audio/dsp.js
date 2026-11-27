@@ -28,7 +28,7 @@ export class Oscillator {
     this.transitionValue = 0;
   }
   tick(hz, sr, wave, pw = 0.5, reset = -1) {
-    const selected = wave < 0.5 ? 0 : wave < 1.5 ? 1 : 2;
+    const selected = Math.round(wave);
     if (selected !== this.lastWave) {
       this.lastWave = selected;
       this.transition = 1;
@@ -39,27 +39,21 @@ export class Oscillator {
     // A fractional master wrap resets the slave; a short causal BLEP smooths its jump.
     if (reset >= 0) {
       const before =
-        wave < 0.5 ? 2 * p - 1 : wave < 1.5 ? this.triangle : p < pw ? 1 : -1;
+        selected===0?2*p-1:selected===1?this.triangle:p<(selected>=3?pw:.5)?1:-1;
       p = dt * reset;
       const after =
-        wave < 0.5
-          ? 2 * p - 1
-          : wave < 1.5
-            ? 1 - 4 * Math.abs(p - 0.5)
-            : p < pw
-              ? 1
-              : -1;
-      if (wave >= 0.5 && wave < 1.5) this.triangle = after;
+        selected===0?2*p-1:selected===1?1-4*Math.abs(p-.5):p<(selected>=3?pw:.5)?1:-1;
+      if (selected===1) this.triangle = after;
       this.syncTail += before - after;
     }
     let out;
-    if (wave < 0.5) out = 2 * p - 1 - blep(p, dt);
+    if (selected===0) out = 2 * p - 1 - blep(p, dt);
     else {
-      const duty = wave < 1.5 ? 0.5 : pw;
+      const duty = selected<=2?.5:pw;
       let shifted = p - duty;
       if (shifted < 0) shifted += 1;
       const pulse = (p < duty ? 1 : -1) + blep(p, dt) - blep(shifted, dt);
-      if (wave < 1.5) {
+      if (selected===1) {
         this.triangle = (this.triangle + 4 * dt * pulse) * (1 - 2 * dt * 0.001);
         this.triangle = clamp(this.triangle, -1.2, 1.2);
         out = this.triangle;
@@ -150,7 +144,7 @@ export class CEMFilter {
       y = v + z[i];
       z[i] = y + v;
     }
-    return y * (1 + res * 0.7);
+    return saturate(y*1.25)*(1+res*1.05);
   }
 }
 // SSM2044-inspired four-pole resonant lowpass, with a different
@@ -170,13 +164,13 @@ export class SSMFilter {
     }
     this.g += (this.targetG-this.g)*.035;
     const g=this.g,z=this.z;
-    let v=saturate(x*1.12-z[3]*(3.25*res));
+    let v=saturate(x*1.43-z[3]*(3.7*res));
     for(let i=0;i<4;i++) {
-      const stage=saturate(v*1.35)/1.35;
+      const stage=saturate(v*1.55)/1.55;
       z[i]+=g*(stage-z[i]);
       v=z[i];
     }
-    return v*(1+.35*res);
+    return v*(1.55+.45*res);
   }
 }
 // Discrete two-integrator topology-preserving state-variable lowpass.
@@ -220,20 +214,21 @@ export class JunoFilter {
     }
     this.g += (this.targetG - this.g) * 0.04;
     const g = this.g;
-    let y = saturate(x - res * 3.65 * this.feedback);
+    let y = saturate(x*.9 - res*3.1*this.feedback);
     for (let i = 0; i < 4; i++) {
       this.z[i] += g * (saturate(y) - saturate(this.z[i]));
       y = this.z[i];
     }
     this.feedback = y;
-    return y * (1 + res * 0.6);
+    return y*(1+res*.25);
   }
 }
 export class Model {
   constructor(sr, index, kind) {
     this.sr = sr;
     this.kind = kind;
-    this.osc = [new Oscillator(), new Oscillator(), new Oscillator()];
+    this.osc = [new Oscillator(), new Oscillator(), new Oscillator(), new Oscillator()];
+    this.thickOffset=Math.sin(index*2.77+kind*5.13);
     // Each model owns all three lightweight filter states; only the selected
     // filter processes samples. No allocations occur in the audio callback.
     this.filters = [new CEMFilter(), new SSMFilter(), new JunoFilter()];
@@ -267,6 +262,7 @@ export class Model {
       this.f2 = hz * 2 ** ((p.osc2Tune + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
       this.sub = hz / (Math.round(p.subOct) === 2 ? 4 : 2);
       this.pw = clamp(p.pw + lfo * (p.lfoPWM + p.mod * 0.25), 0.05, 0.95);
+      this.pwmWidth=clamp(.5+.32*Math.sin(this.phase*4+lfo*2)+lfo*p.lfoPWM,.08,.92);
       this.cutoff = clamp(
         p.cutoff *
           2 **
@@ -279,6 +275,9 @@ export class Model {
       this.hp = Math.exp((-TAU * p.hpf) / sr);
     }
     const o = this.osc;
+    const w1=Math.round(p.wave1),w2=Math.round(p.wave2);
+    const pwm1=w1===4?this.pwmWidth:this.pw;
+    const pwm2=w2===4?this.pwmWidth:this.pw;
     let out = 0;
     for (let n = 0; n < 2; n++) {
       let a, b;
@@ -286,18 +285,18 @@ export class Model {
         // Prophet: oscillator B is the sync source and an audio-rate Poly-Mod source for A.
         const dtB = this.f2 / sr,
           wrap = o[1].phase + dtB >= 1 ? (o[1].phase + dtB - 1) / dtB : -1;
-        b = o[1].tick(this.f2, sr, p.wave2, this.pw);
+        b = o[1].tick(this.f2, sr, p.wave2, pwm2);
         a = o[0].tick(
           this.f1 * (1 + p.polyMod * (b * 0.15 + env * 0.03)),
           sr,
           p.wave1,
-          this.pw,
+          pwm1,
           p.sync > 0.5 ? wrap : -1,
         );
       } else {
         const dt = this.f1 / sr,
           wrap = o[0].phase + dt >= 1 ? (o[0].phase + dt - 1) / dt : -1;
-        a = o[0].tick(this.f1, sr, p.wave1, this.pw);
+        a = o[0].tick(this.f1, sr, p.wave1, pwm1);
         b =
           k === 2 || k === 1
             ? 0
@@ -305,7 +304,7 @@ export class Model {
                 this.f2 * (1 + p.polyMod * 0.12 * a),
                 sr,
                 p.wave2,
-                this.pw,
+                pwm2,
                 p.sync > 0.5 ? wrap : -1,
               );
       }
@@ -316,14 +315,18 @@ export class Model {
         k === 1 ? a * p.mix1 + sub * p.mixSub :
         k === 2
           ? a * p.mix1 +
-            o[1].tick(this.f1, sr, p.wave2, this.pw) * p.mix2 +
+            o[1].tick(this.f1, sr, p.wave2, pwm2) * p.mix2 +
             sub * p.mixSub
           : a * p.mix1 + b * p.mix2 + sub * p.mixSub;
-      x += noise * p.mixNoise;
+      const body=clamp(p.analog,0,1);
+      const extra=o[3].tick(this.f1*(1+.0013*(1+p.analogDetune*3)*(1+this.thickOffset*.4)),sr,p.wave1,pwm1);
+      x += extra*p.mix1*body*.33;
+      x += noise*p.mixNoise;
       const high = x - this.hpIn + this.hp * this.hpOut;
       this.hpIn = x;
       this.hpOut = high;
-      const warm = Math.tanh(high * (1 + p.analog * (k === 1 ? 0.65 : 0.35))) / (1 + p.analog * (k === 1 ? 0.65 : 0.35));
+      const bodyDrive=1+p.analog*(k===1?2.1:1.75);
+      const warm=Math.tanh((high+.055*p.analog*high*high)*bodyDrive)/(1+p.analog*.62);
       const selected = Math.round(p.filterModel);
       const filterIndex = selected === 0 ? k : selected === 1 ? 2 : selected === 2 ? 1 : 0;
       if (filterIndex !== this.filterChoice) {
@@ -331,15 +334,17 @@ export class Model {
         this.filterChoice = filterIndex;
         this.filterFade = 1;
       }
-      const activeFilter = this.filters[this.filterChoice];
-      let filtered = activeFilter.tick(warm, this.cutoff, p.resonance, sr);
+      const activeFilter=this.filters[this.filterChoice];
+      const filterHz=this.cutoff*([1.42,1.06,.69][this.filterChoice]);
+      const filterRes=clamp(p.resonance*([1.16,1.05,.86][this.filterChoice]),0,.97);
+      let filtered = activeFilter.tick(warm,filterHz,filterRes,sr);
       if (this.filterFade > 0) {
         // Crossfade while both old and new filter memories are running.
-        const old = this.filters[this.previousFilter].tick(warm,this.cutoff,p.resonance,sr);
+        const old = this.filters[this.previousFilter].tick(warm,this.cutoff*([1.42,1.06,.69][this.previousFilter]),clamp(p.resonance*([1.16,1.05,.86][this.previousFilter]),0,.97),sr);
         filtered = filtered * (1-this.filterFade) + old * this.filterFade;
         this.filterFade = Math.max(0,this.filterFade - 1/(this.sr*.006));
       }
-      out += filtered * 0.5;
+      out += Math.tanh(filtered*(1+.55*p.analog))*(1-.12*p.analog)*.5;
     }
     return out;
   }
