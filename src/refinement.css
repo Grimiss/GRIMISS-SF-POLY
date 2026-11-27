@@ -1,0 +1,222 @@
+
+/* SF-POLY design refinement: consistent die-cut nameplates and true 1980s panel hardware.
+   Loaded last so old colour and size declarations cannot override it. */
+#instrument .section,#instrument .section.upper,#instrument .section.lower,#instrument .section.track6-analog{
+  border:1.5px solid #e8dcc5!important;
+  border-top:0!important;
+  border-radius:12px 12px 12px 12px!important;
+  box-shadow:inset 0 0 0 1px #080a0b33!important;
+  overflow:hidden!important;
+}
+#instrument .section h2,
+#instrument .section.blue h2,
+#instrument .section.red h2,
+#instrument .section.white h2,
+#instrument .section.lower h2{
+  left:0!important;right:0!important;top:0!important;
+  padding:0!important;margin:0!important;
+  height:35px!important;line-height:35px!important;
+  font:900 17px/35px Orbitron,Arial,sans-serif!important;
+  letter-spacing:0!important;
+  background-color:transparent!important;
+  background-size:100% 100%!important;
+  background-repeat:no-repeat!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  -webkit-text-fill-color:transparent!important;color:transparent!important;
+}
+#instrument .section[data-section="CHARACTER"] h2,
+#instrument .section[data-section="VOICES"] h2,
+#instrument .section[data-section="HPF / VCF"] h2{font-size:17px!important}
+#instrument .rail[style*="352px"]{z-index:0!important}
+#instrument #panel{z-index:1!important}
+
+/* Recessed rocker switches: small precise LEDs and monochrome printed icons */
+#instrument #arpOn{
+ background:linear-gradient(#3e4141,#16191b 55%,#090b0d)!important;
+ color:#d5d7d2!important;
+}
+#instrument #arpOn.on{background:linear-gradient(#414443,#171b1c)!important;box-shadow:0 2px 3px #000b!important}
+#arpOn .arp-power-symbol{display:inline-block;font:700 26px/30px Arial,sans-serif;color:#c7c9c7!important}
+#arpOn .arp-power-led{
+ position:absolute;right:2px;top:3px;width:7px;height:7px;border-radius:50%;
+ border:1px solid #3c4650;background:#4b5051;box-shadow:inset 0 1px 2px #111;
+}
+#arpOn.on .arp-power-led{background:#45b5ff;box-shadow:0 0 7px #3caeff,0 0 2px #aee4ff}
+#instrument #arpOn.on .arp-power-symbol{color:#e6e8e4!important}
+#instrument #arpRandom .arp-symbol,#instrument #arpHold .arp-symbol,
+#instrument #arpUp .arp-symbol,#instrument #arpDown .arp-symbol{
+ display:block;color:#d9dad5;font:700 23px/28px Arial,sans-serif;
+ text-shadow:none;
+}
+#instrument #arpHold .hold-symbol{font-size:21px;letter-spacing:-3px;padding-right:3px}
+#instrument #arpRandom .arp-symbol{font-size:26px}
+#instrument #arpRandom.on .arp-symbol,#instrument #arpHold.on .arp-symbol,
+#instrument #arpUp.on .arp-symbol,#instrument #arpDown.on .arp-symbol{color:#bce9ff}
+#instrument #arp .button-label{font-size:13px!important}
+
+/* Matching embossed analogue horizontal sliders with printed registration lines */
+#instrument .horizontal,#instrument .analog-rail{height:28px!important}
+#instrument .horizontal::before,#instrument .analog-slot{
+ position:absolute!important;
+ left:7px!important;right:7px!important;
+ top:12px!important;height:6px!important;
+ border:0!important;border-radius:3px!important;
+ background:#030608!important;
+ box-shadow:inset 0 2px 4px #000,0 1px #7f8680!important;
+}
+#instrument .horizontal::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ inset:3px 4px 2px;
+ background:repeating-linear-gradient(90deg,#d9d4c8 0 1px,transparent 1px 10px);
+ opacity:.72;
+}
+#instrument .analog-scale{
+ background:repeating-linear-gradient(90deg,#d9d4c8 0 1px,transparent 1px 10px)!important;
+ opacity:.7;
+}
+#instrument .horizontal .cap,#instrument .analog-cap{
+ position:absolute!important;
+ top:3px!important;height:24px!important;width:19px!important;border-radius:2px!important;
+ background:linear-gradient(90deg,#2c3034 0%,#090c0e 33%,#64bdf1 43%,#8cdaff 51%,#131a21 60%,#292e31 100%)!important;
+ box-shadow:0 2px 4px #000c,inset 1px 0 #ffffff32!important;
+ z-index:2;
+}
+#instrument .arp-rate-slider{top:138px!important}
+#instrument .arp-rate-slider .cap{top:2px!important}
+#instrument .section[data-section="VOICES"] .analog-cap{top:2px!important}
+
+/* Automation: graphite button faces, ONLY engraved icons illuminate when active.
+   Record=red, playback=green, looping and overdubbing=amber. */
+#instrument .section[data-section="AUTOMATION"] .transport,
+#instrument .section[data-section="AUTOMATION"] .transport.on{
+ background:linear-gradient(#414445,#24282b 36%,#101417 83%)!important;
+ border:1px solid #11181a!important;border-top:1px solid #7d8587!important;
+ box-shadow:inset 0 1px #ffffff26,0 2px 3px #000c!important;
+ color:#e7e5df!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon{
+ display:flex;align-items:center;justify-content:center;height:28px;width:100%;
+ color:#bcc2c4!important;
+ transition:color .12s,filter .12s;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon svg{
+ width:27px!important;height:27px!important;fill:none;stroke:none;
+}
+#instrument .section[data-section="AUTOMATION"] .transport span:last-child:not(.transport-icon){
+ color:#d5d5cc!important;font:700 11px/16px Arial,sans-serif!important;
+}
+#instrument #autoRec.on .transport-icon{color:#ff4845!important;filter:drop-shadow(0 0 4px #fe333388)}
+#instrument #autoPlay.on .transport-icon{color:#64e194!important;filter:drop-shadow(0 0 4px #31d47d88)}
+#instrument #autoLoop.on .transport-icon,
+#instrument #autoOverdub.on .transport-icon,
+#instrument #autoStop:active .transport-icon,
+#instrument #autoClear:active .transport-icon{
+ color:#ffbd58!important;filter:drop-shadow(0 0 4px #ffbc4688)
+}
+#instrument #autoClear .transport-icon svg{width:26px!important;height:26px!important}
+#instrument #autoLoop .transport-icon svg{width:29px!important;height:29px!important}
+
+/* Oscillator wave switches: milky printed glyphs, no software glyph backgrounds. */
+#instrument .lfo-symbol{display:block;width:34px;height:22px;margin:auto;color:#cbd1d2}
+#instrument .wave.on .lfo-symbol{color:#b8e4ff;filter:drop-shadow(0 0 3px #6abaff80)}
+#instrument .section[data-section="LFO"] .wave{padding:3px!important}
+
+/* Header patch navigator stays inside the same 1774px hardware faceplate */
+#brand .stripes{left:1090px!important;width:145px!important}
+#brand .subtitle{left:745px!important;font-size:15px!important;letter-spacing:1.2px!important}
+#brand .preset-launch{
+ position:absolute!important;left:auto!important;top:17px!important;right:218px!important;
+ width:292px!important;height:42px!important;z-index:12!important;
+ text-align:left!important;padding:0 17px 0 13px!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+ font:700 15px/40px Arial,sans-serif!important;
+ letter-spacing:.1px!important;
+ color:#f0e2c9!important;
+}
+#brand .preset-launch::before{display:none!important}
+#brand .preset-launch::after{content:"▾";position:absolute;right:10px;color:#8cd6ff}
+#brand .preset-header-nav,#brand .preset-header-save{
+ position:absolute;z-index:12;top:18px;height:41px;border-radius:4px;
+ background:linear-gradient(#44494b,#202426 40%,#101315 100%);
+ color:#f6e8d1;border:1px solid #696e70;border-top-color:#a6a8a5;
+ box-shadow:inset 0 1px #ffffff30,0 2px 3px #0009;
+ cursor:pointer;
+}
+#brand .preset-header-nav{width:37px;font:700 29px/36px Arial,sans-serif}
+#brand .preset-previous{right:172px}
+#brand .preset-next{right:130px}
+#brand .preset-header-save{right:17px;width:103px;font:800 14px Arial,sans-serif;letter-spacing:.7px}
+#brand .preset-header-nav:hover,#brand .preset-header-save:hover{color:#a7dcff;border-color:#5090ba}
+
+/* Wide, instrument-matched sound library. Group and search all sounds at once. */
+#patch-dialog{
+ box-sizing:border-box;width:min(1180px,96vw)!important;max-width:96vw!important;
+ max-height:90vh!important;overflow-y:auto!important;
+ padding:26px 30px 28px!important;
+ background:#141719 url("./powder.svg") repeat!important;
+ border:2px solid #bcb1a0!important;
+ border-radius:15px!important;
+ box-shadow:0 20px 85px #000d,inset 0 1px #ffffff26!important;
+ color:#e9dfcf!important;
+}
+#patch-dialog::backdrop{background:#030607d9;backdrop-filter:blur(3px)}
+#patch-dialog h2{font:900 24px Orbitron,Arial,sans-serif!important;color:#f2e2c7;margin:5px 0 14px!important;font-style:normal!important}
+#patch-dialog .close{color:#e5dac9;background:#272b2c;border:1px solid #676c6b;border-radius:4px;width:37px;height:37px;float:right;line-height:29px}
+#patch-dialog > label:has(#preset){display:none!important}
+#patch-dialog .preset-browser{margin:0 0 20px!important}
+#patch-dialog .preset-browser-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:16px;flex-wrap:wrap}
+#patch-dialog .preset-browser-head h3{margin:0;font:900 21px Orbitron,Arial,sans-serif;color:#f1e4ce}
+#patch-dialog .preset-eyebrow{display:block;font:800 11px Arial,sans-serif;color:#62b7ea;letter-spacing:2px;margin-bottom:6px}
+#patch-dialog .preset-browser-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#patch-dialog .preset-group-tabs{display:flex;gap:3px;padding:3px;background:#090e11;border:1px solid #505658;border-radius:5px}
+#patch-dialog .preset-group-tabs button{
+ padding:9px 16px;font:700 12px Arial,sans-serif;color:#c6c9c8;
+ background:#202527;border:1px solid #384245;border-radius:3px;cursor:pointer
+}
+#patch-dialog .preset-group-tabs button.selected{background:#187dc0;color:white;box-shadow:inset 0 1px #9bddff,0 0 7px #1675b475}
+#patch-dialog #preset-search{
+ width:220px;max-width:100%;height:40px;padding:0 12px;
+ background:#090e11;color:#f1e8d9;border:1px solid #666d6e;border-radius:4px;
+ font:14px Arial,sans-serif
+}
+#patch-dialog .preset-browser-list{
+ max-height:min(52vh,500px);min-height:180px;overflow-y:auto;
+ padding:12px 14px 18px;
+ background:linear-gradient(#111718,#0e1213);
+ border:1px solid #525b5c;border-radius:8px;
+ scrollbar-color:#597785 #1a2022;
+}
+#patch-dialog .preset-browser-group{margin:0 0 17px}
+#patch-dialog .preset-browser-group h4{
+ color:#eee0c8;font:900 13px Orbitron,Arial,sans-serif;
+ margin:7px 0 10px;padding:0 0 7px;
+ border-bottom:1px solid #546269
+}
+#patch-dialog .preset-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#patch-dialog .preset-tile{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ min-height:59px;text-align:left;gap:6px;padding:10px 12px;
+ background:linear-gradient(#303637,#1c2225);border:1px solid #465255;border-top-color:#7b8685;
+ border-radius:5px;box-shadow:0 2px 3px #0009;
+ color:#eee4d4;cursor:pointer;
+}
+#patch-dialog .preset-tile strong{font:700 14px Arial,sans-serif;line-height:1.2}
+#patch-dialog .preset-tile small{font:700 10px Arial,sans-serif;color:#91acba;letter-spacing:.45px}
+#patch-dialog .preset-tile:hover{border-color:#64a7d2;background:#293b47}
+#patch-dialog .preset-tile.selected{border-color:#59b9ef;background:linear-gradient(#205b81,#173d5c);box-shadow:inset 0 0 0 1px #56abe688,0 0 5px #48a5db88}
+#patch-dialog .preset-tile.selected small{color:#d5f0ff}
+#patch-dialog .preset-empty{color:#bdc7c8;text-align:center;padding:35px 0}
+#patch-dialog .actions{gap:7px;margin:12px 0 12px!important}
+#patch-dialog .actions button,#patch-dialog .actions .file{
+ padding:10px 13px;background:linear-gradient(#3e4444,#1b2122);color:#e7e0d3;
+ border:1px solid #6b7474;border-radius:4px;font:700 12px Arial,sans-serif
+}
+#patch-dialog .actions button:hover,#patch-dialog .actions .file:hover{border-color:#65afd8}
+#patch-dialog #patch-status{color:#85d0f9!important;min-height:17px;font:12px Arial,sans-serif}
+#patch-dialog h3:not(.preset-browser-head h3){font:900 15px Orbitron,Arial,sans-serif!important;color:#f2e2c7;margin-top:24px}
+#patch-dialog .hint{color:#adb8b9}
+@media(max-width:850px){
+ #patch-dialog .preset-browser-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #patch-dialog .preset-browser-head{align-items:flex-start}
+}
