@@ -462,6 +462,9 @@ export class Effects {
     this.dcOut = [0, 0];
     this.dcPole = Math.exp((-TAU * 15) / sr);
     this.chorusEnable = 0;
+    this.bassShelfState = [0,0];
+    this.boostSmoothed = 0;
+    this.bassShelfCoeff = 1-Math.exp(-TAU * 100 / sr);
   }
   clear() {
     for (const b of [
@@ -476,6 +479,8 @@ export class Effects {
     this.dcIn.fill(0);
     this.dcOut.fill(0);
     this.left = this.right = 0;
+    this.bassShelfState.fill(0);
+    this.boostSmoothed=0;
   }
   read(b, pos, delay) {
     let i = (pos - delay + b.length * 2) % b.length,
@@ -534,15 +539,24 @@ export class Effects {
       if (i < 4) rl += v * 0.25;
       else rr += v * 0.25;
     }
-    const xl = l + rl * p.reverbMix,
-      xr = r + rr * p.reverbMix;
+    const dryL=l+rl*p.reverbMix,dryR=r+rr*p.reverbMix;
+    // DeepMind-inspired post-VCA 100 Hz low-shelf, moderate +4.6 dB.
+    // Single-pole low band is calculated continuously to prevent click on toggle.
+    this.bassShelfState[0]+=this.bassShelfCoeff*(dryL-this.bassShelfState[0]);
+    this.bassShelfState[1]+=this.bassShelfCoeff*(dryR-this.bassShelfState[1]);
+    this.boostSmoothed+=((p.bassBoost||0)-this.boostSmoothed)*.0005;
+    const boostGain=this.boostSmoothed*.70;
+    const xl=dryL+this.bassShelfState[0]*boostGain,
+          xr=dryR+this.bassShelfState[1]*boostGain;
     const yl = xl - this.dcIn[0] + this.dcPole * this.dcOut[0],
       yr = xr - this.dcIn[1] + this.dcPole * this.dcOut[1];
     this.dcIn[0] = xl;
     this.dcIn[1] = xr;
     this.dcOut[0] = yl;
     this.dcOut[1] = yr;
-    this.left = saturate(yl * p.volume);
-    this.right = saturate(yr * p.volume);
+    // Revised master output: approximately +5 dB versus the previous build.
+    // Saturation provides a ceiling for dense chords and boosted basses.
+    this.left = saturate(yl * p.volume * 1.8);
+    this.right = saturate(yr * p.volume * 1.8);
   }
 }
