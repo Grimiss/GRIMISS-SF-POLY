@@ -225,40 +225,76 @@ export class JunoFilter {
 }
 // Vintage-inspired analogue filter algorithms; not component-exact circuit clones.
 export class MS20Filter {
- constructor(){this.hp=0;this.lp=0;this.bp=0;this.hz=-1;this.g=0;this.hpG=0;this.targetG=0;}
+ constructor(){this.hp=0;this.lp=0;this.bp=0;this.hz=-1;this.g=0;this.hpG=0;this.targetG=0;this.oscPhase=0;this.oscLevel=0;}
  tick(x,hz,res,sr,hpf=150){
-  if(hz!==this.hz){this.targetG=Math.tan(Math.PI*clamp(hz,20,sr*.3)/sr);this.hz=hz;}
-  const hpTarget=1-Math.exp(-TAU*clamp(hpf,25,sr*.26)/sr);
-  this.hpG+=(hpTarget-this.hpG)*.03;this.g+=(this.targetG-this.g)*.03;
-  const shaped=Math.tanh((x-this.lp*res*1.6)*2.1);
-  this.hp+=this.hpG*(shaped-this.hp);
-  const high=shaped-this.hp,g=this.g,k=clamp(1.8-1.6*res,.22,1.8);
-  const aa=1/(1+g*(g+k)),v1=aa*(this.bp+g*(high-this.lp)),v2=this.lp+g*v1;
+  // Nonlinear resonant high-pass into aggressive low-pass.
+  const pitch=clamp(hz,20,sr*.3);
+  if(pitch!==this.hz){this.targetG=Math.tan(Math.PI*pitch/sr);this.hz=pitch;}
+  this.g+=(this.targetG-this.g)*.03;
+  const hpTarget=1-Math.exp(-TAU*clamp(hpf,20,sr*.27)/sr);
+  this.hpG+=(hpTarget-this.hpG)*.03;
+  const drive=Math.tanh(x*2.9);
+  this.hp+=this.hpG*(drive-this.hp);
+  const high=drive-this.hp;
+  const q=clamp(1.7-1.6*res,.13,1.8);
+  const g=this.g,aa=1/(1+g*(g+q));
+  const v1=aa*(this.bp+g*(high-this.lp)),v2=this.lp+g*v1;
   this.bp=2*v1-this.bp;this.lp=2*v2-this.lp;
-  return Math.tanh(v2*1.65)*1.12;
+  const filtered=Math.tanh(v2*(1.6+.6*res))*1.12;
+  // Smooth, bounded cutoff-tracking feedback whistle above ~68% resonance.
+  // Avoids the high-resonance null in the previous digital approximation.
+  const amt=clamp((res-.64)/.30,0,1);
+  const target=amt*amt*(.20+.50*amt);
+  this.oscLevel+=(target-this.oscLevel)*.004;
+  this.oscPhase+=TAU*clamp(pitch,20,11000)/sr;
+  if(this.oscPhase>=TAU)this.oscPhase-=TAU;
+  return filtered*(1-.15*amt)+Math.sin(this.oscPhase)*this.oscLevel;
  }
 }
 export class SEMFilter {
  constructor(){this.low=0;this.band=0;this.hz=-1;this.g=0;this.targetG=0;}
  tick(x,hz,res,sr,morph=.5){
-  if(hz!==this.hz){this.targetG=Math.tan(Math.PI*clamp(hz,20,sr*.32)/sr);this.hz=hz;}
-  this.g+=(this.targetG-this.g)*.03;
-  const g=this.g,k=clamp(1.95-1.65*res,.18,2),aa=1/(1+g*(g+k));
-  const v1=aa*(this.band+g*(Math.tanh(x*1.1)-this.low));
-  const low=this.low+g*v1;
+  const pitch=clamp(hz,20,sr*.29);
+  if(pitch!==this.hz){this.targetG=Math.tan(Math.PI*pitch/sr);this.hz=pitch;}
+  this.g+=(this.targetG-this.g)*.035;
+  const g=this.g,q=clamp(1.8-1.55*res,.25,1.8),aa=1/(1+g*(g+q));
+  const input=Math.tanh(x*(1.45+.35*res));
+  const v1=aa*(this.band+g*(input-this.low)),low=this.low+g*v1;
   this.band=2*v1-this.band;this.low=2*low-this.low;
-  const high=Math.tanh(x*1.1)-k*v1-low,notch=low+high,m=clamp(morph,0,1)*2;
-  return (m<1 ? low*(1-m)+notch*m : notch*(2-m)+high*(m-1))*1.05;
+  const high=input-q*v1-low,notch=low+high,m=clamp(morph,0,1)*2;
+  const shape=m<1?low*(1-m)+notch*m:notch*(2-m)+high*(m-1);
+  return Math.tanh(shape*(1.35+.55*res))*1.28;
  }
 }
 export class LadderFilter {
  constructor(){this.z=new Float64Array(4);this.hz=-1;this.g=0;this.targetG=0;}
  tick(x,hz,res,sr){
-  if(hz!==this.hz){const t=Math.tan(Math.PI*clamp(hz,20,sr*.3)/sr);this.targetG=t/(1+t);this.hz=hz;}
+  const pitch=clamp(hz,20,sr*.29);
+  if(pitch!==this.hz){const t=Math.tan(Math.PI*pitch/sr);this.targetG=t/(1+t);this.hz=pitch;}
   this.g+=(this.targetG-this.g)*.035;
-  let v=Math.tanh(x*1.75-this.z[3]*(3.2*res));
-  for(let i=0;i<4;i++){const target=Math.tanh(v*1.1);this.z[i]+=this.g*(target-this.z[i]);v=this.z[i];}
-  return v*(1+res*.55);
+  let v=Math.tanh(x*(2.5+.7*res)-this.z[3]*(3.65*res));
+  for(let i=0;i<4;i++){const target=Math.tanh(v*1.25);this.z[i]+=this.g*(target-this.z[i]);v=this.z[i];}
+  return v*(1.45+.6*res);
+ }
+}
+// Early digital-style tuned comb. Inspired by digital wavetable instrument
+// filter effects, not a component-exact reconstruction.
+export class DigitalCombFilter {
+ constructor(){this.buffer=new Float32Array(8192);this.pos=0;this.delay=0;this.damped=0;}
+ tick(x,hz,res,sr){
+  const len=this.buffer.length;
+  const target=clamp(sr/clamp(hz,32,8800),3,len-4);
+  if(this.delay===0)this.delay=target;
+  this.delay+=(target-this.delay)*.0018;
+  let index=this.pos-this.delay;if(index<0)index+=len;
+  const lo=Math.floor(index),frac=index-lo;
+  const wet=this.buffer[lo]*(1-frac)+this.buffer[(lo+1)%len]*frac;
+  const feedback=.1+clamp(res,0,.98)*.87;
+  this.damped+=(wet-this.damped)*.48;
+  this.buffer[this.pos]=Math.tanh(x*.88+this.damped*feedback);
+  this.pos=(this.pos+1)%len;
+  // Dry presence preserves articulation; resonance generates metallic ringing.
+  return Math.tanh(x*.3+wet*(.75+.55*res))*1.18;
  }
 }
 export class Model {
@@ -269,7 +305,7 @@ export class Model {
     this.thickOffset=Math.sin(index*2.77+kind*5.13);
     // Each model owns all three lightweight filter states; only the selected
     // filter processes samples. No allocations occur in the audio callback.
-    this.filters = [new CEMFilter(), new SSMFilter(), new JunoFilter(),new MS20Filter(),new SEMFilter(),new LadderFilter()];
+    this.filters = [new CEMFilter(), new SSMFilter(), new JunoFilter(),new MS20Filter(),new SEMFilter(),new LadderFilter(),new DigitalCombFilter()];
     this.filter = this.filters[kind];
     this.filterChoice = kind;
     this.previousFilter = kind;
@@ -374,8 +410,8 @@ export class Model {
         this.filterFade = 1;
       }
       const activeFilter=this.filters[this.filterChoice];
-      const filterHz=this.cutoff*([1.42,1.06,.69,1,1,1][this.filterChoice]);
-      const filterRes=clamp(p.resonance*([1.16,1.05,.86,1,1,1][this.filterChoice]),0,.97);
+      const filterHz=this.cutoff*([1.42,1.06,.69,1,1,1,1][this.filterChoice]);
+      const filterRes=clamp(p.resonance*([1.16,1.05,.86,1,1,1,1][this.filterChoice]),0,.97);
       const semMorph=clamp(Math.log(Math.max(10,p.hpf)/10)/Math.log(300),0,1);
       let filtered=activeFilter.tick(warm,filterHz,filterRes,sr,
         this.filterChoice===3?p.hpf:semMorph);
@@ -383,8 +419,8 @@ export class Model {
         // Crossfade while both old and new filter memories are running.
         const oldIndex=this.previousFilter;
         const old=this.filters[oldIndex].tick(warm,
-          this.cutoff*([1.42,1.06,.69,1,1,1][oldIndex]),
-          clamp(p.resonance*([1.16,1.05,.86,1,1,1][oldIndex]),0,.97),sr,
+          this.cutoff*([1.42,1.06,.69,1,1,1,1][oldIndex]),
+          clamp(p.resonance*([1.16,1.05,.86,1,1,1,1][oldIndex]),0,.97),sr,
           oldIndex===3?p.hpf:semMorph);
         filtered = filtered * (1-this.filterFade) + old * this.filterFade;
         this.filterFade = Math.max(0,this.filterFade - 1/(this.sr*.006));
