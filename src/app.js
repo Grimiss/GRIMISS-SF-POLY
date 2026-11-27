@@ -4,8 +4,8 @@ import {
   toUnit,
   fromUnit,
   initialMusic,
-} from "./parameters.js";
-import { AudioClient } from "./audio/client.js?v=20261127-lower2-v1";
+} from "./parameters.js?v=20261127-oscpitch-v2";
+import { AudioClient } from "./audio/client.js?v=20261127-oscpitch-v2";
 import {
   factory,
   factoryGroups,
@@ -13,7 +13,7 @@ import {
   validatePatch,
   readUsers,
   writeUsers,
-} from "./presets.js?v=20261127-soundlib-v2";
+} from "./presets.js?v=20261127-oscpitch-v2";
 const $ = (s) => document.querySelector(s),
   el = (tag, cls, parent) => {
     const n = document.createElement(tag);
