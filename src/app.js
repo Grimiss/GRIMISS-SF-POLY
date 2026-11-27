@@ -572,7 +572,7 @@ for (const [k, label, x] of [
 // Physical-style keyboard latching. HOLD is independent of exclusive ADD/REPLACE.
 // These controls affect manual computer/on-screen notes; MIDI note velocity is also
 // handled by VELOCITY. Latches use stable IDs and are explicitly released on panic.
-let keyHold=false,keyHoldMode="add",velocitySensitive=true;
+let keyHold=false,keyHoldMode="add",velocitySensitive=false;
 const latchedKeys=new Map();
 const keyControlPanel=el("div","key-control-panel",wheel);
 const holdButton=el("button","key-option",keyControlPanel);
@@ -582,7 +582,8 @@ addButton.type="button";addButton.textContent="ADD";
 const replaceButton=el("button","key-option",keyControlPanel);
 replaceButton.type="button";replaceButton.textContent="REPLACE";
 const velocityButton=el("button","key-option key-velocity",keyControlPanel);
-velocityButton.type="button";velocityButton.textContent="VEL ON";
+velocityButton.type="button";velocityButton.textContent="VELOCITY";
+velocityButton.title="Enable note velocity sensitivity (off by default)";
 function releaseLatchedKeys(){
  for(const [note,id] of latchedKeys){send({type:"off",id});visualNote(note,false);}
  latchedKeys.clear();
@@ -591,7 +592,7 @@ function updateKeyOptions(){
  for(const [b,on] of [[holdButton,keyHold],[addButton,keyHoldMode==="add"],[replaceButton,keyHoldMode==="replace"],[velocityButton,velocitySensitive]]){
   b.classList.toggle("selected",on);b.setAttribute("aria-pressed",String(on));
  }
- velocityButton.textContent=velocitySensitive?"VEL ON":"VEL OFF";
+ velocityButton.textContent="VELOCITY";
 }
 holdButton.onclick=()=>{keyHold=!keyHold;if(!keyHold)releaseLatchedKeys();updateKeyOptions();};
 addButton.onclick=()=>{keyHoldMode="add";updateKeyOptions();};
