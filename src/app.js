@@ -784,29 +784,50 @@ function midiMessage(port, event) {
     }
   } else if (type === 224) setParam("bend", ((n + v * 128 - 8192) / 8192) * 2);
 }
-$("#midi").onclick = async () => {
-  try {
-    await ready();
-    if (!navigator.requestMIDIAccess)
-      throw Error("Web MIDI is unavailable in this browser");
-    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-    const connect = () => {
-      for (const port of midiAccess.inputs.values())
-        port.onmidimessage = (e) => midiMessage(port, e);
-      status(`MIDI connected · ${midiAccess.inputs.size} input(s)`);
+// Attempt to reconnect MIDI automatically after first browser permission grant.
+// Web MIDI is independent of audio activation. Audio remains subject to a user
+// gesture and is never started implicitly.
+let midiConnecting=false;
+async function connectMIDI(automatic=false){
+  if(midiConnecting)return;
+  if(midiAccess){
+    for(const port of midiAccess.inputs.values())
+      port.onmidimessage=(event)=>midiMessage(port,event);
+    status("MIDI connected · "+midiAccess.inputs.size+" input(s)");
+    return;
+  }
+  if(!navigator.requestMIDIAccess){
+    if(!automatic)status("MIDI: Web MIDI is unavailable in this browser");
+    return;
+  }
+  midiConnecting=true;
+  try{
+    midiAccess=await navigator.requestMIDIAccess({sysex:false});
+    const bindPorts=()=>{
+      for(const port of midiAccess.inputs.values())
+        port.onmidimessage=(event)=>midiMessage(port,event);
+      const n=midiAccess.inputs.size;
+      $("#midi").textContent=n?"MIDI CONNECTED":"CONNECT MIDI";
+      $("#midi").title=n?"MIDI connected · "+n+" input(s)":"No MIDI input detected; reconnect devices";
+      status("MIDI connected · "+n+" input(s)");
     };
-    midiAccess.onstatechange = (e) => {
-      if (e.port.state === "disconnected") {
+    midiAccess.onstatechange=(event)=>{
+      if(event.port.state==="disconnected"){
         midiQueues.clear();
         panic();
       }
-      connect();
+      bindPorts();
     };
-    connect();
-  } catch (e) {
-    status("MIDI: " + e.message);
-  }
-};
+    bindPorts();
+  }catch(error){
+    // Permission may require an explicit gesture. Retain the manual button.
+    if(!automatic)status("MIDI: "+error.message);
+  }finally{midiConnecting=false;}
+}
+$("#midi").onclick=()=>connectMIDI(false);
+// Permission-aware automatic reconnection when the browser restores the page.
+// Some browsers block Web MIDI without a gesture; the manual fallback remains.
+window.addEventListener("load",()=>connectMIDI(true),{once:true});
 const presetButton = el("button","preset-launch",$("#brand"));
 presetButton.type="button";
 presetButton.textContent="Initialize";
