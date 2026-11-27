@@ -188,6 +188,8 @@ export class SynthEngine {
           f.s1=f.s2=f.feedback=0;
           f.hp=f.lp=f.bp=f.low=f.band=0;
           f.g=f.G=f.hpG=0;f.hz=-1;
+          if(f.buffer)f.buffer.fill(0);
+          f.pos=f.delay=f.damped=f.oscPhase=f.oscLevel=0;
         }
         m.filterFade=0;
         m.hpIn = m.hpOut = 0;
