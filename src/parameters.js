@@ -20,6 +20,7 @@ export const specs = {
   hpf: [10, 3000, 10, "log"],
   cutoff: [20, 18000, 3200, "log"],
   resonance: [0, 0.94, 0.15],
+  filterModel: [0, 3, 0], // 0 native, 1 Roland, 2 SSM, 3 Curtis
   envAmount: [-6, 8, 2],
   filterA: [0.002, 60, 0.04, "log"],
   filterD: [0.005, 60, 0.5, "log"],
