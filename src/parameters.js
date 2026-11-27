@@ -97,7 +97,7 @@ export function toUnit(k, v) {
   );
 }
 export const initialMusic = () => ({
-  arp: { on: false, mode: "up", hold: false, range: 1, rate: 5 },
+  arp: { on: false, mode: "up", hold: false, range: 1, rate: 5, clock: "internal" },
   seq: {
     root: 48,
     length: 16,
