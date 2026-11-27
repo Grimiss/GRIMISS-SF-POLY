@@ -177,149 +177,88 @@ function section(name, x, y, w, h, color = "blue", upper = false) {
   el("h2", "", s).textContent = name;
   return s;
 }
-const upper = [
-  [
-    "LFO",
-    52,
-    160,
-    [
-      ["lfoRate", "RATE"],
-      ["lfoDelay", "DELAY"],
-    ],
-  ],
-  [
-    "DCO",
-    221,
-    274,
-    [
-      ["osc1Tune", "OSC 1"],
-      ["osc2Tune", "OSC 2"],
-      ["subOct", "SUB"],
-      ["pw", "PW"],
-    ],
-  ],
-  [
-    "MIXER",
-    503,
-    219,
-    [
-      ["mix1", "OSC 1"],
-      ["mix2", "OSC 2"],
-      ["mixSub", "SUB"],
-      ["mixNoise", "NOISE"],
-    ],
-  ],
-  [
-    "HPF / VCF",
-    729,
-    252,
-    [
-      ["hpf", "HPF"],
-      ["cutoff", "CUTOFF"],
-      ["resonance", "RES"],
-      ["envAmount", "ENV"],
-    ],
-  ],
-  [
-    "ENV 1 (FILTER)",
-    989,
-    242,
-    [
-      ["filterA", "A"],
-      ["filterD", "D"],
-      ["filterS", "S"],
-      ["filterR", "R"],
-    ],
-  ],
-  [
-    "ENV 2 (AMP)",
-    1239,
-    241,
-    [
-      ["ampA", "A"],
-      ["ampD", "D"],
-      ["ampS", "S"],
-      ["ampR", "R"],
-    ],
-  ],
-  [
-    "MASTER",
-    1488,
-    235,
-    [
-      ["tune", "TUNE"],
-      ["width", "WIDTH"],
-      ["volume", "VOLUME"],
-    ],
-  ],
+// New 1980s panel layout: separate HPF/BOOST, large VCF and stacked DCO waves.
+// All original parameter names and patch storage remain compatible.
+const upperLayout=[
+ ["LFO",52,124],
+ ["DCO",184,255],
+ ["MIXER",447,189],
+ ["HPF",644,106],
+ ["FILTER",758,365],
+ ["ENV 1 (FILTER)",1131,201],
+ ["ENV 2 (AMP)",1340,201],
+ ["MASTER",1549,176]
 ];
-let lfoSection, dcoSection, vcfSection;
-for (const [name, x, w, controls] of upper) {
-  const s = section(
-    name,
-    x,
-    112,
-    w,
-    231,
-    name.startsWith("ENV") || name.startsWith("HPF") ? "red" : "blue",
-    true,
-  );
-  if (name === "LFO") lfoSection = s;
-  if (name === "DCO") dcoSection = s;
-  if (name === "HPF / VCF") vcfSection = s;
-  let centers;
-  if (name === "DCO") centers = [33, 118, 195, 247];
-  else if (name === "LFO") centers = [49, 121];
-  else
-    centers = {
-      MIXER: [35, 85, 138, 190],
-      "HPF / VCF": [36, 98, 159, 214],
-      "ENV 1 (FILTER)": [37, 93, 150, 205],
-      "ENV 2 (AMP)": [38, 94, 149, 203],
-      MASTER: [40, 113, 194],
-    }[name];
-  controls.forEach(([k, label], i) =>
-    range(s, k, label, centers[i] - 25, name === "HPF / VCF" ? 96 : 46, 50, name === "LFO" ? 132 : name === "DCO" ? 114 : name === "HPF / VCF" ? 116 : 168),
-  );
+const upperSections=new Map();
+for(const [name,x,w] of upperLayout)
+ upperSections.set(name,section(name,x,112,w,231,"blue",true));
+const lfoSection=upperSections.get("LFO"),
+  dcoSection=upperSections.get("DCO"),
+  mixerSection=upperSections.get("MIXER"),
+  hpfSection=upperSections.get("HPF"),
+  vcfSection=upperSections.get("FILTER");
+
+function upperFaders(section,keys,centres,top=46,height=166,width=46){
+ keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
-// All filter models have dedicated on-panel hardware buttons, no dropdown.
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[36,90],46,168,39);
+upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[27,73,118,163],46,168,39);
+upperFaders(hpfSection,[["hpf","HPF"]],[53],45,145,54);
+const boostButton=button(hpfSection,"bassBoost","BOOST",16,192,74,27,()=>{
+ setParam("bassBoost",params.bassBoost>=.5?0:1);
+ refreshSwitches();
+});
+boostButton.title="100 Hz low-frequency shelving boost";
+boostButton.setAttribute("aria-label","Bass boost");
+upperFaders(vcfSection,[["cutoff","CUTOFF"],["resonance","RES"],["envAmount","ENV"]],[39,110,183],46,170,57);
+for(const [name,base,xs] of [
+ ["ENV 1 (FILTER)",[["filterA","A"],["filterD","D"],["filterS","S"],["filterR","R"]],[25,74,123,172]],
+ ["ENV 2 (AMP)",[["ampA","A"],["ampD","D"],["ampS","S"],["ampR","R"]],[25,74,123,172]]
+])upperFaders(upperSections.get(name),base,xs,46,168,40);
+upperFaders(upperSections.get("MASTER"),[["tune","TUNE"],["volume","VOLUME"]],[48,129],46,168,52);
+
+// Independent oscillator tune faders now have a full-size travel.
+upperFaders(dcoSection,[["osc1Tune","OSC 1"],["osc2Tune","OSC 2"]],[23,119],46,170,39);
+// Shared SUB and PW remain available as two compact right-side faders.
+upperFaders(dcoSection,[["subOct","SUB"],["pw","PW"]],[211,238],55,125,24);
+// Each oscillator has its own vertical, tactile five-waveform column.
+const waveLabels=["SAW","TRI","PLS","SQR","PWM"];
+for(let osc=1;osc<=2;osc++){
+ const row=el("div","osc-wave-stack",dcoSection);
+ row.style.left=(osc===1?46:141)+"px";
+ row.setAttribute("role","group");
+ row.setAttribute("aria-label","Oscillator "+osc+" waveform");
+ waveLabels.forEach((name,i)=>{
+  const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
+  b.type="button";b.textContent=name;
+  b.title="Oscillator "+osc+": "+(name==="PLS"?"PULSE":name);
+  b.setAttribute("aria-label",b.title);
+  b.onclick=()=>{setParam("wave"+osc,i);refreshSwitches();};
+  toggles.set(b.id,b);
+ });
+}
+// Eight filter models form a compact column at right; no menus.
 const filterChoices=["NATIVE","ROLAND","SSM","CURTIS","MS-20","SEM","LADDER","COMB"];
 const filterBoard=el("div","filter-button-board",vcfSection);
 filterChoices.forEach((name,i)=>{
  const b=el("button","filter-choice",filterBoard);
- b.type="button";b.textContent=name;b.title="VCF model: "+name;
- b.setAttribute("aria-label",b.title);
- b.classList.toggle("on",Math.round(params.filterModel)===i);
- b.setAttribute("aria-pressed",String(Math.round(params.filterModel)===i));
+ b.type="button";b.textContent=name;
+ b.title="Filter model "+name;b.setAttribute("aria-label",b.title);
  b.onclick=()=>setParam("filterModel",i);
  if(!bindings.has("filterModel"))bindings.set("filterModel",[]);
  bindings.get("filterModel").push({input:{value:0},paint:v=>{
   b.classList.toggle("on",Math.round(v)===i);
-  b.setAttribute("aria-pressed",Math.round(v)===i?"true":"false");
+  b.setAttribute("aria-pressed",String(Math.round(v)===i));
  }});
+ b.classList.toggle("on",Math.round(params.filterModel)===i);
 });
-// Matched screen-printed analogue oscillator shapes, light grey when inactive.
 const lfoWaveIcons=[
  '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 11 C6 -2 12 -2 18 11 S30 24 35 11 S40 4 41 11" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg>',
  '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 L11 2 L21 20 L31 2 L41 20" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>',
  '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 V2 H21 V20 H41" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>'
 ];
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
-  21+i*46,188,39,31,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
-const waveLabels=["SAW","TRI","PULSE","SQR","PWM"];
-for(let osc=1;osc<=2;osc++){
- const row=el("div","osc-wave-row",dcoSection);
- row.style.top=(osc===1?173:202)+"px";
- const name=el("span","osc-row-name",row);name.textContent="OSC "+osc;
- waveLabels.forEach((label,i)=>{
-  const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
-  b.type="button";b.textContent=label==="PULSE"?"PLS":label;
-  b.title="Oscillator "+osc+" · "+label;
-  b.setAttribute("aria-label",b.title);
-  b.onclick=()=>{setParam("wave"+osc,i);refreshSwitches();};
-  toggles.set(b.id,b);
- });
-}
+  6+i*39,189,34,29,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 368, 316, 186, "white");
 function setArp(value) {
   Object.assign(music.arp, value);
@@ -718,6 +657,7 @@ function refreshSwitches() {
       setOn(`wave${osc}-${i}`, Math.round(params["wave" + osc]) === i);
   }
   for(let osc=1;osc<=2;osc++) for(let i=3;i<5;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
+  setOn("bassBoost",params.bassBoost>=.5);
   setOn("arpOn", music.arp.on);
   setOn("arpHold", music.arp.hold);
   setOn("arpUp", ["up", "pendulum"].includes(music.arp.mode));
@@ -1115,6 +1055,7 @@ for (const [k, label] of [
   ["lfoPitch", "LFO → pitch"],
   ["lfoPWM", "LFO → PWM"],
   ["lfoFilter", "LFO → filter"],
+  ["width", "Stereo width"],
 ]) {
   const l = el("label", "", $("#context-controls"));
   l.append(document.createTextNode(label));
