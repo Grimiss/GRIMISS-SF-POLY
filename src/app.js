@@ -161,6 +161,27 @@ function rotary(parent,k,label,x,y,size=53){
  const caption=el("label","sf-rotary-label",root);
  caption.textContent=label;
  const face=el("div","sf-knob-face",root);
+ // Eleven physical graduation marks at positions 0–10 (ten intervals).
+ // Angular travel is exactly -135° to +135°: no markings on the dead arc.
+ // The SVG sits outside the knob bezel, scales with each knob diameter
+ // and has no pointer events, leaving the full knob hit area available.
+ const tickSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ tickSvg.setAttribute("viewBox","0 0 100 100");
+ tickSvg.setAttribute("aria-hidden","true");
+ tickSvg.classList.add("sf-knob-ticks");
+ for(let i=0;i<=10;i++){
+   const radians=(-135+i*27)*Math.PI/180;
+   const inner=i%5===0?39:42;
+   const outer=48;
+   const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+   line.setAttribute("x1",(50+inner*Math.sin(radians)).toFixed(3));
+   line.setAttribute("y1",(50-inner*Math.cos(radians)).toFixed(3));
+   line.setAttribute("x2",(50+outer*Math.sin(radians)).toFixed(3));
+   line.setAttribute("y2",(50-outer*Math.cos(radians)).toFixed(3));
+   line.classList.add(i%5===0?"sf-knob-major-tick":"sf-knob-minor-tick");
+   tickSvg.append(line);
+ }
+ face.append(tickSvg);
  const marker=el("i","sf-knob-marker",face);
  const input=el("input","sf-knob-input",face);
  input.type="range";input.min=0;input.max=1;input.step=.0001;
@@ -451,7 +472,7 @@ const ch = section("CIRCUIT CHARACTER", 924, 350, 205, 231, "white");
 // Panel descriptions evoke each engine without changing its patch identity.
 const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
 const characterIds=characters.map(c=>c[2]);
-const characterToggle=button(ch,"characterToggle","TOGGLE",78,165,49,22,()=>{
+const characterToggle=button(ch,"characterToggle","TOGGLE",77,158,49,24,()=>{
  const enabled=params.characterToggle<.5;
  setParam("characterToggle",enabled?1:0);
  if(enabled){
@@ -497,38 +518,32 @@ for(const [name,x,w,top] of [
  const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,38,76);
  mix.classList.add("sf-fx-mix-knob");
  const key=name==="DELAY"?"delayOn":"reverbOn";
- const onOff=button(sec,"fx-"+key,"ON",(w-74)/2,203,74,24,()=>{
+ const onOff=button(sec,"fx-"+key,"ON",(w-49)/2,195,49,24,()=>{
   setParam(key,params[key]>=.5?0:1);
   refreshSwitches();
  },"sf-fx-on");
  onOff.setAttribute("aria-label",name+" effect on/off");
 }
-const chorus = section("CHORUS", 1527, 350, 198, 231);
-for (const [i, label, x, w] of [
-  [1, "I", 12, 57],
-  [2, "II", 76, 57],
-  [0, "OFF", 12, 121],
-])
-  button(
-    chorus,
-    "chorus" + i,
-    label,
-    x,
-    i===0 ? 121 : 76,
-    i===0 ? 121 : w,
-    i===0 ? 34 : 37,
-    (e) => {
-      setParam("chorusMode", i === 0 ? 0 : (Math.round(params.chorusMode) ^ i));
-      refreshSwitches();
-    },
-  );
-rotary(chorus, "chorusMix", "MIX", 139, 77, 52);
-// Punched red lamp bezels above independent chorus I / II switches.
-for(const [n,x] of [[1,37],[2,101]]){
+const chorus = section("CHORUS",1527,350,198,231);
+// Shared big MIX pot at the same top-row position and diameter as FX strips.
+const chorusMix=rotary(chorus,"chorusMix","MIX",(198-76)/2,38,76);
+chorusMix.classList.add("sf-fx-mix-knob");
+// I and II retain their independent bitmask switches, so both may be on.
+for(const [i,x] of [[1,42],[2,107]]){
+ const sw=button(chorus,"chorus"+i,i===1?"I":"II",x,158,49,24,()=>{
+   setParam("chorusMode",Math.round(params.chorusMode)^i);
+   refreshSwitches();
+ },"sf-chorus-mode");
+ sw.setAttribute("aria-label","Chorus "+i);
  const lamp=el("span","sf-chorus-lamp",chorus);
- lamp.style.left=x+"px";
- lamp.dataset.chorus=n;
+ lamp.style.left=(x+19.5)+"px";
+ lamp.dataset.chorus=i;
 }
+const chorusOff=button(chorus,"chorus0","OFF",(198-49)/2,195,49,24,()=>{
+ setParam("chorusMode",0);
+ refreshSwitches();
+},"sf-chorus-off");
+chorusOff.setAttribute("aria-label","Turn both chorus modes off");
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 let t = el("span", "wheel-title", wheel);
