@@ -1,0 +1,139 @@
+/* SF-POLY sound-first preset library | 27 November 2026.
+   The browser is intentionally NON-MODAL: keyboard stays visible,
+   there is no page dimming and outside clicks dismiss the list. */
+#patch-dialog:not([open]){display:none!important}
+#patch-dialog[open]{
+ position:fixed!important;
+ top:5vh!important;left:2vw!important;right:2vw!important;
+ margin:0 auto!important;
+ width:96vw!important;max-width:1510px!important;
+ max-height:66vh!important;
+ padding:13px 15px 11px!important;
+ overflow:auto!important;
+ z-index:10000!important;
+ border:1.5px solid #999d9a!important;
+ border-radius:8px!important;
+ box-shadow:0 10px 24px #000b,inset 0 1px #fff3!important;
+}
+#patch-dialog::backdrop{background:transparent!important;backdrop-filter:none!important}
+#patch-dialog > h2{margin:0 0 5px!important;font:900 15px Orbitron,Arial,sans-serif!important}
+#patch-dialog .close{width:26px;height:26px;line-height:20px;font-size:21px}
+#patch-dialog .preset-browser{margin:0 0 6px!important}
+#patch-dialog .preset-browser-head{
+ margin:1px 0 7px!important;align-items:center!important;gap:12px!important;
+ flex-wrap:nowrap!important;
+}
+#patch-dialog .preset-browser-head h3{font:900 16px Orbitron,Arial,sans-serif!important}
+#patch-dialog .preset-eyebrow{font-size:9px!important;letter-spacing:1.2px!important;margin-bottom:3px!important}
+#patch-dialog .preset-browser-tools{flex-wrap:nowrap!important;gap:10px!important}
+#patch-dialog .preset-sound-count{font:700 10px Arial,sans-serif;color:#9bb2bf;white-space:nowrap}
+#patch-dialog #preset-search{
+ min-width:155px!important;width:205px!important;height:30px!important;
+ padding:5px 9px!important;font:12px Arial,sans-serif!important;
+ background:#0b1216;color:#edf2f2;border:1px solid #63717a;border-radius:4px;
+}
+#patch-dialog .preset-browser-list{
+ max-height:none!important;
+ min-height:0!important;
+ overflow:visible!important;
+ padding:7px!important;
+ background:linear-gradient(#14191a,#101516)!important;
+ border:1px solid #3e4e53!important;
+}
+#patch-dialog .preset-sound-columns{
+ display:grid!important;
+ grid-template-columns:repeat(8,minmax(0,1fr))!important;
+ gap:5px!important;
+ align-items:start;
+}
+#patch-dialog .preset-sound-column{min-width:0;margin:0!important}
+#patch-dialog .preset-sound-column h4,
+#patch-dialog .preset-user-section h4{
+ padding:4px 5px 5px!important;
+ margin:0 0 4px!important;
+ border-bottom:1px solid #64747a!important;
+ color:#f1ddc2!important;
+ font:900 10px/13px Orbitron,Arial,sans-serif!important;
+ white-space:nowrap;letter-spacing:-.3px!important;
+}
+#patch-dialog .preset-sound-item{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ height:21px!important;min-height:21px!important;
+ padding:2px 6px!important;
+ margin:0 0 2px!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;
+ white-space:nowrap!important;
+ text-align:left!important;
+ border-radius:2px!important;
+ border:1px solid #3e4d50!important;
+ background:linear-gradient(#34393b,#1b2428)!important;
+ color:#eee4d4!important;
+ font:600 10px/15px Arial,sans-serif!important;
+ letter-spacing:0!important;
+ cursor:pointer!important;
+ box-shadow:none!important;
+}
+#patch-dialog .preset-sound-item:hover{
+ background:#2b5165!important;border-color:#79b9de!important;
+}
+#patch-dialog .preset-sound-item.selected{
+ background:linear-gradient(#2474a1,#125077)!important;
+ color:#fff!important;
+ border-color:#70bee9!important;
+ box-shadow:inset 0 0 0 1px #a6e2ff55!important;
+}
+#patch-dialog .preset-user-section{
+ margin-top:5px!important;
+ border-top:1px solid #78878b66!important;
+ padding-top:5px!important;
+}
+#patch-dialog .preset-user-grid{
+ display:grid;
+ grid-template-columns:repeat(8,minmax(0,1fr));
+ gap:4px;
+}
+#patch-dialog .preset-no-users{
+ font:11px/20px Arial,sans-serif;color:#a6ada8;margin-left:5px;
+}
+#patch-dialog .preset-advanced{
+ margin-top:6px;border:1px solid #424e50;border-radius:3px;
+ padding:5px 9px;background:#14191c;
+}
+#patch-dialog .preset-advanced > summary{
+ color:#aabfcb;font:800 10px Arial,sans-serif;
+ cursor:pointer;
+ letter-spacing:.4px;
+}
+#patch-dialog .preset-advanced[open]{max-height:42vh;overflow:auto}
+#patch-dialog .preset-advanced .actions{margin:9px 0!important}
+#patch-dialog .preset-advanced h3{margin:10px 0;font-size:14px}
+@media (max-width:1050px){
+ #patch-dialog[open]{top:3vh!important;max-height:76vh!important}
+ #patch-dialog .preset-sound-columns{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #patch-dialog .preset-sound-item{height:20px!important;margin-bottom:1px!important}
+ #patch-dialog .preset-user-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #patch-dialog .preset-browser-head{flex-wrap:wrap!important}
+}
+@media (max-width:620px){
+ #patch-dialog .preset-sound-columns{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #patch-dialog .preset-user-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #patch-dialog .preset-sound-count{display:none}
+}
+/* Neutral machined-metal engraving on every fader and slide cap.
+   Preserve physical black cap geometry, changing only the blue indicator. */
+#instrument .section .fader .cap,
+#instrument .section.upper .fader .cap,
+#instrument .section.lower .fader .cap{
+ background:linear-gradient(to bottom,
+  #3b4143 0%,#131719 31%,
+  #d6d5d0 43%,#aaaead 52%,
+  #121719 60%,#2a3032 100%)!important;
+}
+#instrument .horizontal .cap,
+#instrument .arp-rate-slider .cap,
+#instrument .section[data-section="VOICES"] .analog-cap{
+ background:linear-gradient(to right,
+  #32383b 0%,#0f1418 33%,#d1d2cd 46%,#aeb4b1 56%,#13191d 63%,#303537 100%)!important;
+}
