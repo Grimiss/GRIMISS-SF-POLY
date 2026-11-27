@@ -1,0 +1,60 @@
+/* SF-POLY — Oscillator pitch hardware update
+ * OSC 1 / OSC 2: stacked octave + true fine tune rotary knobs.
+ * Keep six waveform buttons, SUB OCT and PW in their original panel.
+ */
+#instrument .section[data-section="DCO"] .sf-osc-label{
+ position:absolute!important;
+ display:block!important;
+ top:39px!important;
+ width:53px!important;height:16px!important;
+ text-align:center!important;
+ color:#f0e2d0!important;
+ font:800 11px/16px Arial,sans-serif!important;
+ letter-spacing:.6px!important;
+}
+#instrument .section[data-section="DCO"] .sf-rotary.sf-osc-knob{
+ width:53px!important;
+ height:83px!important;
+}
+#instrument .section[data-section="DCO"] .sf-rotary.sf-octave-knob{
+ top:57px!important;
+}
+#instrument .section[data-section="DCO"] .sf-rotary.sf-fine-knob{
+ top:143px!important;
+}
+#instrument .section[data-section="DCO"] .sf-osc-knob .sf-rotary-label{
+ top:0!important;
+ color:#e7dfd1!important;
+ font:700 10px/15px Arial,sans-serif!important;
+}
+#instrument .section[data-section="DCO"] .sf-osc-knob .sf-knob-face{
+ top:24px!important;
+ width:40px!important;height:40px!important;
+}
+#instrument .section[data-section="DCO"] .sf-osc-knob .sf-knob-ticks{
+ top:-10px!important;left:-10px!important;
+ width:calc(100% + 20px)!important;
+ height:calc(100% + 20px)!important;
+}
+#instrument .section[data-section="DCO"] .sf-osc-knob .sf-knob-marker::before{
+ top:2px!important;height:11px!important;
+}
+#instrument .section[data-section="DCO"] .sf-octave-readout{
+ position:absolute!important;
+ top:70px!important;left:8px!important;right:8px!important;
+ text-align:center!important;
+ color:#e4e6e2!important;
+ font:700 11px/13px Arial,sans-serif!important;
+ pointer-events:none!important;
+}
+#instrument .section[data-section="DCO"] .osc-wave-stack{
+ top:48px!important;
+}
+/* Final fixed hardware rocker location: CHORUS ON matches
+   DELAY / REVERB at the bottom centre. */
+#instrument .section[data-section="CHORUS"] #chorus0{
+ top:199px!important;
+ left:74.5px!important;
+ width:49px!important;
+ height:24px!important;
+}
