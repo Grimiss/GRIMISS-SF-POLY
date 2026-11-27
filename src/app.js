@@ -13,7 +13,7 @@ import {
   validatePatch,
   readUsers,
   writeUsers,
-} from "./presets.js";
+} from "./presets.js?v=20261127-soundlib-v2";
 const $ = (s) => document.querySelector(s),
   el = (tag, cls, parent) => {
     const n = document.createElement(tag);
