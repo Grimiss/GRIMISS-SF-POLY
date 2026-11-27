@@ -1075,3 +1075,8 @@ input[type=range]{accent-color:#69b5f0}
  font:700 12px Arial,sans-serif;letter-spacing:.5px;cursor:pointer;
 }
 .section[data-section="HPF / VCF"] h2{max-width:118px;white-space:nowrap;font-size:21px}
+
+/* Five distinct oscillator waveform labels for each oscillator */
+.section[data-section="DCO"] .osc-bank-label{position:absolute;color:#c0d8eb;font:700 12px Arial,sans-serif;letter-spacing:1px}
+.section[data-section="DCO"] .osc-wave-name{position:absolute;color:#d4dfe8;font:700 12px Arial,sans-serif;white-space:nowrap;pointer-events:none}
+.section[data-section="DCO"] .wave-select{position:absolute;display:flex;align-items:center;justify-content:center;padding:0!important;font-size:10px!important;line-height:1!important}
