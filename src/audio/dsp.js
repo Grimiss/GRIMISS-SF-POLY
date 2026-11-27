@@ -298,7 +298,7 @@ export class Model {
           wrap = o[0].phase + dt >= 1 ? (o[0].phase + dt - 1) / dt : -1;
         a = o[0].tick(this.f1, sr, p.wave1, pwm1);
         b =
-          k === 2 || k === 1
+          k === 2
             ? 0
             : o[1].tick(
                 this.f2 * (1 + p.polyMod * 0.12 * a),
@@ -312,7 +312,7 @@ export class Model {
       if (k === 2)
         o[1].phase = (o[0].phase - this.f1 / sr + p.osc2Tune / 24 + 1) % 1;
       let x =
-        k === 1 ? a * p.mix1 + sub * p.mixSub :
+        k === 1 ? a * p.mix1 + b * p.mix2 * 0.5 + sub * p.mixSub :
         k === 2
           ? a * p.mix1 +
             o[1].tick(this.f1, sr, p.wave2, pwm2) * p.mix2 +
