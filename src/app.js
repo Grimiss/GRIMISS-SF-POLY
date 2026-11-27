@@ -201,7 +201,7 @@ const lfoSection=upperSections.get("LFO"),
 function upperFaders(section,keys,centres,top=46,height=166,width=46){
  keys.forEach(([k,label],i)=>range(section,k,label,centres[i]-width/2,top,width,height));
 }
-upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[36,90],46,168,39);
+upperFaders(lfoSection,[["lfoRate","RATE"],["lfoDelay","DELAY"]],[36,90],46,130,39);
 upperFaders(mixerSection,[["mix1","OSC 1"],["mix2","OSC 2"],["mixSub","SUB"],["mixNoise","NOISE"]],[27,73,118,163],46,168,39);
 upperFaders(hpfSection,[["hpf","HPF"]],[53],45,145,54);
 const boostButton=button(hpfSection,"bassBoost","BOOST",16,192,74,27,()=>{
