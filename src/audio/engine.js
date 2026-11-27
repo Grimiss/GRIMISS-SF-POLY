@@ -183,8 +183,11 @@ export class SynthEngine {
     this.fx.clear();
     for (const v of this.voices)
       for (const m of v.models) {
-        if (m.filter.z) m.filter.z.fill(0);
-        m.filter.s1 = m.filter.s2 = m.filter.feedback = 0;
+        for (const f of m.filters) {
+          if (f.z) f.z.fill(0);
+          f.s1=f.s2=f.feedback=0;
+        }
+        m.filterFade=0;
         m.hpIn = m.hpOut = 0;
       }
   }
@@ -434,7 +437,8 @@ export class SynthEngine {
     if (this.frame % 32 === 0) this.clocks();
     if ((this.frame & 7) === 0)
       for (const k of this.keys)
-        this.p[k] += (this.target[k] - this.p[k]) * this.smooth;
+        this.p[k] = k === "filterModel" ? this.target[k] :
+          this.p[k] + (this.target[k] - this.p[k]) * this.smooth;
     const p = this.p;
     this.lfoPhase = (this.lfoPhase + p.lfoRate / this.sr) % 1;
     let lfo =
