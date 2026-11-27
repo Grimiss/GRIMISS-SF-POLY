@@ -238,6 +238,9 @@ export class Model {
     // filter processes samples. No allocations occur in the audio callback.
     this.filters = [new CEMFilter(), new SSMFilter(), new JunoFilter()];
     this.filter = this.filters[kind];
+    this.filterChoice = kind;
+    this.previousFilter = kind;
+    this.filterFade = 0;
     this.cal = Math.sin((index + 1) * 13.71 + kind * 5.27);
     this.drift = 0;
     this.hpIn = 0;
@@ -323,8 +326,20 @@ export class Model {
       const warm = Math.tanh(high * (1 + p.analog * (k === 1 ? 0.65 : 0.35))) / (1 + p.analog * (k === 1 ? 0.65 : 0.35));
       const selected = Math.round(p.filterModel);
       const filterIndex = selected === 0 ? k : selected === 1 ? 2 : selected === 2 ? 1 : 0;
-      const activeFilter = this.filters[filterIndex];
-      out += activeFilter.tick(warm, this.cutoff, p.resonance, sr) * 0.5;
+      if (filterIndex !== this.filterChoice) {
+        this.previousFilter = this.filterChoice;
+        this.filterChoice = filterIndex;
+        this.filterFade = 1;
+      }
+      const activeFilter = this.filters[this.filterChoice];
+      let filtered = activeFilter.tick(warm, this.cutoff, p.resonance, sr);
+      if (this.filterFade > 0) {
+        // Crossfade while both old and new filter memories are running.
+        const old = this.filters[this.previousFilter].tick(warm,this.cutoff,p.resonance,sr);
+        filtered = filtered * (1-this.filterFade) + old * this.filterFade;
+        this.filterFade = Math.max(0,this.filterFade - 1/(this.sr*.006));
+      }
+      out += filtered * 0.5;
     }
     return out;
   }
