@@ -530,13 +530,13 @@ for(const [name,x,w,top] of [
  ["REVERB",1337,182,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
 ]){
  const sec=section(name,x,350,w,231);
- const inset=26;
- const right=w-26-54;
+ const inset=14;
+ const right=w-14-54;
  top.forEach(([k,label],i)=>{
-   const knob=rotary(sec,k,label,i?right:inset,120,54);
+   const knob=rotary(sec,k,label,i?right:inset,130,54);
    knob.classList.add("sf-fx-top-knob");
  });
- const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,38,76);
+ const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,42,76);
  mix.classList.add("sf-fx-mix-knob");
  const key=name==="DELAY"?"delayOn":"reverbOn";
  const onOff=button(sec,"fx-"+key,"ON",(w-49)/2,199,49,24,()=>{
@@ -547,7 +547,7 @@ for(const [name,x,w,top] of [
 }
 const chorus = section("CHORUS",1527,350,198,231);
 // Shared big MIX pot at the same top-row position and diameter as FX strips.
-const chorusMix=rotary(chorus,"chorusMix","MIX",(198-76)/2,38,76);
+const chorusMix=rotary(chorus,"chorusMix","MIX",(198-76)/2,42,76);
 chorusMix.classList.add("sf-fx-mix-knob");
 // I and II retain their independent bitmask switches, so both may be on.
 for(const [i,x] of [[1,42],[2,107]]){
