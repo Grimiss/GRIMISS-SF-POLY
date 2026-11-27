@@ -675,7 +675,7 @@ function refreshSwitches() {
     for (let osc = 1; osc <= 2; osc++)
       setOn(`wave${osc}-${i}`, Math.round(params["wave" + osc]) === i);
   }
-  for(let osc=1;osc<=2;osc++) for(let i=3;i<5;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
+  for(let osc=1;osc<=2;osc++) for(let i=3;i<6;i++) setOn(`wave${osc}-${i}`,Math.round(params["wave"+osc])===i);
   setOn("bassBoost",params.bassBoost>=.5);
   setOn("arpOn", music.arp.on);
   setOn("arpHold", music.arp.hold);
