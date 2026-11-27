@@ -282,11 +282,11 @@ for (const [name, x, w, controls] of upper) {
 const filterSelect = el("select","vcf-filter-model",vcfSection);
 filterSelect.setAttribute("aria-label","Filter model");
 for (const [value,name] of [["0","NATIVE"],["1","ROLAND"],["2","SSM"],["3","CURTIS"]]) {
- const opt=el("option",null,filterSelect);opt.value=value;opt.textContent=name;
+ const opt=el("option",null,filterSelect);opt.value=String(Number(value)/3);opt.textContent=name;
 }
-filterSelect.addEventListener("change",()=>setParam("filterModel",Number(filterSelect.value)));
+filterSelect.addEventListener("change",()=>setParam("filterModel",filterSelect.selectedIndex));
 bind("filterModel",filterSelect, v => {
-  filterSelect.value=String(Math.round(v));
+  filterSelect.value=String(Math.round(v)/3);
   filterSelect.title=["Each engine uses its native filter","Roland-style filter for all engines","SSM-style filter for all engines","Curtis-style filter for all engines"][Math.round(v)];
 });
 ["∿", "⋀", "⊓"].forEach((label, i) =>
