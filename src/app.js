@@ -250,7 +250,7 @@ const upper = [
     ],
   ],
 ];
-let lfoSection, dcoSection;
+let lfoSection, dcoSection, vcfSection;
 for (const [name, x, w, controls] of upper) {
   const s = section(
     name,
@@ -263,6 +263,7 @@ for (const [name, x, w, controls] of upper) {
   );
   if (name === "LFO") lfoSection = s;
   if (name === "DCO") dcoSection = s;
+  if (name === "HPF / VCF") vcfSection = s;
   let centers;
   if (name === "DCO") centers = [33, 118, 195, 247];
   else if (name === "LFO") centers = [49, 121];
@@ -278,6 +279,16 @@ for (const [name, x, w, controls] of upper) {
     range(s, k, label, centers[i] - 25, 46, 50, name === "LFO" ? 132 : 168),
   );
 }
+const filterSelect = el("select","vcf-filter-model",vcfSection);
+filterSelect.setAttribute("aria-label","Filter model");
+for (const [value,name] of [["0","NATIVE"],["1","ROLAND"],["2","SSM"],["3","CURTIS"]]) {
+ const opt=el("option",null,filterSelect);opt.value=value;opt.textContent=name;
+}
+filterSelect.addEventListener("change",()=>setParam("filterModel",Number(filterSelect.value)));
+bind("filterModel",filterSelect, v => {
+  filterSelect.value=String(Math.round(v));
+  filterSelect.title=["Each engine uses its native filter","Roland-style filter for all engines","SSM-style filter for all engines","Curtis-style filter for all engines"][Math.round(v)];
+});
 ["∿", "⋀", "⊓"].forEach((label, i) =>
   button(
     lfoSection,
