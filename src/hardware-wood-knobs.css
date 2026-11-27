@@ -1,0 +1,202 @@
+/* SF-POLY — Physical control and walnut hardware pass
+ * Additive final skin. Functions remain wired to existing patch/audio parameters. */
+
+/* Walnut cheeks: vertically figured fibres under a satin lacquer, shaped edges. */
+#instrument::before,#instrument::after{
+ background:
+   linear-gradient(90deg,rgba(0,0,0,.72),rgba(255,215,154,.16) 18%,rgba(255,255,255,.07) 47%,rgba(0,0,0,.56) 93%),
+   url("./walnut.svg") center center/100% 100% no-repeat!important;
+ border:1px solid #2d160b!important;
+ border-radius:12px 5px 5px 12px!important;
+ box-shadow:inset 4px 0 5px #f4a9754d,inset -5px 0 6px #160903b8,1px 0 4px #000b!important;
+}
+#instrument::after{border-radius:5px 12px 12px 5px!important}
+
+/* Header fascia: blue-screen LCD inset and instrument-like preset controls. */
+#brand{
+ background:linear-gradient(180deg,#1d2020 0%,#111517 60%,#090d0e)!important;
+ border-top-color:#646666!important;
+ box-shadow:inset 0 1px #ffffff16,0 1px 1px #000!important;
+}
+#brand .preset-launch{
+ top:10px!important;
+ color:#5ce1ff!important;
+ background:linear-gradient(#01080d,#081824 52%,#031018)!important;
+ border:2px solid #6c7374!important;
+ border-radius:4px!important;
+ box-shadow:inset 0 2px 6px #000,inset 0 0 6px #065c80,0 0 0 3px #090c0d,0 1px 4px #000b!important;
+ font:700 16px/38px "Arial Narrow",Arial,sans-serif!important;
+ letter-spacing:.2px!important;
+ text-shadow:0 0 7px #149fc6aa!important;
+ padding-left:16px!important;
+}
+#brand .preset-launch::after{color:#54c9ee!important;content:"▾"!important}
+#brand .preset-header-nav,#brand .preset-header-save{
+ background:linear-gradient(#4e5253,#292c2d 28%,#141819 95%)!important;
+ border:1px solid #858a89!important;
+ border-top-color:#a1a7a5!important;
+ color:#f3e5d0!important;
+ box-shadow:inset 0 1px #ffffff40,0 2px 3px #000d!important;
+ font-family:Arial,sans-serif!important;
+}
+#brand .preset-header-save{font-size:11px!important;letter-spacing:0!important}
+#brand .stripes{filter:drop-shadow(0 0 3px #139bdb72)}
+#brand .subtitle{color:#ded3c4!important}
+
+/* Unified die-cast metal-faced rotary potentiometers. */
+#instrument .sf-rotary{
+ position:absolute!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+ touch-action:none!important;
+ user-select:none!important;
+}
+#instrument .sf-rotary-label{
+ position:absolute!important;left:-4px;right:-4px;top:0!important;
+ display:block!important;
+ font:700 11px/17px Arial,sans-serif!important;
+ color:#e7dfd1!important;
+ text-align:center!important;white-space:nowrap!important;
+ text-shadow:none!important;
+}
+#instrument .sf-rotary::after{
+ content:""!important;position:absolute!important;
+ z-index:0!important;left:8px;right:8px;top:24px;
+ height:53px;
+ border-radius:50%;
+ background:repeating-conic-gradient(from -142deg,#bcb3a6 0deg 1.5deg,transparent 1.5deg 23deg);
+ -webkit-mask:radial-gradient(circle,transparent 65%,#000 67% 72%,transparent 75%);
+ mask:radial-gradient(circle,transparent 65%,#000 67% 72%,transparent 75%);
+ opacity:.92;pointer-events:none;
+}
+#instrument .sf-knob-face{
+ --angle:0deg;
+ position:absolute!important;z-index:2!important;
+ top:28px!important;left:50%!important;
+ transform:translateX(-50%)!important;
+ width:48px!important;height:48px!important;
+ border:2px solid #0b0c0c!important;
+ border-radius:50%!important;
+ background:
+  radial-gradient(circle at 34% 26%,#6a6860 0%,#393b3b 19%,#242728 40%,#101415 72%,#080b0c 95%)!important;
+ box-shadow:
+  inset 1px 2px 3px #b1aca858,
+  inset -3px -4px 6px #020304c9,
+  0 0 0 2px #4c4a46,
+  0 4px 5px #000b!important;
+}
+#instrument .sf-knob-face::after{
+ content:""!important;position:absolute!important;inset:1px;
+ border-radius:50%;border:1px solid #b5bbb519;
+ background:repeating-conic-gradient(from 2deg,#ffffff13 0deg 2deg,#00000008 2deg 7deg);
+ opacity:.52;pointer-events:none;
+}
+#instrument .sf-knob-marker{
+ position:absolute;z-index:3;inset:0;pointer-events:none;
+ transform:rotate(var(--angle,0deg));
+}
+#instrument .sf-knob-marker::before{
+ content:"";position:absolute;top:3px;left:calc(50% - 1.7px);
+ width:3.4px;height:13px;border-radius:2px;
+ background:#f1ede4;box-shadow:0 0 2px #fff8;
+}
+#instrument .sf-knob-input{
+ position:absolute!important;z-index:10!important;
+ inset:0!important;width:100%!important;height:100%!important;
+ margin:0!important;opacity:0!important;
+ cursor:ns-resize!important;touch-action:none!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] .sf-rotary-label{font-size:10px!important;letter-spacing:.1px}
+#instrument .section[data-section="MASTER"] .sf-rotary{top:64px!important}
+#instrument .section[data-section="MASTER"] .sf-knob-face{width:53px!important;height:53px!important}
+#instrument .section[data-section="MASTER"] .sf-rotary::after{top:27px!important}
+
+/* Circuit Character: knobs above illuminated engine rocker switches. */
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle{
+ top:191px!important;height:29px!important;
+ background:linear-gradient(#454a49,#1e2325 65%,#0b1114)!important;
+ color:#e6decf!important;
+ border:1px solid #697575!important;
+ font:800 12px Arial,sans-serif!important;
+}
+#instrument .section[data-section="CIRCUIT CHARACTER"] .engine-toggle.on{
+ background:linear-gradient(#298fd3,#135485)!important;
+ box-shadow:inset 0 1px #b5e9ff,0 0 6px #238acb99!important;
+ color:#fff!important;
+}
+
+/* Voices: drilled metal apertures with convex red lamp lenses. */
+#instrument .section[data-section="VOICES"] .voice-light{
+ position:relative!important;
+ display:block!important;
+ width:11px!important;height:11px!important;
+ box-sizing:border-box!important;
+ border-radius:50%!important;
+ background:radial-gradient(circle at 46% 52%,#330606 0%,#210405 60%,#080505 85%)!important;
+ border:1.6px solid #050709!important;
+ outline:1px solid #62625d!important;
+ box-shadow:inset 0 2px 3px #000,0 1px 1px #b1a99a44!important;
+ opacity:1!important;
+}
+#instrument .section[data-section="VOICES"] .voice-light.lit{
+ background:radial-gradient(circle at 35% 25%,#ffe4d5 0%,#ff7a66 22%,#ed100b 55%,#6e0302 87%)!important;
+ box-shadow:0 0 6px #ff231d99,0 0 11px #d717104d,inset 0 1px 1px #ffd0c0!important;
+ border-color:#4b0806!important;
+}
+#instrument .section[data-section="VOICES"] .voice-cell small{
+ color:#d5c7b9!important;font-size:10px!important;
+}
+
+/* Chorus: two independent red pilot lamps with authentic dark cutout bezels. */
+#instrument .section[data-section="CHORUS"] .sf-chorus-lamp{
+ position:absolute!important;
+ top:57px!important;
+ width:10px!important;height:10px!important;
+ border-radius:50%!important;
+ border:1.5px solid #0a0606!important;
+ outline:1px solid #4d4543!important;
+ background:radial-gradient(circle,#3c0807 0%,#180506 70%,#060606)!important;
+ box-shadow:inset 0 2px 3px #000!important;
+ z-index:4;
+}
+#instrument .section[data-section="CHORUS"] .sf-chorus-lamp.lit{
+ background:radial-gradient(circle at 35% 28%,#ffe6d6,#ff6861 33%,#eb1c18 65%,#730707)!important;
+ box-shadow:0 0 8px #ff3025d9,0 0 12px #fa181866,inset 0 1px #ffe2ce!important;
+}
+#instrument .section[data-section="CHORUS"] #chorus1,
+#instrument .section[data-section="CHORUS"] #chorus2{
+ top:84px!important;
+}
+#instrument .section[data-section="CHORUS"] #chorus0{
+ top:139px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-rotary{
+ top:76px!important;
+}
+
+/* Automation: icons in the switches, all six legends silk-screened below. */
+#instrument .section[data-section="AUTOMATION"] .transport,
+#instrument .section[data-section="AUTOMATION"] .transport.on{
+ position:absolute!important;
+ overflow:visible!important;
+ height:43px!important;
+ padding:2px!important;
+ border-radius:4px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon{
+ height:36px!important;
+ display:flex!important;
+ align-items:center!important;justify-content:center!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport .transport-icon svg{
+ width:27px!important;height:27px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .transport span:last-child:not(.transport-icon){
+ position:absolute!important;
+ top:47px!important;bottom:auto!important;left:-2px!important;right:-2px!important;
+ color:#e8dfd1!important;
+ text-align:center!important;
+ font:700 11px/15px Arial,sans-serif!important;
+ pointer-events:none!important;
+}
