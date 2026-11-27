@@ -47,7 +47,7 @@ export const specs = {
   enableJuno: [0, 1, 1],
   enableP6: [0, 1, 0],
   enableP5: [0, 1, 0],
-  characterToggle: [0, 1, 0],
+  characterToggle: [0, 1, 1],
   analog: [0, 1, 0.3],
   analogDetune: [0, 1, 0.2],
   voiceMode: [0, 2, 2],
