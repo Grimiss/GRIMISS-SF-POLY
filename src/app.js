@@ -298,24 +298,14 @@ filterChoices.forEach((name,i)=>{
   b.setAttribute("aria-pressed",Math.round(v)===i?"true":"false");
  }});
 });
-["∿", "⋀", "⊓"].forEach((label, i) =>
-  button(
-    lfoSection,
-    "lfo-" + i,
-    label,
-    21 + i * 46,
-    188,
-    39,
-    31,
-    () => {
-      setParam("lfoWave", i);
-      refreshSwitches();
-    },
-    "wave",
-  ),
-);
-// Shared extended waveform palette. Original 0/1/2 codes remain compatible.
-// Compact hardware waveform rows clear of all four DCO faders.
+// Matched screen-printed analogue oscillator shapes, light grey when inactive.
+const lfoWaveIcons=[
+ '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 11 C6 -2 12 -2 18 11 S30 24 35 11 S40 4 41 11" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg>',
+ '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 L11 2 L21 20 L31 2 L41 20" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>',
+ '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 V2 H21 V20 H41" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>'
+];
+lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
+  21+i*46,188,39,31,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const waveLabels=["SAW","TRI","PULSE","SQR","PWM"];
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-row",dcoSection);
@@ -932,7 +922,7 @@ function renderPresetBrowser(){
   const key=presetGrouping==="engine"?group.engine:group.category;
   if(!sections.has(key))sections.set(key,[]);
   for(const idx of group.indices){
-   const label=factory[idx].name.replace(/^\\d+\\s*[·.-]\\s*/,"");
+   const label=factory[idx].name.replace(/^\d+\s*[·.-]\s*/,"");
    const meta=presetGrouping==="engine"?group.category:group.engine;
    if((label+" "+meta+" "+key).toLowerCase().includes(filter))
     sections.get(key).push({id:"f"+idx,label,meta});
