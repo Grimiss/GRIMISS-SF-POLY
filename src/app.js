@@ -230,6 +230,9 @@ upperFaders(dcoSection,[["subOct","SUB OCT"],["pw","PW"]],[225,271],46,166,30);
 // Each oscillator has its own vertical, tactile five-waveform column.
 // Shared engraved waveform pictograms, matching the LFO switch artwork.
 const waveLabels=["SAW","TRI","PLS","SQR","PWM","SINE"];
+// Display from pure to harmonically rich, with the modulation mode last.
+// Keep original parameter indices for every factory/user preset.
+const waveDisplayOrder=[5,1,0,3,2,4];
 const waveformShapes=[
  '<path d="M3 19V3L18 19V3L33 19V3" />',
  '<path d="M3 19L10.5 3L18 19L25.5 3L33 19" />',
@@ -241,10 +244,11 @@ const waveformShapes=[
 const waveSvg = i=>'<svg class="sf-wave-icon" viewBox="0 0 36 22" aria-hidden="true" focusable="false">'+waveformShapes[i]+'</svg>';
 for(let osc=1;osc<=2;osc++){
  const row=el("div","osc-wave-stack",dcoSection);
- row.style.left=(osc===1?49:160)+"px";
+ row.style.left=(osc===1?55:166)+"px";
  row.setAttribute("role","group");
  row.setAttribute("aria-label","Oscillator "+osc+" waveform");
- waveLabels.forEach((name,i)=>{
+ waveDisplayOrder.forEach(i=>{
+  const name=waveLabels[i];
   const b=el("button","osc-wave-button",row);b.id=`wave${osc}-${i}`;
   b.type="button";b.innerHTML=name==="PWM"?'<span class="sf-pwm-label">PWM</span>':waveSvg(i);
   b.title="Oscillator "+osc+": "+(name==="PLS"?"PULSE":name);
@@ -270,11 +274,8 @@ filterChoices.forEach((name,i)=>{
  }});
  b.classList.toggle("on",Math.round(params.filterModel)===i);
 });
-const lfoWaveIcons=[
- '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 11 C6 -2 12 -2 18 11 S30 24 35 11 S40 4 41 11" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg>',
- '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 L11 2 L21 20 L31 2 L41 20" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>',
- '<svg class="lfo-symbol" viewBox="0 0 42 22" aria-hidden="true"><path d="M1 20 V2 H21 V20 H41" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"/></svg>'
-];
+// LFO shares the exact DCO waveform shapes, stroke and SVG viewport.
+const lfoWaveIcons=[5,1,3].map(waveSvg);
 // The three central LFO buttons use the same casing and icon measurements.
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
   59,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
