@@ -552,7 +552,7 @@ for (const [k, label, x] of [
   i.setAttribute("aria-label", label + " wheel");
   bind(k, i, (v) => {
     i.title = v.toFixed(2);
-    w.style.setProperty("--wheel-value",toUnit(k,v));
+    w.style.setProperty("--wheel-px",Math.round((1-toUnit(k,v))*85)+"px");
     w.style.filter = `brightness(${1 + Math.abs(v) * 0.12})`;
   });
   if (k === "bend") {
