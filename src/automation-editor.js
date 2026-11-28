@@ -148,6 +148,43 @@ export function createAutomationEditor({getAutomation,applyAutomation,getSnapsho
   const band=mk("div","sf-ae-loop-band",ruler);
   band.style.left=(state.loopStart/viewDuration*100)+"%";
   band.style.width=(Math.max(0,state.loopEnd-state.loopStart)/viewDuration*100)+"%";
+  band.title="Drag to move loop; drag either end to resize";
+  const bandLeft=mk("span","sf-ae-loop-handle left",band);
+  const bandRight=mk("span","sf-ae-loop-handle right",band);
+  band.addEventListener("pointerdown",e=>{
+   if(e.button!==0)return;
+   e.preventDefault();e.stopPropagation();
+   const edge=e.target===bandLeft?"left":e.target===bandRight?"right":"move";
+   const start=state.loopStart,end=state.loopEnd,origin=e.clientX;
+   const width=ruler.getBoundingClientRect().width;
+   let changed=false;
+   band.setPointerCapture(e.pointerId);
+   const onMove=ev=>{
+    const dt=(ev.clientX-origin)/Math.max(1,width)*viewDuration;
+    if(Math.abs(dt)<.01)return;
+    if(!changed){snapshot();changed=true;}
+    if(edge==="left")state.loopStart=clamp(start+dt,0,end-.1);
+    else if(edge==="right")state.loopEnd=clamp(end+dt,start+.1,viewDuration);
+    else{
+     const length=end-start;
+     state.loopStart=clamp(start+dt,0,viewDuration-length);
+     state.loopEnd=state.loopStart+length;
+    }
+    band.style.left=(state.loopStart/viewDuration*100)+"%";
+    band.style.width=(Math.max(0,state.loopEnd-state.loopStart)/viewDuration*100)+"%";
+    startInput.value=state.loopStart.toFixed(1);
+    endInput.value=state.loopEnd.toFixed(1);
+   };
+   const endMove=()=>{
+    band.removeEventListener("pointermove",onMove);
+    band.removeEventListener("pointerup",endMove);
+    band.removeEventListener("pointercancel",endMove);
+    if(changed)update();
+   };
+   band.addEventListener("pointermove",onMove);
+   band.addEventListener("pointerup",endMove);
+   band.addEventListener("pointercancel",endMove);
+  });
   const head=mk("div","sf-ae-ruler-playhead",ruler);
   head.style.left=(playhead/viewDuration*100)+"%";
   lanesBox.replaceChildren();
