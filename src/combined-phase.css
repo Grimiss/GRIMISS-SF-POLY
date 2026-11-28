@@ -1,0 +1,135 @@
+/* SF-POLY combined VOICES / CIRCUIT, compact FX and final PHASE bay.
+   Loaded last; specifically scoped to the new geometry. */
+#instrument .section.sf-combined-voices{overflow:hidden!important}
+#instrument .section.sf-combined-voices .voice-leds{
+ position:absolute!important;left:11px!important;top:45px!important;
+ width:195px!important;right:auto!important;display:flex!important;
+ justify-content:space-between!important;gap:0!important;
+}
+#instrument .section.sf-combined-voices .voice-cell{width:14px!important;min-width:0!important}
+#instrument .section.sf-combined-voices .voice-cell small{font-size:8px!important}
+#instrument .section.sf-combined-voices .sf-combined-voice-box{
+ position:absolute;left:9px;top:75px;width:200px;height:149px;
+ border-right:1px solid #6b7476;
+}
+#instrument .section.sf-combined-voices .track6-controls{
+ position:absolute!important;left:3px!important;right:9px!important;
+ top:0!important;width:auto!important;display:flex!important;
+ flex-direction:column!important;gap:7px!important;
+}
+#instrument .section.sf-combined-voices .track6-knob{
+ display:flex!important;flex-direction:column!important;gap:2px!important;
+ width:100%!important;min-width:0!important;
+}
+#instrument .section.sf-combined-voices .analog-caption{
+ display:block!important;font:700 10px/13px Arial,sans-serif!important;
+ text-align:center!important;white-space:nowrap!important;color:#e5dfd1!important;
+}
+#instrument .section.sf-combined-voices .analog-rail{
+ position:relative!important;height:24px!important;width:100%!important;
+}
+#instrument .section.sf-combined-voices .analog-input{
+ position:absolute!important;inset:0!important;height:100%!important;width:100%!important;
+}
+#instrument .section.sf-combined-voices .track6-modes{
+ position:absolute!important;top:112px!important;bottom:auto!important;
+ left:0!important;right:8px!important;display:flex!important;gap:4px!important;
+}
+#instrument .section.sf-combined-voices .track6-modes button{
+ flex:1!important;min-width:0!important;padding:0!important;
+ height:24px!important;font:700 9px Arial,sans-serif!important;
+}
+#instrument .section.sf-combined-voices .sf-combined-circuit-box{
+ position:absolute;left:216px;top:42px;width:133px;height:179px;
+ display:flex;flex-direction:column;justify-content:flex-start;gap:5px;
+}
+#instrument .section.sf-combined-voices .sf-circuit-lane{
+ display:grid;grid-template-columns:1fr 30px;grid-template-rows:15px 19px;
+ column-gap:4px;position:relative;height:41px;box-sizing:border-box;
+}
+#instrument .section.sf-combined-voices .sf-circuit-name{
+ grid-column:1;grid-row:1;color:#e5dfd1;font:700 9px/14px Arial,sans-serif;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slider{
+ grid-column:1;grid-row:2;width:100%;height:18px;margin:0;
+ accent-color:#5aa6d2;cursor:ew-resize;touch-action:pan-y;
+}
+#instrument .section.sf-combined-voices .engine-toggle{
+ position:relative!important;grid-column:2;grid-row:2;
+ left:auto!important;top:auto!important;width:30px!important;height:19px!important;
+ font:700 9px/17px Arial,sans-serif!important;padding:0!important;
+ background:linear-gradient(#424749,#222729 48%,#101417)!important;
+ border:1px solid #626c70!important;border-radius:3px!important;color:#ddd!important;
+}
+#instrument .section.sf-combined-voices .engine-toggle.on{
+ background:linear-gradient(#319cde,#146293 65%,#0a344f)!important;
+ border-color:#4b98c4!important;color:white!important;
+}
+#instrument .section.sf-combined-voices #characterToggle{
+ position:absolute!important;left:36px!important;top:142px!important;
+ width:61px!important;height:22px!important;
+ font:700 9px/20px Arial,sans-serif!important;
+ border-radius:3px!important;border:1px solid #626c70!important;
+ background:linear-gradient(#424749,#222729 48%,#101417)!important;color:#ddd!important;
+}
+#instrument .section.sf-combined-voices #characterToggle.on{
+ background:linear-gradient(#319cde,#146293 65%,#0a344f)!important;
+ color:white!important;border-color:#4b98c4!important;
+}
+/* Compact FX potentiometers: MIX no longer dominates; TIME/FB, SIZE/DAMP inboard. */
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-mix-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-mix-knob{
+ top:43px!important;width:54px!important;height:79px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-mix-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-mix-knob .sf-knob-face{
+ width:45px!important;height:45px!important;top:25px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section[data-section="REVERB"] .sf-rotary.sf-fx-top-knob{
+ top:126px!important;width:54px!important;height:75px!important;
+}
+#instrument .section[data-section="DELAY"] .sf-fx-top-knob .sf-knob-face,
+#instrument .section[data-section="REVERB"] .sf-fx-top-knob .sf-knob-face{
+ width:39px!important;height:39px!important;top:25px!important;
+}
+/* Previous chorus rules used hard-coded 198px dimensions. */
+#instrument .section[data-section="CHORUS"] .sf-rotary.sf-fx-mix-knob{
+ left:53px!important;top:44px!important;width:54px!important;height:79px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-fx-mix-knob .sf-knob-face{
+ width:45px!important;height:45px!important;top:25px!important;
+}
+#instrument .section[data-section="CHORUS"] #chorus1{left:23px!important}
+#instrument .section[data-section="CHORUS"] #chorus2{left:88px!important}
+#instrument .section[data-section="CHORUS"] #chorus0{
+ left:55.5px!important;top:195px!important;
+}
+#instrument .section[data-section="CHORUS"] .sf-chorus-lamp:nth-of-type(1){left:42.5px!important}
+#instrument .section[data-section="CHORUS"] .sf-chorus-lamp:nth-of-type(2){left:107.5px!important}
+/* New far-right PHASE: equal-size physical pots, clean 2-stage pedigree. */
+#instrument .section.sf-phase-panel{overflow:hidden!important}
+#instrument .section.sf-phase-panel .sf-rotary.sf-phase-pot{
+ top:91px!important;width:54px!important;height:81px!important;
+}
+#instrument .section.sf-phase-panel .sf-phase-pot .sf-rotary-label{
+ font:700 10px/17px Arial,sans-serif!important;
+}
+#instrument .section.sf-phase-panel .sf-phase-pot .sf-knob-face{
+ top:25px!important;width:44px!important;height:44px!important;
+}
+#instrument .section.sf-phase-panel .sf-phase-on{
+ position:absolute!important;left:85px!important;top:195px!important;
+ width:49px!important;height:24px!important;border-radius:3px!important;
+ padding:0!important;font:700 10px/22px Arial,sans-serif!important;
+ background:linear-gradient(#424749,#222729 48%,#101417)!important;
+ border:1px solid #646d70!important;color:#ddd!important;
+}
+#instrument .section.sf-phase-panel .sf-phase-on.on{
+ background:linear-gradient(#319cde,#146293 65%,#0a344f)!important;
+ color:#fff!important;border-color:#4b98c4!important;
+}
+#instrument .section.sf-phase-panel .sf-phase-hint{
+ position:absolute;left:0;top:53px;width:100%;text-align:center;
+ font:700 10px Arial,sans-serif;letter-spacing:1px;color:#a6b3b8;
+}
