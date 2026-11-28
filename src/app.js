@@ -54,6 +54,10 @@ const audio = new AudioClient((state) => {
       ?.classList.toggle("active", state.seqPlaying && state.seqIndex === i);
   setOn("autoRec", state.autoRecording);
   setOn("autoPlay", state.autoPlaying);
+  // The track viewer lives farther down in the module; invoked only
+  // after initialization, when its bindings have been created.
+  if(typeof updateMiniStatus==="function")updateMiniStatus(state);
+
 });
 let readyPromise;
 async function ready() {
@@ -469,6 +473,67 @@ function receiveArpMidiClock(event){
 bindings.get("arpRate").push({input:{value:0},paint:paintArp});
 paintArp();
 const au = section("AUTOMATION", 377, 350, 269, 231, "white");
+function updateMiniStatus(state){
+ const wasRecording=miniRecording;
+ miniRecording=!!state.autoRecording;
+ miniPlaying=!!state.autoPlaying;
+ if(wasRecording&&!miniRecording&&audio.node){
+  audio.snapshot().then(snap=>renderAutomationMini(snap.automation,snap.autoPosition||0)).catch(()=>{});
+ }
+}
+// Compact eight-lane overview; visual trial only — it does not edit or cap
+// recorded automation. Reflect the existing engine's recorded event tracks.
+const mini=el("div","sf-auto-mini",au);
+mini.setAttribute("role","img");
+mini.setAttribute("aria-label","Automation track timeline overview");
+const miniHead=el("div","sf-mini-head",mini);
+const miniTitle=el("span","",miniHead); miniTitle.textContent="TRACKS";
+const miniCount=el("span","",miniHead); miniCount.textContent="0 / 8";
+const miniTime=el("span","",miniHead); miniTime.textContent="0:00";
+const miniRows=[];
+for(let i=0;i<8;i++){
+ const row=el("div","sf-mini-row",mini);
+ const label=el("span","sf-mini-name",row);
+ const track=el("div","sf-mini-track",row);
+ const line=el("div","sf-mini-line",track);
+ const playhead=el("div","sf-mini-playhead",track);
+ miniRows.push({label,track,line,playhead});
+}
+function renderAutomationMini(auData=music.automation,position=0){
+ const events=Array.isArray(auData?.events)?auData.events:[];
+ const duration=Math.max(.02,Number(auData?.duration)||0,...events.map(e=>Number(e.t)||0));
+ const lanes=new Map();
+ for(const ev of events){
+  if(typeof ev.k!=="string"||!Number.isFinite(ev.t))continue;
+  if(!lanes.has(ev.k))lanes.set(ev.k,[]);
+  lanes.get(ev.k).push(ev.t);
+ }
+ miniCount.textContent=lanes.size+" / 8";
+ miniTime.textContent=Math.floor(duration/60)+":"+String(Math.floor(duration%60)).padStart(2,"0");
+ const positionPercent=Math.max(0,Math.min(100,position/duration*100));
+ let index=0;
+ for(const [key,times] of lanes){
+  if(index===8)break;
+  const lane=miniRows[index++];
+  const a=Math.max(0,Math.min(...times))/duration*100;
+  const b=Math.min(duration,Math.max(...times))/duration*100;
+  lane.label.textContent=key.replace(/([a-z])([A-Z])/g,"$1 $2").replace(/([a-z])([0-9])/g,"$1 $2").toUpperCase();
+  lane.label.title=key;
+  lane.track.classList.add("filled");
+  lane.line.style.left=a+"%";lane.line.style.width=Math.max(2,b-a)+"%";
+  lane.playhead.style.left=positionPercent+"%";
+ }
+ for(;index<8;index++){
+  const lane=miniRows[index];
+  lane.label.textContent="—";lane.label.removeAttribute("title");
+  lane.track.classList.remove("filled");
+  lane.line.style.width="0";
+  lane.playhead.style.left=positionPercent+"%";
+ }
+ mini.setAttribute("aria-label",lanes.size+" recorded automation parameters; length "+miniTime.textContent);
+}
+renderAutomationMini();
+
 // Uniform screen-printed transport icons; colour belongs to the glyph, not the switch.
 const ico = (paths,viewBox="0 0 24 24") =>
   '<span class="transport-icon"><svg viewBox="'+viewBox+'" aria-hidden="true">'+paths+'</svg></span>';
@@ -485,9 +550,9 @@ autoActions.forEach(([id, icon, label, type], i) =>
     au,
     id,
     icon + "<span>" + label + "</span>",
-    18 + (i % 3) * 55,
-    71 + Math.floor(i / 3) * 79,
-    44,
+    10 + i*42,
+    197,
+    37,
     28,
     () => {
       if (id === "autoLoop" || id === "autoOverdub") {
@@ -499,16 +564,42 @@ autoActions.forEach(([id, icon, label, type], i) =>
       } else if (
         id !== "autoClear" ||
         confirm("Clear all recorded parameter automation?")
-      )
+      ){
         send({ type });
+        if(id==="autoClear"){
+          music.automation.events=[];
+          music.automation.duration=0;
+          renderAutomationMini();
+        }
+      }
     },
     "transport",
   ),
 );
-range(au, "autoSpeed", "SPEED", 199, 54, 46, 156);
-const spl = el("div", "speed-labels", au);
-spl.innerHTML = "<span>4×</span><span>2×</span><span class=\"speed-unity\">1×</span><span>½×</span><span>⅒×</span>";
-spl.style.left = "239px";
+// SPEED keeps its existing audio-engine parameter; the pot is only a
+// visual/control replacement for the vertical speed slider.
+const autoSpeedPot=rotary(au,"autoSpeed","SPEED",74,139,46);
+autoSpeedPot.classList.add("sf-auto-speed-pot");
+// MORPH is intentionally a *visual-only* proposed control in this trial.
+// No value is sent to the DSP until the algorithm has been specified.
+const morphPot=el("div","sf-auto-morph-pot",au);
+const morphLabel=el("span","sf-auto-morph-label",morphPot);
+morphLabel.textContent="MORPH";
+const morphFace=el("div","sf-auto-morph-face",morphPot);
+const morphPointer=el("i","sf-auto-morph-pointer",morphFace);
+morphPot.title="MORPH: layout preview only; not connected to audio";
+morphPot.setAttribute("aria-label","Morph concept, not yet functional");
+// Keep the miniature display up to date at the audio snapshot boundary, but
+// never poll if the audio engine isn't running.
+let miniRecording=false,miniPlaying=false,miniBusy=false;
+setInterval(async()=>{
+ if(!initialized||!audio.node||miniBusy||!miniRecording&&!miniPlaying)return;
+ miniBusy=true;
+ try{
+  const snapshot=await audio.snapshot();
+  renderAutomationMini(snapshot.automation,snapshot.autoPosition||0);
+ }catch(e){}finally{miniBusy=false;}
+},650);
 const ch = section("CIRCUIT CHARACTER", 924, 350, 205, 231, "white");
 // Panel descriptions evoke each engine without changing its patch identity.
 const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
@@ -1122,6 +1213,7 @@ function loadPatch(p,sourceId) {
     seq: structuredClone(current.seq),
     automation: structuredClone(current.automation),
   };
+  renderAutomationMini(music.automation);
   if (initialized) audio.send({ type: "patch", patch: current });
   for (const k of Object.keys(params)) update(k);
   refreshSwitches();
