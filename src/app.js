@@ -450,7 +450,7 @@ function updateArpMonitor(state){
  const playing=state ? (!!music.arp.on && !!state.arpPlaying) : lastArpPlaying;
  if(mode!==lastVisualMode){
   lastVisualMode=mode;stepLevels.fill(null);stepCursor=-1;
-  lastVisualTick=state?.arpVisualTick??-1;
+  lastVisualTick=-1;
  }
  if(state && playing && state.arpVisualTick!==lastVisualTick){
   // One audio event == one displayed step. No invented playback animation.
