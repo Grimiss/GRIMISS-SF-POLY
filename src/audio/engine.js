@@ -64,6 +64,9 @@ export class SynthEngine {
     this.arpStep = 0;
     this.arpWalkIndex = 0;
     this.arpSyncUntil = 0;
+    this.arpVisualTick = 0;
+    this.arpVisualPosition = 0;
+    this.arpVisualCount = 0;
     this.seqPlaying = false;
     this.seqIndex = 0;
     this.seqCount = 0;
@@ -410,6 +413,10 @@ export class SynthEngine {
           note=expanded[clamp(i+Math.round((this.random()*2-1)*span),0,N-1)];
           gate=clamp(gate*(1+(this.random()*2-1)*evolve*.35),.1,1);
         }
+        // Compact display follows actual chosen arp voice, including evolution.
+        this.arpVisualPosition=N>1?clamp((note-expanded[0])/(expanded[N-1]-expanded[0]||1),0,1):0.5;
+        this.arpVisualCount=N;
+        this.arpVisualTick++;
         this.arpOwner="arp:"+this.frame;
         this.noteOn(this.arpOwner,note,.8);
         this.arpGateEnd=this.frame+Math.round(stepLength*gate);
