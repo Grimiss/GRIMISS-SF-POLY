@@ -1443,15 +1443,17 @@ analogPanel.classList.add("track6-analog");
 const ledRow=el("div","voice-leds",analogPanel);
 ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
 const controls=el("div","track6-controls",analogPanel);
-for(const [label,k] of [["ANALOG","analog"],["DETUNE","analogDetune"]]){
+for(const [label,k] of [["ANALOG","analog"],["VOICE AGE DRIFT","analogDetune"]]){
  const wrap=el("label","track6-knob",controls);
  const labelText=el("span","analog-caption",wrap);labelText.textContent=label;
+ if(k==="analogDetune"){wrap.classList.add("voice-age-control");labelText.title="Ageing voice cards: pitch, filter, level and envelope drift";}
  const rail=el("div","analog-rail",wrap);
  const scale=el("div","analog-scale",rail);
  const slot=el("div","analog-slot",rail);
  const cap=el("span","analog-cap",rail);
  const input=el("input","analog-input",rail);
  input.type="range";input.min=0;input.max=1;input.step=.001;input.setAttribute("aria-label",label);
+ input.title=k==="analog"?"Warmth, thickness and increasing gentle drive above 70%":"Independent voice-card ageing and slowly changing drift";
  bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=`calc(${(u*100).toFixed(3)}% - ${(u*19).toFixed(2)}px)`;input.setAttribute("aria-valuetext",Math.round(v*100)+"%");});
 }
 const modes=el("div","track6-modes",analogPanel);
