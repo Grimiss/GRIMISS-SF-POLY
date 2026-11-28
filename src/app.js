@@ -5,7 +5,7 @@ import {
   fromUnit,
   initialMusic,
 } from "./parameters.js?v=20261128-ae-morph-v1";
-import { AudioClient } from "./audio/client.js?v=20261128-ae-morph-v1";
+import { AudioClient } from "./audio/client.js?v=20261128-ae-morph-v2";
 import {
   factory,
   factoryGroups,
@@ -14,7 +14,7 @@ import {
   readUsers,
   writeUsers,
 } from "./presets.js?v=20261128-ae-morph-v1";
-import { createAutomationEditor } from "./automation-editor.js?v=20261128-ae-morph-v1";
+import { createAutomationEditor } from "./automation-editor.js?v=20261128-ae-morph-v2";
 const $ = (s) => document.querySelector(s),
   el = (tag, cls, parent) => {
     const n = document.createElement(tag);
