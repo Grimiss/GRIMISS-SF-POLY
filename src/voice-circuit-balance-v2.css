@@ -178,3 +178,55 @@
  font:700 9px/22px Arial,sans-serif!important;
  border-radius:3px!important;
 }
+
+/* Hotfix: circuit fader visibility. Absolute mini-fader lanes replace CSS-grid
+   dependent rail placement, which disappeared in the tablet screenshot. */
+#instrument .section.sf-combined-voices .sf-circuit-lane{
+ display:block!important;
+ position:relative!important;
+ height:41px!important;
+ width:100%!important;
+ min-height:41px!important;
+ margin:0!important;
+ overflow:visible!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-name{
+ display:block!important;
+ position:absolute!important;
+ left:0!important;top:0!important;
+ height:13px!important;width:166px!important;
+ line-height:13px!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap{
+ display:block!important;
+ position:absolute!important;
+ left:0!important;top:14px!important;
+ width:167px!important;height:24px!important;
+ overflow:visible!important;
+ opacity:1!important;visibility:visible!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-rail{
+ display:block!important;
+ position:absolute!important;
+ left:0!important;top:0!important;
+ width:167px!important;height:24px!important;
+ opacity:1!important;visibility:visible!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-scale,
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-slot,
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-cap{
+ display:block!important;visibility:visible!important;opacity:1!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-slot{
+ background:#05080a!important;z-index:2!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-cap{
+ z-index:5!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-lane .engine-toggle{
+ display:block!important;
+ position:absolute!important;
+ left:184px!important;top:16px!important;
+ width:32px!important;height:21px!important;
+ margin:0!important;
+}
