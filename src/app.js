@@ -420,8 +420,8 @@ arpText("OCT",222,42,84);
 for(let n=1;n<=4;n++)
  button(arp,"range"+n,String(n),222+((n-1)%2)*42,61+Math.floor((n-1)/2)*27,39,24,
  ()=>setArp({range:n}),"arp-range");
-arpText("DIVISION",222,115,84);
-for(const [div,label,x,y] of [[4,"1/4",222,132],[8,"1/8",264,132],[16,"1/16",222,158],[32,"1/32",264,158]])
+arpText("DIVISION",222,105,84);
+for(const [div,label,x,y] of [[4,"1/4",222,119],[8,"1/8",264,119],[16,"1/16",222,143],[32,"1/32",264,143]])
  button(arp,"arpDiv"+div,label,x,y,39,24,()=>setArp({division:div}),"arp-division");
 for(const [key,label,x] of [
  ["arpRate","SPEED",11],["arpGate","GATE",72],["arpSwing","SWING",133],
