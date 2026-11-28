@@ -14,6 +14,7 @@ import {
   readUsers,
   writeUsers,
 } from "./presets.js?v=20261127-toggle-default-on";
+import { createAutomationEditor } from "./automation-editor.js?v=20261128-ae-morph-v1";
 const $ = (s) => document.querySelector(s),
   el = (tag, cls, parent) => {
     const n = document.createElement(tag);
@@ -478,7 +479,7 @@ function updateMiniStatus(state){
  miniRecording=!!state.autoRecording;
  miniPlaying=!!state.autoPlaying;
  if(wasRecording&&!miniRecording&&audio.node){
-  audio.snapshot().then(snap=>renderAutomationMini(snap.automation,snap.autoPosition||0)).catch(()=>{});
+  audio.snapshot().then(snap=>{music.automation=snap.automation;renderAutomationMini(snap.automation,snap.autoPosition||0);}).catch(()=>{});
  }
 }
 // Compact eight-lane overview; visual trial only — it does not edit or cap
@@ -501,9 +502,16 @@ for(let i=0;i<8;i++){
 }
 function renderAutomationMini(auData=music.automation,position=0){
  const events=Array.isArray(auData?.events)?auData.events:[];
- const duration=Math.max(.02,Number(auData?.duration)||0,...events.map(e=>Number(e.t)||0));
+ const clips=Array.isArray(auData?.clips)?auData.clips:[];
+ const duration=Math.max(.02,Number(auData?.duration)||0,...events.map(e=>Number(e.t)||0),...clips.map(c=>c.start+c.duration));
  const lanes=new Map();
- for(const ev of events){
+ if(clips.length){
+  for(const clip of clips){
+   if(typeof clip.k!=="string")continue;
+   if(!lanes.has(clip.k))lanes.set(clip.k,[]);
+   lanes.get(clip.k).push(clip.start,clip.start+clip.duration);
+  }
+ }else for(const ev of events){
   if(typeof ev.k!=="string"||!Number.isFinite(ev.t))continue;
   if(!lanes.has(ev.k))lanes.set(ev.k,[]);
   lanes.get(ev.k).push(ev.t);
@@ -568,6 +576,7 @@ autoActions.forEach(([id, icon, label, type], i) =>
         send({ type });
         if(id==="autoClear"){
           music.automation.events=[];
+          music.automation.clips=[];
           music.automation.duration=0;
           renderAutomationMini();
         }
@@ -582,13 +591,28 @@ const autoSpeedPot=rotary(au,"autoSpeed","SPEED",74,139,46);
 autoSpeedPot.classList.add("sf-auto-speed-pot");
 // MORPH is intentionally a *visual-only* proposed control in this trial.
 // No value is sent to the DSP until the algorithm has been specified.
-const morphPot=el("div","sf-auto-morph-pot",au);
-const morphLabel=el("span","sf-auto-morph-label",morphPot);
-morphLabel.textContent="MORPH";
-const morphFace=el("div","sf-auto-morph-face",morphPot);
-const morphPointer=el("i","sf-auto-morph-pointer",morphFace);
-morphPot.title="MORPH: layout preview only; not connected to audio";
-morphPot.setAttribute("aria-label","Morph concept, not yet functional");
+const morphPot=rotary(au,"autoMorph","MORPH",155,139,44);
+morphPot.classList.add("sf-auto-morph-pot");
+morphPot.title="Independent gentle tempo drift on each recorded automation parameter: zero to plus/minus 45%";
+const automationEditor=createAutomationEditor({
+ getAutomation:()=>music.automation,
+ getSnapshot:()=>initialized?audio.snapshot():Promise.resolve(null),
+ applyAutomation:data=>{
+  music.automation={...music.automation,...data};
+  renderAutomationMini(music.automation);
+  send({type:"autoEdit",value:data});
+  markPatchDirty();
+ }
+});
+mini.style.cursor="pointer";
+mini.tabIndex=0;
+mini.setAttribute("role","button");
+mini.setAttribute("aria-label","Open automation timeline editor");
+mini.title="Open automation timeline editor";
+mini.onclick=()=>automationEditor.open();
+mini.onkeydown=e=>{
+ if(e.key==="Enter"||e.key===" "){e.preventDefault();automationEditor.open();}
+};
 // Keep the miniature display up to date at the audio snapshot boundary, but
 // never poll if the audio engine isn't running.
 let miniRecording=false,miniPlaying=false,miniBusy=false;
