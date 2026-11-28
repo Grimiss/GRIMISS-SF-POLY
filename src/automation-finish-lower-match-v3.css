@@ -1,0 +1,43 @@
+/* SF-POLY final automation fascia and lower-panel colour alignment
+   28 Nov 2026. No parameter, audio or transport behaviour changes. */
+
+/* Compact SPEED/MORPH control row, both pots rise by 4px.
+   Labels move with each control and retain their side positioning. */
+#instrument .section[data-section="AUTOMATION"] .sf-rotary.sf-auto-speed-pot{
+  top:137px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-morph-pot{
+  top:137px!important;
+}
+
+/* On LOOP, OVR and CLR the glyphs are deliberately smaller than
+   REC/PLAY/STOP so the screen-printed captions remain unobstructed. */
+#instrument .section[data-section="AUTOMATION"] #autoLoop .transport-icon,
+#instrument .section[data-section="AUTOMATION"] #autoOverdub .transport-icon,
+#instrument .section[data-section="AUTOMATION"] #autoClear .transport-icon{
+  top:2px!important;
+  height:12px!important;
+  min-height:12px!important;
+}
+#instrument .section[data-section="AUTOMATION"] #autoLoop .transport-icon svg,
+#instrument .section[data-section="AUTOMATION"] #autoOverdub .transport-icon svg,
+#instrument .section[data-section="AUTOMATION"] #autoClear .transport-icon svg{
+  width:10px!important;
+  height:10px!important;
+}
+#instrument .section[data-section="AUTOMATION"] #autoLoop span:last-child:not(.transport-icon),
+#instrument .section[data-section="AUTOMATION"] #autoOverdub span:last-child:not(.transport-icon),
+#instrument .section[data-section="AUTOMATION"] #autoClear span:last-child:not(.transport-icon){
+  top:15px!important;
+  line-height:10px!important;
+  z-index:2!important;
+}
+
+/* Bottom-row panel faces now match the darker charcoal of the upper fascia.
+   The prior light powder texture is suppressed only on section bodies.
+   Header knockouts, hardware and their original finishes are untouched. */
+#instrument .section.lower{
+  background-color:#151819!important;
+  background-image:none!important;
+  background-blend-mode:normal!important;
+}
