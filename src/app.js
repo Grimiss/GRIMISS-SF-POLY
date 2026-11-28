@@ -424,7 +424,7 @@ stepStrip.setAttribute("aria-hidden","true");
 const steps=Array.from({length:12},(_,i)=>{
  const slot=el("div","arp-step-slot",stepStrip);
  const bar=el("span","arp-step-bar",slot);
- bar.style.height="5px";
+ bar.style.bottom="2px";
  return {slot,bar};
 });
 let lastVisualTick=-1,lastVisualMode="",lastArpPlaying=false,monitorSyncReady=false,midiClockStopped=false;
@@ -465,7 +465,7 @@ function updateArpMonitor(state){
  const preview=previewHeights[mode]||previewHeights.up;
  for(let i=0;i<steps.length;i++){
   const level=stepLevels[i]===null?preview[i]:stepLevels[i];
-  steps[i].bar.style.height=(5+Math.round(level*17))+"px";
+  steps[i].bar.style.bottom=(2+Math.round(level*14))+"px";
   steps[i].slot.classList.toggle("arp-step-played",stepLevels[i]!==null);
   steps[i].slot.classList.toggle("arp-step-current",playing&&i===stepCursor);
  }
