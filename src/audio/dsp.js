@@ -601,17 +601,17 @@ export class Effects {
     this.phaseFrequency+=(centre-this.phaseFrequency)*.003;
     const ap=(Math.tan(Math.PI*clamp(this.phaseFrequency,30,this.sr*.25)/this.sr)-1)/
              (Math.tan(Math.PI*clamp(this.phaseFrequency,30,this.sr*.25)/this.sr)+1);
-    const phaseChannel=(input,idx)=>{
-      let y=input;
-      for(let stage=0;stage<2;stage++){
-        const previous=this.phaseStages[idx][stage];
-        const filtered=ap*y+previous;
-        this.phaseStages[idx][stage]=y-ap*filtered;
-        y=filtered;
-      }
-      return y;
-    };
-    const wetL=phaseChannel(xl,0),wetR=phaseChannel(xr,1);
+    // Explicit, allocation-free stereo stage processing.
+    let wetL=xl,wetR=xr;
+    for(let stage=0;stage<2;stage++){
+      const leftMemory=this.phaseStages[0][stage];
+      const rightMemory=this.phaseStages[1][stage];
+      const newL=ap*wetL+leftMemory;
+      const newR=ap*wetR+rightMemory;
+      this.phaseStages[0][stage]=wetL-ap*newL;
+      this.phaseStages[1][stage]=wetR-ap*newR;
+      wetL=newL;wetR=newR;
+    }
     const phasedL=xl*(1-this.phaseWet*.5)+wetL*this.phaseWet*.5;
     const phasedR=xr*(1-this.phaseWet*.5)+wetR*this.phaseWet*.5;
     const yl = phasedL - this.dcIn[0] + this.dcPole * this.dcOut[0],
