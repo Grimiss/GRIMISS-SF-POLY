@@ -66,7 +66,11 @@ export const specs = {
   chorusMix: [0, 1, 0.5],
   autoSpeed: [0.1, 4, 1, "log"],
   autoMorph: [0, 1, 0],
-  arpRate: [0.05, 20, 5],
+  arpRate: [1, 20, 5],
+  arpGate: [0.1, 1, 0.8],
+  arpSwing: [0, 0.75, 0],
+  arpChance: [0, 1, 0],
+  arpEvolve: [0, 1, 0],
   ...Object.fromEntries(
     Array.from({ length: 16 }, (_, i) => ["seqStep" + i, [-12, 12, 0]]),
   ),
@@ -108,7 +112,7 @@ export function toUnit(k, v) {
   );
 }
 export const initialMusic = () => ({
-  arp: { on: false, mode: "up", hold: false, range: 1, rate: 5, clock: "internal" },
+  arp: { on: false, mode: "up", hold: false, range: 1, rate: 5, clock: "internal", division: 16 },
   seq: {
     root: 48,
     length: 16,
