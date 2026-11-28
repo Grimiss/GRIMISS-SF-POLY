@@ -140,3 +140,14 @@
  font-size:9px!important;line-height:13px!important;
 }
 #instrument .section.arp-redesign .arp-pot-arpRate:has(input:disabled){opacity:.55!important}
+
+/* Two compact division rows end above the five knob captions. */
+#instrument .section.arp-redesign .arp-division{
+ height:20px!important;
+ line-height:18px!important;
+}
+/* Treat the active SYNC state exactly like other illuminated hardware keys. */
+#instrument .section.arp-redesign .arp-clock.on{
+ background:linear-gradient(#319cde,#146293 65%,#0a344f)!important;
+ color:#f5fbff!important;
+}
