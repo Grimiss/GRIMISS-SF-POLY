@@ -676,7 +676,7 @@ setInterval(async()=>{
 },650);
 // Combined VOICES / CIRCUIT section: existing parameters, circuits and modes retained.
 const analogPanel=section("VOICES / CIRCUIT",654,350,360,231,"white");
-analogPanel.classList.add("sf-combined-voices");
+analogPanel.classList.add("track6-analog","sf-combined-voices");
 const ledRow=el("div","voice-leds",analogPanel);
 ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
 const voiceBox=el("div","sf-combined-voice-box",analogPanel);
