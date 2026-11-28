@@ -248,7 +248,7 @@ export function createAutomationEditor({getAutomation,applyAutomation,getSnapsho
     const finish=e=>{
      if(!pointer||pointer.id!==c.id)return;
      const changed=pointer.moved;pointer=null;
-     if(changed)update();else render();
+     if(changed)update();else renderSelection();
     };
     block.addEventListener("pointerup",finish);
     block.addEventListener("pointercancel",finish);
