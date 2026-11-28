@@ -239,7 +239,7 @@ function section(name, x, y, w, h, color = "blue", upper = false) {
     `section ${color} ${upper ? "upper" : "lower"}`,
     $("#panel"),
   );
-  s.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${upper ? h : h + (y === 350 ? 8 : 0)}px`;
+  s.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${upper ? h : h + (y === 350 ? 16 : 0)}px`;
   s.dataset.section = name;
   el("h2", "", s).textContent = name;
   return s;
