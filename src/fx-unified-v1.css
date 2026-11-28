@@ -1,0 +1,102 @@
+/* SF-POLY | Standardised four-bay effects strip.
+   Last stylesheet intentionally overrides earlier hard-coded FX geometry.
+   Lower section stays at 231px, original instrument is still 1774px wide. */
+
+/* Reclaimed 63px goes to the hardware voice and circuit controls. */
+#instrument .section.sf-combined-voices .voice-leds{
+ left:12px!important;width:248px!important;
+}
+#instrument .section.sf-combined-voices .voice-cell{
+ width:19px!important;
+}
+#instrument .section.sf-combined-voices .sf-combined-voice-box{
+ left:10px!important;width:255px!important;
+}
+#instrument .section.sf-combined-voices .sf-combined-circuit-box{
+ left:274px!important;width:137px!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-lane{
+ grid-template-columns:minmax(0,1fr) 30px!important;
+ gap:3px!important;
+}
+#instrument .section.sf-combined-voices .track6-modes{
+ right:9px!important;
+}
+
+/* Four equal-width 154px panels: centre MIX high, two small controls below,
+   and exactly one ON rocker aligned at the bottom. */
+#instrument .section.sf-fx-unified{
+ overflow:hidden!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-mix-knob{
+ top:43px!important;
+ left:50px!important;
+ width:54px!important;
+ height:79px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-mix-knob .sf-knob-face{
+ top:25px!important;
+ width:45px!important;height:45px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-top-knob{
+ top:126px!important;
+ width:54px!important;height:73px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-top-knob:nth-of-type(odd){
+ left:12px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-top-knob:nth-of-type(even){
+ left:88px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary.sf-fx-top-knob .sf-knob-face{
+ top:25px!important;width:39px!important;height:39px!important;
+}
+#instrument .section.sf-fx-unified .sf-rotary .sf-rotary-label{
+ font:700 10px/17px Arial,sans-serif!important;
+}
+
+/* Dedicated bottom switch (the same width/height and centre for all four). */
+#instrument .section.sf-fx-unified #fx-delayOn,
+#instrument .section.sf-fx-unified #fx-reverbOn,
+#instrument .section.sf-fx-unified #chorus0,
+#instrument .section.sf-fx-unified #fx-phaseOn{
+ left:52.5px!important;top:199px!important;
+ width:49px!important;height:24px!important;
+ min-height:24px!important;
+}
+/* Chorus I and II fill the two lower parameter positions. */
+#instrument .section.sf-fx-unified #chorus1,
+#instrument .section.sf-fx-unified #chorus2{
+ top:158px!important;height:24px!important;
+}
+#instrument .section.sf-fx-unified #chorus1{left:15px!important}
+#instrument .section.sf-fx-unified #chorus2{left:90px!important}
+#instrument .section.sf-fx-unified .sf-chorus-lamp[data-chorus="1"]{
+ left:34.5px!important;
+}
+#instrument .section.sf-fx-unified .sf-chorus-lamp[data-chorus="2"]{
+ left:109.5px!important;
+}
+
+/* PHASE now has the exact MIX / SPEED + DEPTH / ON hierarchy of the FX bays. */
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-phase-pot.sf-fx-mix-knob{
+ top:43px!important;left:50px!important;width:54px!important;height:79px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-phase-pot.sf-fx-mix-knob .sf-knob-face{
+ top:25px!important;width:45px!important;height:45px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-phase-pot.sf-fx-top-knob{
+ top:126px!important;width:54px!important;height:73px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-phase-pot.sf-fx-top-knob .sf-knob-face{
+ top:25px!important;width:39px!important;height:39px!important;
+}
+
+/* Explicit identifiers prevent PHASE SPEED/DEPTH from swapping columns.
+   The MIX rotary is authored before those two controls. */
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary[data-param="phaseSpeed"]{
+ left:12px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary[data-param="phaseDepth"]{
+ left:88px!important;
+}
