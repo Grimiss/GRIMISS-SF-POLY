@@ -417,49 +417,58 @@ const monitorTop=el("div","arp-monitor-top",monitor);
 const monitorBpm=el("strong","arp-monitor-bpm",monitorTop);
 const monitorClock=el("span","arp-monitor-clock",monitorTop);
 const monitorMode=el("span","arp-monitor-mode",monitor);
-const viz=document.createElementNS("http://www.w3.org/2000/svg","svg");
-viz.setAttribute("class","arp-pattern-viz");viz.setAttribute("viewBox","0 0 170 29");viz.setAttribute("aria-hidden","true");monitor.append(viz);
-const guide=document.createElementNS("http://www.w3.org/2000/svg","path");
-guide.setAttribute("class","arp-pattern-guide");viz.append(guide);
-const activeTrace=document.createElementNS("http://www.w3.org/2000/svg","path");
-activeTrace.setAttribute("class","arp-pattern-trace");viz.append(activeTrace);
-const spot=document.createElementNS("http://www.w3.org/2000/svg","circle");
-spot.setAttribute("class","arp-pattern-spot");spot.setAttribute("r","3.3");viz.append(spot);
-const patternHistory=[];
+// Twelve segmented note-height steps, styled after the vintage LED strip.
+// The lit step advances only when the audio worklet actually sounds a note.
+const stepStrip=el("div","arp-step-strip",monitor);
+stepStrip.setAttribute("aria-hidden","true");
+const steps=Array.from({length:12},(_,i)=>{
+ const slot=el("div","arp-step-slot",stepStrip);
+ const bar=el("span","arp-step-bar",slot);
+ bar.style.bottom="2px";
+ return {slot,bar};
+});
 let lastVisualTick=-1,lastVisualMode="",lastArpPlaying=false,monitorSyncReady=false,midiClockStopped=false;
+let stepCursor=-1;
+const stepLevels=Array(12).fill(null);
 const modeNames={up:"UP",down:"DOWN",pendulum:"UP/DN",random:"RND",played:"PLAY",walk:"WALK"};
-function arpGuide(mode){
- const samples={up:[.06,.23,.39,.56,.73,.92],down:[.92,.73,.56,.39,.23,.06],
- pendulum:[.06,.35,.65,.92,.65,.35],random:[.3,.8,.14,.67,.4,.92],
- played:[.25,.78,.47,.9,.14,.62],walk:[.3,.45,.6,.45,.3,.45]}[mode]||[.1,.3,.5,.7,.9];
- return samples.map((v,i)=>`${i?"L":"M"}${(5+i*160/(samples.length-1)).toFixed(1)} ${(25-v*21).toFixed(1)}`).join(" ");
-}
+const previewHeights={
+ up:[0,.12,.25,.38,.50,.63,.75,.88,1,.75,.50,.25],
+ down:[1,.88,.75,.63,.50,.38,.25,.12,0,.25,.50,.75],
+ pendulum:[0,.2,.4,.6,.8,1,.8,.6,.4,.2,0,.2],
+ random:[.25,.8,.1,.6,.35,.9,.45,.15,.7,.4,.95,.25],
+ played:[.2,.65,.4,.85,.1,.55,.3,.75,.15,.6,.4,.9],
+ walk:[.35,.45,.55,.45,.35,.25,.35,.45,.6,.55,.45,.35]
+};
 function updateArpMonitor(state){
  const syncing=music.arp.clock==="midi";
  if(state)monitorSyncReady=!!state.arpSyncReady;
  monitorBpm.textContent=String(Math.round(music.arp.rate*15)).padStart(3,"0")+" BPM";
  monitorClock.textContent=syncing?(midiClockStopped?"STOP":monitorSyncReady?"SYNC":"WAIT"):"INT";
  monitorClock.classList.toggle("waiting",syncing&&!monitorSyncReady);
- monitorMode.textContent=modeNames[music.arp.mode]||"UP";
  const mode=music.arp.mode;
- if(mode!==lastVisualMode){guide.setAttribute("d",arpGuide(mode));lastVisualMode=mode;patternHistory.length=0;lastVisualTick=-1;}
+ monitorMode.textContent=modeNames[mode]||"UP";
  const playing=state ? (!!music.arp.on && !!state.arpPlaying) : lastArpPlaying;
+ if(mode!==lastVisualMode){
+  lastVisualMode=mode;stepLevels.fill(null);stepCursor=-1;
+  lastVisualTick=-1;
+ }
  if(state && playing && state.arpVisualTick!==lastVisualTick){
-  if(lastVisualTick>=0 || state.arpVisualTick>0){
-   patternHistory.push(Math.max(0,Math.min(1,Number(state.arpVisualPosition)||0)));
-   if(patternHistory.length>10)patternHistory.shift();
-  }
+  // One audio event == one displayed step. No invented playback animation.
+  stepCursor=(stepCursor+1)%steps.length;
+  stepLevels[stepCursor]=Math.max(0,Math.min(1,Number(state.arpVisualPosition)||0));
   lastVisualTick=state.arpVisualTick;
  }
- if(!playing&&lastArpPlaying)patternHistory.length=0;
+ if(!playing&&lastArpPlaying){
+  stepLevels.fill(null);stepCursor=-1;
+ }
  lastArpPlaying=playing;
- const trace=patternHistory.map((v,i)=>`${i?"L":"M"}${(5+i*160/Math.max(1,patternHistory.length-1)).toFixed(1)} ${(25-v*21).toFixed(1)}`).join(" ");
- activeTrace.setAttribute("d",playing?trace:"");
- if(playing&&patternHistory.length){
-  const pos=patternHistory.at(-1),x=5+(patternHistory.length-1)*160/Math.max(1,patternHistory.length-1);
-  spot.setAttribute("cx",x.toFixed(1));spot.setAttribute("cy",(25-pos*21).toFixed(1));
-  spot.style.opacity="1";
- } else spot.style.opacity="0";
+ const preview=previewHeights[mode]||previewHeights.up;
+ for(let i=0;i<steps.length;i++){
+  const level=stepLevels[i]===null?preview[i]:stepLevels[i];
+  steps[i].bar.style.bottom=(2+Math.round(level*14))+"px";
+  steps[i].slot.classList.toggle("arp-step-played",stepLevels[i]!==null);
+  steps[i].slot.classList.toggle("arp-step-current",playing&&i===stepCursor);
+ }
  monitor.classList.toggle("running",playing);
 }
 // Tidy lower hardware switch banks: note order, octave and rhythmic divisions.
