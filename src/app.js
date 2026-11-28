@@ -5,7 +5,7 @@ import {
   fromUnit,
   initialMusic,
 } from "./parameters.js?v=20261128-arp-redesign-v1";
-import { AudioClient } from "./audio/client.js?v=20261128-arp-redesign-v1";
+import { AudioClient } from "./audio/client.js?v=20261128-arp-monitor-v1";
 import {
   factory,
   factoryGroups,
@@ -58,6 +58,7 @@ const audio = new AudioClient((state) => {
   // The track viewer lives farther down in the module; invoked only
   // after initialization, when its bindings have been created.
   if(typeof updateMiniStatus==="function")updateMiniStatus(state);
+  if(typeof updateArpMonitor==="function")updateArpMonitor(state);
 
 });
 let readyPromise;
@@ -391,7 +392,7 @@ const lfoWaveIcons=[5,1,3].map(waveSvg);
 lfoWaveIcons.forEach((art,i)=>button(lfoSection,"lfo-"+i,art,
   77,68+i*44,28,26,()=>{setParam("lfoWave",i);refreshSwitches();},"wave"));
 const arp = section("ARPEGGIATOR", 52, 350, 316, 231, "white");
-arp.classList.add("arp-vintage","arp-redesign");
+arp.classList.add("arp-vintage","arp-redesign","arp-monitor-revision");
 function setArp(value){
  Object.assign(music.arp,value);
  send({type:"arp",value});
@@ -404,52 +405,101 @@ const arpText=(text,x,y,w)=>{
  e.style.cssText=`left:${x}px;top:${y}px;width:${w}px`;
  return e;
 };
+// Preserve prominent power buttons at upper left.
 button(arp,"arpOn","ON",10,43,44,27,()=>setArp({on:!music.arp.on}),"arp-on");
 button(arp,"arpHold","HOLD",10,75,44,27,()=>setArp({hold:!music.arp.hold}),"arp-hold");
 button(arp,"arpSync","SYNC",59,43,46,27,()=>setArp({clock:music.arp.clock==="midi"?"internal":"midi"}),"arp-clock");
-const clockReadout=el("div","arp-clock-status",arp);
-clockReadout.style.cssText="left:59px;top:76px;width:46px";
-clockReadout.textContent="INT";
-arpText("ORDER",112,42,99);
+// Single CRT-style status monitor: real BPM + actual sync state + voice movement.
+const monitor=el("div","arp-monitor",arp);
+monitor.setAttribute("role","img");
+monitor.setAttribute("aria-label","Arpeggiator tempo, clock and animated note direction");
+const monitorTop=el("div","arp-monitor-top",monitor);
+const monitorBpm=el("strong","arp-monitor-bpm",monitorTop);
+const monitorClock=el("span","arp-monitor-clock",monitorTop);
+const monitorMode=el("span","arp-monitor-mode",monitor);
+const viz=document.createElementNS("http://www.w3.org/2000/svg","svg");
+viz.setAttribute("class","arp-pattern-viz");viz.setAttribute("viewBox","0 0 170 29");viz.setAttribute("aria-hidden","true");monitor.append(viz);
+const guide=document.createElementNS("http://www.w3.org/2000/svg","path");
+guide.setAttribute("class","arp-pattern-guide");viz.append(guide);
+const activeTrace=document.createElementNS("http://www.w3.org/2000/svg","path");
+activeTrace.setAttribute("class","arp-pattern-trace");viz.append(activeTrace);
+const spot=document.createElementNS("http://www.w3.org/2000/svg","circle");
+spot.setAttribute("class","arp-pattern-spot");spot.setAttribute("r","3.3");viz.append(spot);
+const patternHistory=[];
+let lastVisualTick=-1,lastVisualMode="",lastArpPlaying=false,monitorSyncReady=false,midiClockStopped=false;
+const modeNames={up:"UP",down:"DOWN",pendulum:"UP/DN",random:"RND",played:"PLAY",walk:"WALK"};
+function arpGuide(mode){
+ const samples={up:[.06,.23,.39,.56,.73,.92],down:[.92,.73,.56,.39,.23,.06],
+ pendulum:[.06,.35,.65,.92,.65,.35],random:[.3,.8,.14,.67,.4,.92],
+ played:[.25,.78,.47,.9,.14,.62],walk:[.3,.45,.6,.45,.3,.45]}[mode]||[.1,.3,.5,.7,.9];
+ return samples.map((v,i)=>`${i?"L":"M"}${(5+i*160/(samples.length-1)).toFixed(1)} ${(25-v*21).toFixed(1)}`).join(" ");
+}
+function updateArpMonitor(state){
+ const syncing=music.arp.clock==="midi";
+ if(state)monitorSyncReady=!!state.arpSyncReady;
+ monitorBpm.textContent=String(Math.round(music.arp.rate*15)).padStart(3,"0")+" BPM";
+ monitorClock.textContent=syncing?(midiClockStopped?"STOP":monitorSyncReady?"SYNC":"WAIT"):"INT";
+ monitorClock.classList.toggle("waiting",syncing&&!monitorSyncReady);
+ monitorMode.textContent=modeNames[music.arp.mode]||"UP";
+ const mode=music.arp.mode;
+ if(mode!==lastVisualMode){guide.setAttribute("d",arpGuide(mode));lastVisualMode=mode;patternHistory.length=0;lastVisualTick=-1;}
+ const playing=state ? (!!music.arp.on && !!state.arpPlaying) : lastArpPlaying;
+ if(state && playing && state.arpVisualTick!==lastVisualTick){
+  if(lastVisualTick>=0 || state.arpVisualTick>0){
+   patternHistory.push(Math.max(0,Math.min(1,Number(state.arpVisualPosition)||0)));
+   if(patternHistory.length>10)patternHistory.shift();
+  }
+  lastVisualTick=state.arpVisualTick;
+ }
+ if(!playing&&lastArpPlaying)patternHistory.length=0;
+ lastArpPlaying=playing;
+ const trace=patternHistory.map((v,i)=>`${i?"L":"M"}${(5+i*160/Math.max(1,patternHistory.length-1)).toFixed(1)} ${(25-v*21).toFixed(1)}`).join(" ");
+ activeTrace.setAttribute("d",playing?trace:"");
+ if(playing&&patternHistory.length){
+  const pos=patternHistory.at(-1),x=5+(patternHistory.length-1)*160/Math.max(1,patternHistory.length-1);
+  spot.setAttribute("cx",x.toFixed(1));spot.setAttribute("cy",(25-pos*21).toFixed(1));
+  spot.style.opacity="1";
+ } else spot.style.opacity="0";
+ monitor.classList.toggle("running",playing);
+}
+// Tidy lower hardware switch banks: note order, octave and rhythmic divisions.
+arpText("ORDER",9,109,145);
 for(const [id,mode,label,x,y] of [
- ["arpUp","up","UP",112,61],["arpDown","down","DN",162,61],
- ["arpPendulum","pendulum","UP/DN",112,88],["arpRandom","random","RND",162,88],
- ["arpPlayed","played","PLAY",112,115],["arpWalk","walk","WALK",162,115]
-])button(arp,id,label,x,y,46,24,()=>setArp({mode}),"arp-mode");
-arpText("OCT",222,42,84);
+ ["arpUp","up","UP",10,123],["arpDown","down","DN",61,123],
+ ["arpPendulum","pendulum","UP/DN",112,123],
+ ["arpRandom","random","RND",10,148],["arpPlayed","played","PLAY",61,148],
+ ["arpWalk","walk","WALK",112,148]
+])button(arp,id,label,x,y,46,22,()=>setArp({mode}),"arp-mode");
+arpText("OCT",171,109,66);
 for(let n=1;n<=4;n++)
- button(arp,"range"+n,String(n),222+((n-1)%2)*42,61+Math.floor((n-1)/2)*27,39,24,
- ()=>setArp({range:n}),"arp-range");
-arpText("DIVISION",222,105,84);
-for(const [div,label,x,y] of [[4,"1/4",222,119],[8,"1/8",264,119],[16,"1/16",222,143],[32,"1/32",264,143]])
- button(arp,"arpDiv"+div,label,x,y,39,24,()=>setArp({division:div}),"arp-division");
+ button(arp,"range"+n,String(n),172+((n-1)%2)*33,123+Math.floor((n-1)/2)*25,29,22,()=>setArp({range:n}),"arp-range");
+arpText("DIV",241,109,67);
+for(const [div,label,x,y] of [[4,"1/4",242,123],[8,"1/8",275,123],[16,"1/16",242,148],[32,"1/32",275,148]])
+ button(arp,"arpDiv"+div,label,x,y,29,22,()=>setArp({division:div}),"arp-division");
 for(const [key,label,x] of [
  ["arpRate","SPEED",11],["arpGate","GATE",72],["arpSwing","SWING",133],
  ["arpChance","CHANCE",194],["arpEvolve","EVOLVE",255]
 ]){
- const knob=rotary(arp,key,label,x,166,48);
+ const knob=rotary(arp,key,label,x,171,48);
  knob.classList.add("arp-pot","arp-pot-"+key);
 }
-const tempoDisplay=el("output","arp-tempo-display",arp);
-tempoDisplay.style.cssText="left:10px;top:216px;width:53px";
 let midiClockBpm=0,midiClockTicks=0,midiClockTime=0,midiClockLast=0;
 function paintArp(v=music.arp.rate){
  music.arp.rate=v;
  const syncing=music.arp.clock==="midi";
  const speed=arp.querySelector(".arp-pot-arpRate input");
  if(speed)speed.disabled=syncing;
- tempoDisplay.textContent=Math.round(v*15)+" BPM";
- clockReadout.textContent=syncing?(midiClockBpm>0?Math.round(midiClockBpm)+"":"WAIT"):"INT";
- clockReadout.title=syncing?"External MIDI clock (Drone Machine clock bridge required)":"SF-POLY internal clock";
+ updateArpMonitor();
 }
 function receiveArpMidiClock(event){
  const code=event.data?.[0];
- if(code===0xFA||code===0xFB){midiClockTicks=0;midiClockTime=0;midiClockLast=0;return true;}
- if(code===0xFC){midiClockTicks=0;midiClockTime=0;midiClockBpm=0;
-  if(music.arp.clock==="midi"){clockReadout.textContent="STOP";send({type:"syncStop"});}
+ if(code===0xFA||code===0xFB){midiClockTicks=0;midiClockTime=0;midiClockLast=0;midiClockStopped=false;return true;}
+ if(code===0xFC){midiClockTicks=0;midiClockTime=0;midiClockBpm=0;midiClockStopped=true;
+  if(music.arp.clock==="midi"){send({type:"syncStop"});updateArpMonitor();}
   return true;
  }
  if(code!==0xF8)return false;
+ midiClockStopped=false;
  const now=event.timeStamp||performance.now();
  if(midiClockLast&&now-midiClockLast>500){midiClockTicks=0;midiClockTime=0;midiClockBpm=0;}
  midiClockLast=now;
