@@ -497,6 +497,11 @@ export class Effects {
     this.dcOut = [0, 0];
     this.dcPole = Math.exp((-TAU * 15) / sr);
     this.chorusEnable = 0;
+    // Two first-order all-pass stages per channel, final in the FX chain.
+    this.phaseStages = [[0,0],[0,0]];
+    this.phaseLfo = 0;
+    this.phaseWet = 0;
+    this.phaseFrequency = 600;
     this.bassShelfState = [0,0];
     this.boostSmoothed = 0;
     this.bassShelfCoeff = 1-Math.exp(-TAU * 100 / sr);
@@ -515,6 +520,8 @@ export class Effects {
     this.dcOut.fill(0);
     this.left = this.right = 0;
     this.bassShelfState.fill(0);
+    this.phaseStages[0].fill(0);this.phaseStages[1].fill(0);
+    this.phaseLfo = 0;this.phaseWet = 0;
     this.boostSmoothed=0;
   }
   read(b, pos, delay) {
@@ -584,10 +591,33 @@ export class Effects {
     const boostGain=this.boostSmoothed*.70;
     const xl=dryL+this.bassShelfState[0]*boostGain,
           xr=dryR+this.bassShelfState[1]*boostGain;
-    const yl = xl - this.dcIn[0] + this.dcPole * this.dcOut[0],
-      yr = xr - this.dcIn[1] + this.dcPole * this.dcOut[1];
-    this.dcIn[0] = xl;
-    this.dcIn[1] = xr;
+    // Phase-45-inspired two-stage all-pass sweep. No feedback or
+    // allocations; equal dry + phase-shifted signal creates broad notches.
+    this.phaseWet += (((p.phaseOn||0)>=.5 ? clamp(p.phaseMix,0,1) : 0)-this.phaseWet)*.0004;
+    this.phaseLfo = (this.phaseLfo + clamp(p.phaseSpeed||.25,.01,8)/this.sr)%1;
+    const depth=clamp(p.phaseDepth||0,0,1);
+    const sweep=Math.sin(TAU*this.phaseLfo);
+    const centre=300*Math.pow(10,depth*(.5+.5*sweep)*1.3);
+    this.phaseFrequency+=(centre-this.phaseFrequency)*.003;
+    const ap=(Math.tan(Math.PI*clamp(this.phaseFrequency,30,this.sr*.25)/this.sr)-1)/
+             (Math.tan(Math.PI*clamp(this.phaseFrequency,30,this.sr*.25)/this.sr)+1);
+    // Explicit, allocation-free stereo stage processing.
+    let wetL=xl,wetR=xr;
+    for(let stage=0;stage<2;stage++){
+      const leftMemory=this.phaseStages[0][stage];
+      const rightMemory=this.phaseStages[1][stage];
+      const newL=ap*wetL+leftMemory;
+      const newR=ap*wetR+rightMemory;
+      this.phaseStages[0][stage]=wetL-ap*newL;
+      this.phaseStages[1][stage]=wetR-ap*newR;
+      wetL=newL;wetR=newR;
+    }
+    const phasedL=xl*(1-this.phaseWet*.5)+wetL*this.phaseWet*.5;
+    const phasedR=xr*(1-this.phaseWet*.5)+wetR*this.phaseWet*.5;
+    const yl = phasedL - this.dcIn[0] + this.dcPole * this.dcOut[0],
+      yr = phasedR - this.dcIn[1] + this.dcPole * this.dcOut[1];
+    this.dcIn[0] = phasedL;
+    this.dcIn[1] = phasedR;
     this.dcOut[0] = yl;
     this.dcOut[1] = yr;
     // Revised master output: approximately +5 dB versus the previous build.
