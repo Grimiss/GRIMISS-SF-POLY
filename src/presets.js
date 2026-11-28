@@ -1,4 +1,4 @@
-import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261128-ae-morph-v1";
+import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261128-arp-redesign-v1";
 export function patch(name, params = {}) {
   return {
     format: "grimiss-sf-poly",
@@ -188,8 +188,9 @@ export function validatePatch(input) {
     on: !!a.on,
     hold: !!a.hold,
     clock: a.clock === "midi" ? "midi" : "internal",
-    mode: ["up", "down", "pendulum", "random"].includes(a.mode) ? a.mode : "up",
+    mode: ["up", "down", "pendulum", "random", "played", "walk"].includes(a.mode) ? a.mode : "up",
     range: Math.max(1, Math.min(4, Math.round(a.range) || 1)),
+    division: [4,8,16,32].includes(+a.division) ? +a.division : 16,
     rate: Math.max(0.05, Math.min(20, +a.rate || 5)),
   };
   out.seq = {
