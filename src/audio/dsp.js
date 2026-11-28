@@ -317,6 +317,19 @@ export class Model {
     this.previousFilter = kind;
     this.filterFade = 0;
     this.cal = Math.sin((index + 1) * 13.71 + kind * 5.27);
+    // Deterministic identity for every virtual hardware voice card.
+    // These differences persist across notes and never randomise per chord.
+    const identity = (salt) => Math.sin((index + 1) * 12.9898 + (kind + 1) * 78.233 + salt * 37.719);
+    this.agePitch = identity(1);
+    this.ageFilter = identity(2);
+    this.ageLevel = identity(3);
+    this.ageEnvelope = identity(4);
+    this.ageResonance = identity(5);
+    this.ageDrift = 0;
+    this.ageTarget = 0;
+    this.ageCycle = 0;
+    this.ageCountdown = 0;
+    this.ageNoteTransient = 0;
     this.drift = 0;
     this.hpIn = 0;
     this.hpOut = 0;
@@ -333,13 +346,24 @@ export class Model {
     const k = this.kind,
       sr = this.sr * 2;
     if ((this.counter++ & 31) === 0) {
-      this.phase += 0.000096 * (1 + this.cal * 0.15);
-      this.drift += (Math.sin(this.phase) * this.cal - this.drift) * 0.00064;
-      const hz =
-        freq *
-        2 ** ((k === 2 ? 0 : this.cal * (0.008 + p.analogDetune * 0.28) + this.drift * (0.008 + p.analogDetune * 0.2)) / 12);
+      // Physical-style voice ageing: persistent card offsets plus bounded,
+      // non-periodic thermal wander. All updates are allocation-free.
+      if (--this.ageCountdown <= 0) {
+        this.ageCycle++;
+        const x = Math.sin((this.ageCycle + 1) * 92.371 + (this.kind + 1) * 17.151 + (this.agePitch + 2) * 23.731) * 43758.5453;
+        this.ageTarget = ((x - Math.floor(x)) * 2 - 1);
+        this.ageCountdown = Math.round(this.sr / 32 * (2.5 + 6 * (0.5 + 0.5 * this.ageFilter)));
+      }
+      const smoothing = 1 - Math.exp(-32 / (this.sr * (1.7 + 4 * (0.5 + 0.5 * this.ageLevel))));
+      this.ageDrift += (this.ageTarget - this.ageDrift) * smoothing;
+      this.ageNoteTransient *= Math.exp(-32 / (this.sr * 0.65));
+      const age = Math.pow(clamp(p.analogDetune, 0, 1), 1.35);
+      // Juno's DCO is deliberately much more stable than the VCO circuits.
+      const pitchScale = k === 2 ? 0.055 : k === 1 ? 0.83 : 1;
+      const cents = age * pitchScale * (this.agePitch * 6 + this.ageDrift * 3 + this.ageNoteTransient * 0.5);
+      const hz = freq * 2 ** (cents / 1200);
       this.f1 = hz * 2 ** ((p.osc1Tune + 12*Math.round(p.osc1Octave||0) + (p.osc1Fine||0)) / 12);
-      this.f2 = hz * 2 ** ((p.osc2Tune + 12*Math.round(p.osc2Octave||0) + (p.osc2Fine||0) + (k === 1 ? this.cal * (0.02 + p.analogDetune * 0.14) : 0)) / 12);
+      this.f2 = hz * 2 ** ((p.osc2Tune + 12*Math.round(p.osc2Octave||0) + (p.osc2Fine||0) + (k === 1 ? age * this.agePitch * 0.025 : 0)) / 12);
       this.sub = hz / (Math.round(p.subOct) === 2 ? 4 : 2);
       // PLS: the PW slider sets a fixed duty cycle.
       // PWM: PW sets the centre and the LFO moves around that centre.
@@ -355,7 +379,8 @@ export class Model {
           2 **
             (env * p.envAmount +
               lfo * (p.lfoFilter + p.mod * 2) +
-              this.cal * (k === 2 ? 0.015 : 0.08) * (0.3 + p.analog * 2.2)),
+              this.cal * (k === 2 ? 0.015 : 0.08) * (0.3 + p.analog * 2.2) +
+              this.ageFilter * age * 0.16),
         15,
         this.sr * 0.42,
       );
@@ -411,8 +436,12 @@ export class Model {
       const high = [4,5].includes(Math.round(p.filterModel)) ? x : highRaw;
       this.hpIn = x;
       this.hpOut = high;
-      const bodyDrive=1+p.analog*(k===1?2.1:1.75);
-      const warm=Math.tanh((high+.055*p.analog*high*high)*bodyDrive)/(1+p.analog*.62);
+      // Above 70%, ANALOG adds more body and restrained asymmetric drive.
+      const analog = clamp(p.analog, 0, 1);
+      const upper = Math.pow(Math.max(0, (analog - 0.7) / 0.3), 1.6);
+      const bodyDrive = 1 + analog * (k === 1 ? 2.1 : 1.75) + upper * 0.48;
+      const warm = Math.tanh((high + (0.055 * analog + upper * 0.038) * high * high) * bodyDrive)
+        / (1 + analog * 0.62 + upper * 0.16);
       const selected = Math.round(p.filterModel);
       const filterIndex=selected===0?k:selected===1?2:selected===2?1:selected===3?0:selected-1;
       if (filterIndex !== this.filterChoice) {
@@ -422,7 +451,7 @@ export class Model {
       }
       const activeFilter=this.filters[this.filterChoice];
       const filterHz=this.cutoff*([1.42,1.06,.69,1,1,1,1][this.filterChoice]);
-      const filterRes=clamp(p.resonance*([1.16,1.05,.86,1,1,1,1][this.filterChoice]),0,.97);
+      const filterRes=clamp(p.resonance*([1.16,1.05,.86,1,1,1,1][this.filterChoice])*(1+this.ageResonance*Math.pow(clamp(p.analogDetune,0,1),1.35)*0.065),0,.97);
       const semMorph=clamp(Math.log(Math.max(10,p.hpf)/10)/Math.log(300),0,1);
       let filtered=activeFilter.tick(warm,filterHz,filterRes,sr,
         this.filterChoice===3?p.hpf:semMorph);
