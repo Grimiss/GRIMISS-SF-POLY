@@ -443,7 +443,7 @@ function updateArpMonitor(state){
  monitorMode.textContent=modeNames[music.arp.mode]||"UP";
  const mode=music.arp.mode;
  if(mode!==lastVisualMode){guide.setAttribute("d",arpGuide(mode));lastVisualMode=mode;patternHistory.length=0;lastVisualTick=-1;}
- const playing=!!music.arp.on && !!state?.arpPlaying;
+ const playing=state ? (!!music.arp.on && !!state.arpPlaying) : lastArpPlaying;
  if(state && playing && state.arpVisualTick!==lastVisualTick){
   if(lastVisualTick>=0 || state.arpVisualTick>0){
    patternHistory.push(Math.max(0,Math.min(1,Number(state.arpVisualPosition)||0)));
