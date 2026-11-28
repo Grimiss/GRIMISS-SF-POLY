@@ -1,4 +1,4 @@
-import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261127-toggle-default-on";
+import { defaults, initialMusic, clampParam, specs } from "./parameters.js?v=20261128-ae-morph-v1";
 export function patch(name, params = {}) {
   return {
     format: "grimiss-sf-poly",
