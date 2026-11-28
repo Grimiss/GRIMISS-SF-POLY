@@ -734,6 +734,7 @@ for(const [name,x,w,top] of [
  ["REVERB",1247,154,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
 ]){
  const sec=section(name,x,350,w,231);
+ sec.classList.add('sf-fx-unified');
  const inset=12;
  const right=w-12-54;
  top.forEach(([k,label],i)=>{
@@ -750,6 +751,7 @@ for(const [name,x,w,top] of [
  onOff.setAttribute("aria-label",name+" effect on/off");
 }
 const chorus = section("CHORUS",1409,350,154,231);
+chorus.classList.add("sf-fx-unified");
 // Shared big MIX pot at the same top-row position and diameter as FX strips.
 const chorusMix=rotary(chorus,"chorusMix","MIX",(154-54)/2,42,54);
 chorusMix.classList.add("sf-fx-mix-knob");
@@ -774,7 +776,7 @@ const chorusOnSwitch=button(chorus,"chorus0","ON",(154-49)/2,199,49,24,()=>{
 },"sf-chorus-off");
 chorusOnSwitch.setAttribute("aria-label","Chorus effect on/off");
 const phase=section("PHASE",1571,350,154,231);
-phase.classList.add("sf-phase-panel");
+phase.classList.add("sf-phase-panel","sf-fx-unified");
 for(const [key,label,x,y] of [["phaseMix","MIX",50,42],["phaseSpeed","SPEED",12,126],["phaseDepth","DEPTH",88,126]]){
  const pot=rotary(phase,key,label,x,y,54);pot.classList.add("sf-phase-pot",key==="phaseMix"?"sf-fx-mix-knob":"sf-fx-top-knob");
 }
