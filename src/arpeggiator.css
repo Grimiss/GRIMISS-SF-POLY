@@ -237,3 +237,11 @@
  border-color:#98efe1;
  box-shadow:0 0 6px #72e9d8,0 0 2px #c7ffee;
 }
+
+/* Individual light blocks rise and fall, rather than growing as bar meters. */
+#instrument .section.arp-monitor-revision .arp-step-slot .arp-step-bar{
+ position:absolute!important;left:0;right:0;
+ height:6px!important;min-height:6px!important;
+ transition:bottom 80ms ease-out,background 80ms ease-out;
+ border-radius:1px!important;
+}
