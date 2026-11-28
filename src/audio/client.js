@@ -23,7 +23,7 @@ export class AudioClient {
   async init() {
     this.context = new AudioContext({ latencyHint: "interactive" });
     await this.context.audioWorklet.addModule(
-      new URL("./worklet.js?v=20261127-toggle-default-on", import.meta.url),
+      new URL("./worklet.js?v=20261128-ae-morph-v1", import.meta.url),
     );
     this.node = new AudioWorkletNode(this.context, "sf-poly", {
       numberOfInputs: 0,
