@@ -1,4 +1,4 @@
-import { SynthEngine } from "./engine.js?v=20261128-arp-redesign-v1";
+import { SynthEngine } from "./engine.js?v=20261128-arp-monitor-v1";
 class SFPolyProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
@@ -25,6 +25,11 @@ class SFPolyProcessor extends AudioWorkletProcessor {
       this.port.postMessage({
         type: "state",
         params: { ...e.target },
+        arpVisualTick: e.arpVisualTick,
+        arpVisualPosition: e.arpVisualPosition,
+        arpVisualCount: e.arpVisualCount,
+        arpPlaying: e.music.arp.on && e.arpVisualCount > 0 && (e.music.arp.clock!=="midi" || e.frame<e.arpSyncUntil),
+        arpSyncReady: e.frame < e.arpSyncUntil,
         seqIndex: e.seqIndex,
         seqPlaying: e.seqPlaying,
         autoPlaying: e.autoPlaying,
