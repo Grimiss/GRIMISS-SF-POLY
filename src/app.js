@@ -4,8 +4,8 @@ import {
   toUnit,
   fromUnit,
   initialMusic,
-} from "./parameters.js?v=20261127-toggle-default-on";
-import { AudioClient } from "./audio/client.js?v=20261127-toggle-default-on";
+} from "./parameters.js?v=20261128-ae-morph-v1";
+import { AudioClient } from "./audio/client.js?v=20261128-ae-morph-v1";
 import {
   factory,
   factoryGroups,
@@ -13,7 +13,7 @@ import {
   validatePatch,
   readUsers,
   writeUsers,
-} from "./presets.js?v=20261127-toggle-default-on";
+} from "./presets.js?v=20261128-ae-morph-v1";
 import { createAutomationEditor } from "./automation-editor.js?v=20261128-ae-morph-v1";
 const $ = (s) => document.querySelector(s),
   el = (tag, cls, parent) => {
