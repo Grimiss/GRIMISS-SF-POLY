@@ -212,8 +212,35 @@ export function validatePatch(input) {
     loop: !!u.loop,
     overdub: !!u.overdub,
     duration: Math.max(0, Math.min(3600, +u.duration || 0)),
+    loopStart: Math.max(0,Math.min(3600,+u.loopStart||0)),
+    loopEnd: Math.max(0,Math.min(3600,+u.loopEnd||0)),
     events: [],
+    clips: [],
   };
+  if(Array.isArray(u.clips)){
+    if(u.clips.length>128)throw Error("Too many automation clips.");
+    out.automation.clips=u.clips.map((clip,i)=>{
+      if(!Object.hasOwn(specs,clip.k)||
+        !Number.isFinite(clip.start)||clip.start<0||clip.start>3600||
+        !Number.isFinite(clip.duration)||clip.duration<.01||
+        !Number.isFinite(clip.sourceDuration)||clip.sourceDuration<.01||
+        !Array.isArray(clip.points)||clip.points.length<1||clip.points.length>10000)
+        throw Error("Invalid automation clip.");
+      const sourceDuration=Math.min(3600,clip.sourceDuration);
+      return {
+        id:String(clip.id||"clip"+i).slice(0,64),k:clip.k,
+        start:Math.min(3600,clip.start),
+        duration:Math.min(3600-clip.start,clip.duration),
+        sourceDuration,
+        points:clip.points.map(pt=>{
+          if(!Number.isFinite(pt.t)||!Number.isFinite(pt.v)||
+             pt.t<0||pt.t>sourceDuration+.0001)
+            throw Error("Invalid automation clip point.");
+          return {t:pt.t,v:clampParam(clip.k,pt.v)};
+        }).sort((a,b)=>a.t-b.t)
+      };
+    });
+  }
   if (Array.isArray(u.events)) {
     if (u.events.length > 100000) throw Error("Too many automation events.");
     out.automation.events = u.events
