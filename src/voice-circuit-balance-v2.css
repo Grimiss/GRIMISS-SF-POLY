@@ -1,0 +1,180 @@
+/* SF-POLY 28 Nov: Combined VOICES / CIRCUIT refinement.
+ * Scoped physical layout, overriding previous combined-voice measurements.
+ * Entire 423 × 231 panel remains in its present location. */
+#instrument .section.sf-combined-voices{
+ overflow:hidden!important;
+}
+#instrument .section.sf-combined-voices .voice-leds{
+ position:absolute!important;
+ left:12px!important;right:12px!important;width:auto!important;
+ top:41px!important;margin:0!important;
+ display:flex!important;justify-content:space-between!important;
+ gap:3px!important;
+}
+#instrument .section.sf-combined-voices .voice-cell{
+ width:auto!important;min-width:0!important;flex:1 1 0!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;gap:2px!important;
+}
+#instrument .section.sf-combined-voices .voice-light{
+ width:10px!important;height:10px!important;flex:none!important;
+}
+#instrument .section.sf-combined-voices .voice-cell small{
+ font:700 8px/10px Arial,sans-serif!important;
+}
+/* Voice faders narrower, leaving the circuit controls about 52% of the body. */
+#instrument .section.sf-combined-voices .sf-combined-voice-box{
+ position:absolute!important;
+ left:10px!important;top:76px!important;
+ width:174px!important;height:147px!important;
+ border-right:1px solid #596468!important;
+}
+#instrument .section.sf-combined-voices .track6-controls{
+ position:absolute!important;left:2px!important;right:9px!important;
+ top:0!important;width:auto!important;display:flex!important;
+ flex-direction:column!important;gap:8px!important;
+ align-items:stretch!important;
+}
+#instrument .section.sf-combined-voices .track6-knob{
+ width:100%!important;min-width:0!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;gap:2px!important;
+ margin:0!important;
+}
+#instrument .section.sf-combined-voices .analog-caption{
+ display:block!important;
+ font:700 10px/13px Arial,sans-serif!important;
+ color:#ede5d7!important;text-align:center!important;
+ white-space:nowrap!important;
+}
+#instrument .section.sf-combined-voices .sf-combined-voice-box .analog-rail{
+ height:23px!important;width:100%!important;
+}
+#instrument .section.sf-combined-voices .track6-modes{
+ position:absolute!important;left:2px!important;right:9px!important;
+ top:123px!important;bottom:auto!important;
+ width:auto!important;
+ height:24px!important;
+ display:flex!important;gap:4px!important;align-items:stretch!important;
+ margin:0!important;
+}
+#instrument .section.sf-combined-voices .track6-modes button{
+ box-sizing:border-box!important;flex:1 1 0!important;min-width:0!important;
+ width:auto!important;height:24px!important;min-height:24px!important;
+ padding:0!important;font:700 9px/22px Arial,sans-serif!important;
+ border-radius:3px!important;
+}
+/* Wider circuit area, with 3 equal lanes and real miniature hardware faders. */
+#instrument .section.sf-combined-voices .sf-combined-circuit-box{
+ position:absolute!important;
+ left:194px!important;top:76px!important;
+ width:218px!important;height:147px!important;
+ display:block!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-lane{
+ position:relative!important;
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) 32px!important;
+ grid-template-rows:13px 23px!important;
+ column-gap:7px!important;row-gap:0!important;
+ height:38px!important;
+ margin:0 0 3px!important;
+ padding:0!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-name{
+ grid-column:1!important;grid-row:1!important;
+ font:700 10px/12px Arial,sans-serif!important;
+ color:#e7dfd1!important;white-space:nowrap!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap{
+ position:relative!important;
+ grid-column:1!important;grid-row:2!important;
+ display:block!important;width:100%!important;height:23px!important;
+ min-width:0!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slide-wrap .analog-rail{
+ position:relative!important;width:100%!important;height:23px!important;
+}
+#instrument .section.sf-combined-voices .sf-circuit-slider{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ opacity:0!important;z-index:8!important;
+ margin:0!important;padding:0!important;
+ touch-action:none!important;
+ cursor:ew-resize!important;
+}
+#instrument .section.sf-combined-voices .engine-toggle{
+ position:relative!important;
+ grid-column:2!important;grid-row:2!important;
+ left:auto!important;top:auto!important;
+ align-self:center!important;justify-self:center!important;
+ width:32px!important;height:21px!important;min-height:21px!important;
+ box-sizing:border-box!important;
+ padding:0!important;
+ font:700 9px/19px Arial,sans-serif!important;
+}
+/* Shared hardware rail and matching dark plastic cap for all five sliders. */
+#instrument .section.sf-combined-voices .analog-rail{
+ position:relative!important;
+ display:block!important;
+ width:100%!important;
+ height:23px!important;
+ border-radius:2px!important;
+ background:none!important;
+}
+#instrument .section.sf-combined-voices .analog-scale{
+ position:absolute!important;
+ top:1px!important;bottom:1px!important;
+ left:8px!important;right:8px!important;
+ background:
+ repeating-linear-gradient(to right,#a7a9a5 0 1px,transparent 1px 14px)
+ top left/100% 6px no-repeat,
+ repeating-linear-gradient(to right,#a7a9a5 0 1px,transparent 1px 14px)
+ bottom left/100% 6px no-repeat!important;
+ opacity:.7!important;pointer-events:none!important;
+}
+#instrument .section.sf-combined-voices .analog-slot{
+ position:absolute!important;left:8px!important;right:8px!important;
+ top:9px!important;height:6px!important;
+ border-radius:4px!important;
+ background:#030608!important;
+ box-shadow:inset 0 2px 3px #000!important;
+ pointer-events:none!important;
+}
+#instrument .section.sf-combined-voices .analog-cap{
+ position:absolute!important;top:2px!important;
+ width:19px!important;height:19px!important;
+ box-sizing:border-box!important;
+ border:1px solid #050708!important;
+ border-radius:2px!important;
+ background:linear-gradient(90deg,#090b0d 0%,#202426 18%,#34383b 48%,#171a1c 78%,#07090b 100%)!important;
+ box-shadow:inset 0 1px #8e969c55,inset 0 -2px 3px #000,0 2px 3px #000d!important;
+ z-index:4!important;pointer-events:none!important;
+}
+#instrument .section.sf-combined-voices .analog-cap::after{
+ content:""!important;
+ position:absolute!important;left:50%!important;top:3px!important;
+ transform:translateX(-50%)!important;
+ width:2px!important;height:12px!important;
+ border-radius:1px!important;background:#f1f0e9!important;
+ box-shadow:0 0 1px #fff8!important;
+}
+#instrument .section.sf-combined-voices .track6-knob .analog-input{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ z-index:8!important;opacity:0!important;
+}
+/* Exclusive/layer toggle is aligned with MONO/UNISON/POLY and all FX ON switches:
+ * panel-relative y=199 px, height=24px. */
+#instrument .section.sf-combined-voices #characterToggle{
+ position:absolute!important;
+ left:calc(50% - 34px)!important;
+ top:123px!important;
+ width:68px!important;height:24px!important;min-height:24px!important;
+ box-sizing:border-box!important;
+ padding:0!important;
+ font:700 9px/22px Arial,sans-serif!important;
+ border-radius:3px!important;
+}
