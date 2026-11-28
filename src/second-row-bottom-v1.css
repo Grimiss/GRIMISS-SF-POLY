@@ -1,0 +1,56 @@
+/* SF-POLY · Second-row bottom control alignment · 28 November 2026
+   Only lower-most controls move +8px. Upper controls, positions, panel
+   widths and the keyboard/separator remain untouched. */
+
+/* ARPEGGIATOR — five bottom potentiometers only. */
+#instrument .section[data-section="ARPEGGIATOR"] .sf-rotary.arp-pot{
+ top:179px!important;
+}
+
+/* AUTOMATION — the bottom transport row only. The SPEED/MORPH pots,
+   CRT and their captions remain exactly where they are. */
+#instrument .section[data-section="AUTOMATION"] .hardware.transport,
+#instrument .section[data-section="AUTOMATION"] .hardware.transport.on{
+ top:200px!important;
+}
+
+/* VOICES / CIRCUIT — two groups of bottom selectors, keeping their
+   existing alignment with the FX ON buttons. Faders and LEDs stay fixed. */
+#instrument .section.sf-combined-voices .track6-modes{
+ top:131px!important;
+}
+#instrument .section.sf-combined-voices #characterToggle{
+ top:131px!important;
+}
+
+/* DELAY / REVERB — lower TIME/FB, SIZE/DAMP knobs and ON rockers.
+   The MIX pots above them do not move. */
+#instrument .section.sf-fx-unified[data-section="DELAY"] .sf-rotary.sf-fx-top-knob,
+#instrument .section.sf-fx-unified[data-section="REVERB"] .sf-rotary.sf-fx-top-knob{
+ top:134px!important;
+}
+#instrument .section.sf-fx-unified[data-section="DELAY"] #fx-delayOn,
+#instrument .section.sf-fx-unified[data-section="REVERB"] #fx-reverbOn{
+ top:207px!important;
+}
+
+/* CHORUS — lower I / II switches with their pilot LEDs, and the ON rocker.
+   The MIX knob above them is unchanged. */
+#instrument .section.sf-fx-unified[data-section="CHORUS"] #chorus1,
+#instrument .section.sf-fx-unified[data-section="CHORUS"] #chorus2{
+ top:166px!important;
+}
+#instrument .section.sf-fx-unified[data-section="CHORUS"] .sf-chorus-lamp{
+ top:151px!important;
+}
+#instrument .section.sf-fx-unified[data-section="CHORUS"] #chorus0{
+ top:207px!important;
+}
+
+/* PHASE — lower SPEED/DEPTH knobs and ON switch, not the MIX knob. */
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-fx-top-knob{
+ top:134px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified #fx-phaseOn{
+ top:207px!important;
+}
