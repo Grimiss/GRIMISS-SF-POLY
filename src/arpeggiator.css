@@ -203,3 +203,37 @@
 #instrument .section.arp-monitor-revision .arp-division{
  font-size:9px!important;
 }
+
+/* Hardware-style stepped arp direction display: no line plot or note names.
+   Twelve luminous vertical segments track actual note heights & playhead. */
+#instrument .section.arp-monitor-revision .arp-step-strip{
+ position:absolute;
+ left:8px;right:8px;top:27px;height:29px;
+ display:flex;gap:3px;align-items:flex-end;
+ padding:2px 3px 3px;box-sizing:border-box;
+ border:1px solid #28434a;border-radius:4px;
+ background:linear-gradient(180deg,#091b20 0%,#061115 100%);
+ box-shadow:inset 0 1px 5px #000b;
+}
+#instrument .section.arp-monitor-revision .arp-step-slot{
+ position:relative;flex:1 1 0;min-width:0;height:100%;
+ display:flex;align-items:flex-end;justify-content:center;
+ border-bottom:1px solid #1e5152;
+}
+#instrument .section.arp-monitor-revision .arp-step-bar{
+ display:block;width:100%;min-height:5px;
+ background:linear-gradient(180deg,#256d6e,#123d43);
+ border:1px solid #205b5c;border-radius:1px 1px 0 0;
+ box-sizing:border-box;
+ box-shadow:inset 0 1px #8cd8c522;
+}
+#instrument .section.arp-monitor-revision .arp-step-played .arp-step-bar{
+ background:linear-gradient(180deg,#4caaa7,#247d82);
+ border-color:#4a9b9b;
+ box-shadow:0 0 3px #4cd8c855,inset 0 1px #c5f8df66;
+}
+#instrument .section.arp-monitor-revision .arp-step-current .arp-step-bar{
+ background:linear-gradient(180deg,#a4f6df,#48dfcd 60%,#268c92);
+ border-color:#98efe1;
+ box-shadow:0 0 6px #72e9d8,0 0 2px #c7ffee;
+}
