@@ -675,7 +675,7 @@ setInterval(async()=>{
  }catch(e){}finally{miniBusy=false;}
 },650);
 // Combined VOICES / CIRCUIT section: existing parameters, circuits and modes retained.
-const analogPanel=section("VOICES / CIRCUIT",654,350,360,231,"white");
+const analogPanel=section("VOICES / CIRCUIT",654,350,423,231,"white");
 analogPanel.classList.add("track6-analog","sf-combined-voices");
 const ledRow=el("div","voice-leds",analogPanel);
 ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
@@ -730,8 +730,8 @@ characterToggle.title="ON = exclusive circuit, OFF = layered circuits";
 // Physical two-tier FX strips: two compact controls above one large
 // MIX potentiometer, followed by a dedicated effect ON/OFF rocker.
 for(const [name,x,w,top] of [
- ["DELAY",1022,150,[["delayTime","TIME"],["delayFeedback","FB"]]],
- ["REVERB",1180,150,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
+ ["DELAY",1085,154,[["delayTime","TIME"],["delayFeedback","FB"]]],
+ ["REVERB",1247,154,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
 ]){
  const sec=section(name,x,350,w,231);
  const inset=12;
@@ -749,12 +749,12 @@ for(const [name,x,w,top] of [
  },"sf-fx-on");
  onOff.setAttribute("aria-label",name+" effect on/off");
 }
-const chorus = section("CHORUS",1338,350,160,231);
+const chorus = section("CHORUS",1409,350,154,231);
 // Shared big MIX pot at the same top-row position and diameter as FX strips.
-const chorusMix=rotary(chorus,"chorusMix","MIX",(160-54)/2,42,54);
+const chorusMix=rotary(chorus,"chorusMix","MIX",(154-54)/2,42,54);
 chorusMix.classList.add("sf-fx-mix-knob");
 // I and II retain their independent bitmask switches, so both may be on.
-for(const [i,x] of [[1,23],[2,88]]){
+for(const [i,x] of [[1,15],[2,90]]){
  const sw=button(chorus,"chorus"+i,i===1?"I":"II",x,158,49,24,()=>{
    const next=Math.round(params.chorusMode)^i;
    setParam("chorusMode",next);
@@ -766,20 +766,19 @@ for(const [i,x] of [[1,23],[2,88]]){
  lamp.style.left=(x+19.5)+"px";
  lamp.dataset.chorus=i;
 }
-const chorusOnSwitch=button(chorus,"chorus0","ON",(160-49)/2,199,49,24,()=>{
+const chorusOnSwitch=button(chorus,"chorus0","ON",(154-49)/2,199,49,24,()=>{
  const enabled=params.chorusOn<.5;
  if(enabled && Math.round(params.chorusMode)===0)setParam("chorusMode",1);
  setParam("chorusOn",enabled?1:0);
  refreshSwitches();
 },"sf-chorus-off");
 chorusOnSwitch.setAttribute("aria-label","Chorus effect on/off");
-const phase=section("PHASE",1506,350,219,231);
+const phase=section("PHASE",1571,350,154,231);
 phase.classList.add("sf-phase-panel");
-for(const [key,label,x] of [["phaseMix","MIX",12],["phaseSpeed","SPEED",83],["phaseDepth","DEPTH",154]]){
- const pot=rotary(phase,key,label,x,80,54);pot.classList.add("sf-phase-pot");
+for(const [key,label,x,y] of [["phaseMix","MIX",50,42],["phaseSpeed","SPEED",12,126],["phaseDepth","DEPTH",88,126]]){
+ const pot=rotary(phase,key,label,x,y,54);pot.classList.add("sf-phase-pot",key==="phaseMix"?"sf-fx-mix-knob":"sf-fx-top-knob");
 }
-button(phase,"fx-phaseOn","ON",85,195,49,24,()=>{setParam("phaseOn",params.phaseOn>=.5?0:1);refreshSwitches();},"sf-phase-on");
-const phaseHint=el("span","sf-phase-hint",phase);phaseHint.textContent="2-STAGE ANALOG";
+button(phase,"fx-phaseOn","ON",52.5,199,49,24,()=>{setParam("phaseOn",params.phaseOn>=.5?0:1);refreshSwitches();},"sf-phase-on");
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 let t = el("span", "wheel-title", wheel);
