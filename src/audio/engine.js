@@ -1,5 +1,5 @@
 import { defaults, clampParam, initialMusic } from "../parameters.js?v=20261128-ae-morph-v1";
-import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261127-oscpitch-v2";
+import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261128-voice-age-v1";
 class Voice {
   constructor(sr, i) {
     this.index = i;
