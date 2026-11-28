@@ -65,6 +65,7 @@ export const specs = {
   chorusOn: [0, 1, 1],
   chorusMix: [0, 1, 0.5],
   autoSpeed: [0.1, 4, 1, "log"],
+  autoMorph: [0, 1, 0],
   arpRate: [0.05, 20, 5],
   ...Object.fromEntries(
     Array.from({ length: 16 }, (_, i) => ["seqStep" + i, [-12, 12, 0]]),
@@ -115,5 +116,5 @@ export const initialMusic = () => ({
     rate: 4,
     steps: Array(16).fill(0),
   },
-  automation: { events: [], duration: 0, loop: false, overdub: false },
+  automation: { events: [], clips: [], duration: 0, loopStart: 0, loopEnd: 0, loop: false, overdub: false },
 });
