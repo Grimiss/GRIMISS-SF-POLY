@@ -97,3 +97,46 @@
  cursor:not-allowed!important;
 }
 /* Horizontal ARP sliders from previous builds are deliberately unused here. */
+
+/* Hardware ARP v2: all controls remain inside the original panel. */
+#instrument .section.arp-redesign{overflow:hidden!important}
+#instrument .section.arp-redesign .arp-panel-label{font-size:9px!important;letter-spacing:.3px!important}
+#instrument .section.arp-redesign .arp-on,
+#instrument .section.arp-redesign .arp-hold,
+#instrument .section.arp-redesign .arp-clock,
+#instrument .section.arp-redesign .arp-mode,
+#instrument .section.arp-redesign .arp-range,
+#instrument .section.arp-redesign .arp-division{
+ height:24px!important;font:700 9px/22px Arial,sans-serif!important;padding:0!important;
+}
+#instrument .section.arp-redesign .arp-on,
+#instrument .section.arp-redesign .arp-hold{height:27px!important;line-height:25px!important}
+#instrument .section.arp-redesign .arp-division{
+ position:absolute!important;
+ background:linear-gradient(#424749,#222729 48%,#101417)!important;
+ border:1px solid #485153!important;border-radius:3px!important;
+ color:#d5d9d4!important;box-shadow:0 2px 3px #000b!important;
+}
+#instrument .section.arp-redesign .arp-division.on{
+ background:linear-gradient(#319cde,#146293 65%,#0a344f)!important;
+ color:#f5fbff!important;border-color:#4b98c4!important;
+}
+#instrument .section.arp-redesign .arp-clock-status{height:26px!important;font-size:10px!important}
+#instrument .section.arp-redesign .sf-rotary.arp-pot{
+ top:166px!important;width:48px!important;height:64px!important;
+}
+#instrument .section.arp-redesign .arp-pot .sf-rotary-label{
+ font:700 9px/12px Arial,sans-serif!important;top:0!important;left:-4px!important;right:-4px!important;
+}
+#instrument .section.arp-redesign .arp-pot .sf-knob-face{
+ width:35px!important;height:35px!important;top:18px!important;
+}
+#instrument .section.arp-redesign .arp-pot .sf-knob-ticks{
+ top:-8px!important;left:-8px!important;
+ width:calc(100% + 16px)!important;height:calc(100% + 16px)!important;
+}
+#instrument .section.arp-redesign .arp-tempo-display{
+ top:216px!important;left:8px!important;width:57px!important;
+ font-size:9px!important;line-height:13px!important;
+}
+#instrument .section.arp-redesign .arp-pot-arpRate:has(input:disabled){opacity:.55!important}
