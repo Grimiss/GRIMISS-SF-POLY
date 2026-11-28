@@ -1,5 +1,5 @@
 import { defaults, clampParam, initialMusic } from "../parameters.js?v=20261128-ae-morph-v1";
-import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261127-oscpitch-v2";
+import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261128-voice-age-v1";
 class Voice {
   constructor(sr, i) {
     this.index = i;
@@ -30,6 +30,9 @@ class Voice {
     this.down = true;
     this.amp.on();
     this.env.on();
+    // Fresh note inherits the hardware card's current drift. Only a tiny
+    // transient is added, then naturally settles without a tuning jump.
+    for (const model of this.models) model.ageNoteTransient = model.agePitch * 0.4;
   }
   off() {
     this.down = false;
@@ -532,12 +535,15 @@ export class SynthEngine {
       if (!v.amp.stage) continue;
       const age = (this.frame - v.born) / this.sr,
         lf = lfo * (p.lfoDelay ? Math.min(1, age / p.lfoDelay) : 1),
-        amp = v.amp.tick(p.ampA, p.ampD, p.ampS, p.ampR),
+        card = v.models[v.kind],
+        wear = Math.pow(clamp(p.analogDetune, 0, 1), 1.35),
+        timing = 1 + card.ageEnvelope * wear * 0.1,
+        amp = v.amp.tick(p.ampA * timing, p.ampD * timing, p.ampS, p.ampR * timing),
         env = v.env.tick(
-          p.filterA * (1 + v.models[1].cal * 0.025),
-          p.filterD,
+          p.filterA * timing,
+          p.filterD * timing,
           p.filterS,
-          p.filterR,
+          p.filterR * timing,
         ),
         freq = midiHz(
           v.note + p.tune + p.bend + lf * (p.lfoPitch + p.mod * 1.2),
@@ -545,7 +551,8 @@ export class SynthEngine {
       const kind = v.kind;
       const sample = enabled[kind] >= 0.5 && levels[kind] > 0.0001
         ? v.models[kind].tick(freq, p, env, lf, noise) : 0;
-      const x = sample * levels[kind] * gain * amp * v.velocity * 0.14;
+      const voiceGain = 10 ** ((card.ageLevel * wear * 1.2) / 20);
+      const x = sample * levels[kind] * gain * amp * voiceGain * v.velocity * 0.14;
       const pan = ((v.index % 6) / 5 - 0.5) * p.width * 0.85;
       v.fade = Math.min(1, v.fade + 1 / (this.sr * 0.004));
       const vl = x * Math.sqrt(0.5 - pan) * v.fade + v.tailL * (1 - v.fade),
