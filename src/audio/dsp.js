@@ -429,7 +429,7 @@ export class Model {
             sub * p.mixSub
           : a * p.mix1 + b * p.mix2 + sub * p.mixSub;
       const body=clamp(p.analog,0,1);
-      const extra=o[3].tick(this.f1*(1+.0013*(1+p.analogDetune*3)*(1+this.thickOffset*.4)),sr,p.wave1,pwm1);
+      const extra=o[3].tick(this.f1*(1+.0013*(1+this.thickOffset*.4)),sr,p.wave1,pwm1);
       x += extra*p.mix1*body*.33;
       x += noise*p.mixNoise;
       const highRaw = x - this.hpIn + this.hp * this.hpOut;
