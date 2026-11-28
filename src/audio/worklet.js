@@ -1,4 +1,4 @@
-import { SynthEngine } from "./engine.js?v=20261128-ae-morph-v1";
+import { SynthEngine } from "./engine.js?v=20261128-ae-morph-v2";
 class SFPolyProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
