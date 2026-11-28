@@ -4,8 +4,8 @@ import {
   toUnit,
   fromUnit,
   initialMusic,
-} from "./parameters.js?v=20261128-arp-redesign-v1";
-import { AudioClient } from "./audio/client.js?v=20261128-arp-monitor-v1";
+} from "./parameters.js?v=20261128-phase-v1";
+import { AudioClient } from "./audio/client.js?v=20261128-phase-v1";
 import {
   factory,
   factoryGroups,
@@ -674,54 +674,73 @@ setInterval(async()=>{
   renderAutomationMini(snapshot.automation,snapshot.autoPosition||0);
  }catch(e){}finally{miniBusy=false;}
 },650);
-const ch = section("CIRCUIT CHARACTER", 924, 350, 205, 231, "white");
-// Panel descriptions evoke each engine without changing its patch identity.
-const characters = [["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
+// Combined VOICES / CIRCUIT section: existing parameters, circuits and modes retained.
+const analogPanel=section("VOICES / CIRCUIT",654,350,360,231,"white");
+analogPanel.classList.add("sf-combined-voices");
+const ledRow=el("div","voice-leds",analogPanel);
+ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
+const voiceBox=el("div","sf-combined-voice-box",analogPanel);
+const controls=el("div","track6-controls",voiceBox);
+for(const [label,k] of [["ANALOG","analog"],["VOICE AGE DRIFT","analogDetune"]]){
+ const wrap=el("label","track6-knob",controls);
+ const caption=el("span","analog-caption",wrap);caption.textContent=label;
+ const rail=el("div","analog-rail",wrap);
+ el("div","analog-scale",rail);el("div","analog-slot",rail);
+ const cap=el("span","analog-cap",rail);
+ const input=el("input","analog-input",rail);
+ input.type="range";input.min=0;input.max=1;input.step=.001;input.setAttribute("aria-label",label);
+ bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=`calc(${(u*100).toFixed(3)}% - ${(u*19).toFixed(2)}px)`;input.setAttribute("aria-valuetext",Math.round(v*100)+"%");});
+}
+const modes=el("div","track6-modes",voiceBox);
+for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]){
+ const btn=el("button",null,modes);btn.type="button";btn.textContent=label;
+ btn.onclick=()=>setParam("voiceMode",value);
+ const paint=()=>btn.classList.toggle("selected",Math.round(params.voiceMode)===value);
+ if(!bindings.has("voiceMode"))bindings.set("voiceMode",[]);
+ bindings.get("voiceMode").push({input:{value:0},paint});paint();
+}
+const circuitBox=el("div","sf-combined-circuit-box",analogPanel);
+const characters=[["DIGITAL","levelJuno","enableJuno"],["VINTAGE","levelP6","enableP6"],["CLASSIC","levelP5","enableP5"]];
 const characterIds=characters.map(c=>c[2]);
-const characterToggle=button(ch,"characterToggle","TOGGLE",77,158,49,24,()=>{
+for(const [label,level,enabled] of characters){
+ const lane=el("div","sf-circuit-lane",circuitBox);
+ const name=el("label","sf-circuit-name",lane);name.textContent=label;
+ const slide=el("input","sf-circuit-slider",lane);
+ slide.type="range";slide.min=0;slide.max=1;slide.step=.001;slide.setAttribute("aria-label",label+" circuit level");
+ bind(level,slide,v=>slide.setAttribute("aria-valuetext",Math.round(v*100)+"%"));
+ const sw=button(lane,"engine-"+enabled,"ON",0,0,30,19,()=>{
+  const next=params[enabled]>=.5?0:1;
+  if(next&&params.characterToggle>=.5)
+   for(const other of characterIds)if(other!==enabled&&params[other]!==0)setParam(other,0);
+  setParam(enabled,next);refreshSwitches();
+ },"engine-toggle");
+ sw.setAttribute("aria-label",label+" circuit enable");
+}
+const characterToggle=button(circuitBox,"characterToggle","TOGGLE",0,0,58,23,()=>{
  const enabled=params.characterToggle<.5;
  setParam("characterToggle",enabled?1:0);
  if(enabled){
-   // Deterministic initial selection; when already using multiple circuits
-   // favour DIGITAL, otherwise retain the currently enabled circuit.
-   const selected=characterIds.find(id=>params[id]>=.5) || characterIds[0];
-   for(const id of characterIds){
-     if(params[id]!==+(id===selected))setParam(id,+(id===selected));
-   }
+  const selected=characterIds.find(id=>params[id]>=.5)||characterIds[0];
+  for(const id of characterIds)if(params[id]!==+(id===selected))setParam(id,+(id===selected));
  }
  refreshSwitches();
 },"character-toggle");
-characterToggle.title="When ON, only one character circuit can be enabled at once";
-characters.forEach(([label,level,enabled],i) => {
- const x = 16 + i*59;
- rotary(ch,level,label,x,65,54);
- const sw=button(ch,"engine-"+enabled,"ON",x+2,199,49,24,()=>{
-   const next=params[enabled]>=.5?0:1;
-   if(next&&params.characterToggle>=.5){
-     for(const other of characterIds){
-       if(other!==enabled&&params[other]!==0)setParam(other,0);
-     }
-   }
-   setParam(enabled,next);
-   refreshSwitches();
- },"engine-toggle");
- sw.setAttribute("aria-label",label+" engine enable");
-});
+characterToggle.title="ON = exclusive circuit, OFF = layered circuits";
 // KEYBOARD and SEQ16 have moved to the performance controls by OCTAVE.
 // Physical two-tier FX strips: two compact controls above one large
 // MIX potentiometer, followed by a dedicated effect ON/OFF rocker.
 for(const [name,x,w,top] of [
- ["DELAY",1137,192,[["delayTime","TIME"],["delayFeedback","FB"]]],
- ["REVERB",1337,182,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
+ ["DELAY",1022,150,[["delayTime","TIME"],["delayFeedback","FB"]]],
+ ["REVERB",1180,150,[["reverbSize","SIZE"],["reverbDamp","DAMP"]]]
 ]){
  const sec=section(name,x,350,w,231);
- const inset=14;
- const right=w-14-54;
+ const inset=12;
+ const right=w-12-54;
  top.forEach(([k,label],i)=>{
    const knob=rotary(sec,k,label,i?right:inset,130,54);
    knob.classList.add("sf-fx-top-knob");
  });
- const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-76)/2,42,76);
+ const mix=rotary(sec,name==="DELAY"?"delayMix":"reverbMix","MIX",(w-54)/2,42,54);
  mix.classList.add("sf-fx-mix-knob");
  const key=name==="DELAY"?"delayOn":"reverbOn";
  const onOff=button(sec,"fx-"+key,"ON",(w-49)/2,199,49,24,()=>{
@@ -730,12 +749,12 @@ for(const [name,x,w,top] of [
  },"sf-fx-on");
  onOff.setAttribute("aria-label",name+" effect on/off");
 }
-const chorus = section("CHORUS",1527,350,198,231);
+const chorus = section("CHORUS",1338,350,160,231);
 // Shared big MIX pot at the same top-row position and diameter as FX strips.
-const chorusMix=rotary(chorus,"chorusMix","MIX",(198-76)/2,42,76);
+const chorusMix=rotary(chorus,"chorusMix","MIX",(160-54)/2,42,54);
 chorusMix.classList.add("sf-fx-mix-knob");
 // I and II retain their independent bitmask switches, so both may be on.
-for(const [i,x] of [[1,42],[2,107]]){
+for(const [i,x] of [[1,23],[2,88]]){
  const sw=button(chorus,"chorus"+i,i===1?"I":"II",x,158,49,24,()=>{
    const next=Math.round(params.chorusMode)^i;
    setParam("chorusMode",next);
@@ -747,13 +766,20 @@ for(const [i,x] of [[1,42],[2,107]]){
  lamp.style.left=(x+19.5)+"px";
  lamp.dataset.chorus=i;
 }
-const chorusOnSwitch=button(chorus,"chorus0","ON",(198-49)/2,199,49,24,()=>{
+const chorusOnSwitch=button(chorus,"chorus0","ON",(160-49)/2,199,49,24,()=>{
  const enabled=params.chorusOn<.5;
  if(enabled && Math.round(params.chorusMode)===0)setParam("chorusMode",1);
  setParam("chorusOn",enabled?1:0);
  refreshSwitches();
 },"sf-chorus-off");
 chorusOnSwitch.setAttribute("aria-label","Chorus effect on/off");
+const phase=section("PHASE",1506,350,219,231);
+phase.classList.add("sf-phase-panel");
+for(const [key,label,x] of [["phaseMix","MIX",12],["phaseSpeed","SPEED",83],["phaseDepth","DEPTH",154]]){
+ const pot=rotary(phase,key,label,x,80,54);pot.classList.add("sf-phase-pot");
+}
+button(phase,"fx-phaseOn","ON",85,195,49,24,()=>{setParam("phaseOn",params.phaseOn>=.5?0:1);refreshSwitches();},"sf-phase-on");
+const phaseHint=el("span","sf-phase-hint",phase);phaseHint.textContent="2-STAGE ANALOG";
 const perf = $("#performance"),
   wheel = el("div", "wheel-panel", perf);
 let t = el("span", "wheel-title", wheel);
@@ -991,6 +1017,7 @@ function refreshSwitches() {
   setOn("characterToggle",params.characterToggle>=.5);
   setOn("fx-delayOn",params.delayOn>=.5);
   setOn("fx-reverbOn",params.reverbOn>=.5);
+  setOn("fx-phaseOn",params.phaseOn>=.5);
   // Faceplate legends are permanently engraved, regardless of switch state.
   // Active state is indicated only by the blue switch illumination.
   setOn("arpOn",music.arp.on);
@@ -1487,30 +1514,3 @@ window.sfpoly = {
   },
 };
 
-// Track 6 analogue hardware inside the main control row.
-const analogPanel=section("VOICES",654,350,262,231);
-analogPanel.classList.add("track6-analog");
-const ledRow=el("div","voice-leds",analogPanel);
-ledRow.innerHTML=Array.from({length:12},(_,i)=>'<span class="voice-cell"><i class="voice-light"></i><small>'+(i+1)+'</small></span>').join("");
-const controls=el("div","track6-controls",analogPanel);
-for(const [label,k] of [["ANALOG","analog"],["VOICE AGE DRIFT","analogDetune"]]){
- const wrap=el("label","track6-knob",controls);
- const labelText=el("span","analog-caption",wrap);labelText.textContent=label;
- if(k==="analogDetune"){wrap.classList.add("voice-age-control");labelText.title="Ageing voice cards: pitch, filter, level and envelope drift";}
- const rail=el("div","analog-rail",wrap);
- const scale=el("div","analog-scale",rail);
- const slot=el("div","analog-slot",rail);
- const cap=el("span","analog-cap",rail);
- const input=el("input","analog-input",rail);
- input.type="range";input.min=0;input.max=1;input.step=.001;input.setAttribute("aria-label",label);
- input.title=k==="analog"?"Warmth, thickness and increasing gentle drive above 70%":"Independent voice-card ageing and slowly changing drift";
- bind(k,input,v=>{const u=toUnit(k,v);cap.style.left=`calc(${(u*100).toFixed(3)}% - ${(u*19).toFixed(2)}px)`;input.setAttribute("aria-valuetext",Math.round(v*100)+"%");});
-}
-const modes=el("div","track6-modes",analogPanel);
-for(const [label,value] of [["MONO",0],["UNISON",1],["POLY",2]]){
- const btn=el("button",null,modes);btn.type="button";btn.textContent=label;
- btn.onclick=()=>setParam("voiceMode",value);
- const paint=()=>btn.classList.toggle("selected",Math.round(params.voiceMode)===value);
- if(!bindings.has("voiceMode"))bindings.set("voiceMode",[]);
- bindings.get("voiceMode").push({input:{value:0},paint});paint();
-}
