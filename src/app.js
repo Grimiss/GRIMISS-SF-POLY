@@ -705,9 +705,21 @@ const characterIds=characters.map(c=>c[2]);
 for(const [label,level,enabled] of characters){
  const lane=el("div","sf-circuit-lane",circuitBox);
  const name=el("label","sf-circuit-name",lane);name.textContent=label;
- const slide=el("input","sf-circuit-slider",lane);
- slide.type="range";slide.min=0;slide.max=1;slide.step=.001;slide.setAttribute("aria-label",label+" circuit level");
- bind(level,slide,v=>slide.setAttribute("aria-valuetext",Math.round(v*100)+"%"));
+ // Shared physical fader construction: black cap with engraved white index,
+ // exactly matching ANALOG and VOICE AGE DRIFT.
+ const sliderWrap=el("div","sf-circuit-slide-wrap",lane);
+ const rail=el("div","analog-rail",sliderWrap);
+ el("div","analog-scale",rail);
+ el("div","analog-slot",rail);
+ const cap=el("span","analog-cap",rail);
+ const slide=el("input","analog-input sf-circuit-slider",rail);
+ slide.type="range";slide.min=0;slide.max=1;slide.step=.001;
+ slide.setAttribute("aria-label",label+" circuit level");
+ bind(level,slide,v=>{
+  const u=toUnit(level,v);
+  cap.style.left=`calc(${(u*100).toFixed(3)}% - ${(u*19).toFixed(2)}px)`;
+  slide.setAttribute("aria-valuetext",Math.round(v*100)+"%");
+ });
  const sw=button(lane,"engine-"+enabled,"ON",0,0,30,19,()=>{
   const next=params[enabled]>=.5?0:1;
   if(next&&params.characterToggle>=.5)
