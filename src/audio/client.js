@@ -23,7 +23,7 @@ export class AudioClient {
   async init() {
     this.context = new AudioContext({ latencyHint: "interactive" });
     await this.context.audioWorklet.addModule(
-      new URL("./worklet.js?v=20261128-voice-age-v1", import.meta.url),
+      new URL("./worklet.js?v=20261128-arp-redesign-v1", import.meta.url),
     );
     this.node = new AudioWorkletNode(this.context, "sf-poly", {
       numberOfInputs: 0,

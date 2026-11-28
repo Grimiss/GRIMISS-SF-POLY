@@ -1,4 +1,4 @@
-import { defaults, clampParam, initialMusic } from "../parameters.js?v=20261128-ae-morph-v1";
+import { defaults, clampParam, initialMusic } from "../parameters.js?v=20261128-arp-redesign-v1";
 import { Envelope, Model, Effects, midiHz, TAU, clamp } from "./dsp.js?v=20261128-voice-age-v1";
 class Voice {
   constructor(sr, i) {
@@ -60,6 +60,10 @@ export class SynthEngine {
     this.arpIndex = 0;
     this.nextArp = 0;
     this.arpOwner = null;
+    this.arpGateEnd = 0;
+    this.arpStep = 0;
+    this.arpWalkIndex = 0;
+    this.arpSyncUntil = 0;
     this.seqPlaying = false;
     this.seqIndex = 0;
     this.seqCount = 0;
@@ -232,17 +236,32 @@ export class SynthEngine {
         this.panic();
         this.stopAutomation();
         break;
+      case "syncPulse":
+        if(Number.isFinite(e.bpm) && e.bpm>=15 && e.bpm<=300){
+          this.param("arpRate",e.bpm/15,false);
+          this.arpSyncUntil=this.frame+Math.round(this.sr*2.5);
+          this.nextArp=this.frame;
+          this.arpStep=0;
+        }
+        break;
+      case "syncStop":
+        this.arpSyncUntil=0;
+        this.releaseSource("arp:");this.arpOwner=null;
+        break;
       case "arp": {
         const before = this.music.arp.on;
         Object.assign(this.music.arp, e.value);
         if (e.value.rate !== undefined) this.param("arpRate", e.value.rate);
         if (!this.music.arp.hold) this.latched = new Map(this.held);
-        if (before !== this.music.arp.on) {
+        if(e.value.clock!==undefined && e.value.clock!=="midi")this.arpSyncUntil=0;
+        if (before !== this.music.arp.on || e.value.clock !== undefined) {
           if (this.music.arp.on) this.latched = new Map(this.held);
           this.releaseSource("input:");
           this.releaseSource("arp:");
           this.nextArp = this.frame;
           this.arpIndex = 0;
+          this.arpStep = 0;
+          this.arpGateEnd = 0;
           if (!this.music.arp.on)
             for (const [id, n] of this.held) this.noteOn(id, n);
         }
@@ -355,28 +374,47 @@ export class SynthEngine {
   }
   clocks() {
     const a = this.music.arp;
-    if (a.on && this.frame >= this.nextArp) {
-      if (this.arpOwner) this.noteOff(this.arpOwner);
-      const notes = [
-          ...new Set((a.hold ? this.latched : this.held).values()),
-        ].sort((a, b) => a - b),
-        expanded = [];
-      for (let oct = 0; oct < a.range; oct++)
-        for (const n of notes) expanded.push(n + oct * 12);
-      if (expanded.length) {
-        let i = this.arpIndex++,
-          N = expanded.length;
-        if (a.mode === "random") i = Math.floor(this.random() * N);
-        else if (a.mode === "down") i = N - 1 - (i % N);
-        else if (a.mode === "pendulum") {
-          const period = Math.max(1, 2 * N - 2);
-          i %= period;
-          i = i < N ? i : period - i;
-        } else i %= N;
-        this.arpOwner = "arp:" + this.frame;
-        this.noteOn(this.arpOwner, expanded[i], 0.8);
+    if(this.arpOwner && this.arpGateEnd && this.frame>=this.arpGateEnd){
+      this.noteOff(this.arpOwner);this.arpGateEnd=0;
+    }
+    const syncReady=a.clock!=="midi" || this.frame<this.arpSyncUntil;
+    if(a.clock==="midi" && !syncReady && this.arpOwner){
+      this.noteOff(this.arpOwner);this.arpOwner=null;
+    }
+    if(a.on && syncReady && this.frame>=this.nextArp){
+      if(this.arpOwner)this.noteOff(this.arpOwner);
+      this.arpOwner=null;
+      const notes=[...new Set((a.hold?this.latched:this.held).values())];
+      if(a.mode!=="played")notes.sort((x,y)=>x-y);
+      const expanded=[];
+      for(let oct=0;oct<a.range;oct++)for(const n of notes)expanded.push(n+oct*12);
+      const step=this.arpStep++;
+      const div=[4,8,16,32].includes(a.division)?a.division:16;
+      const period=this.sr/clamp(a.rate*div/16,.05,40);
+      const swing=clamp(this.p.arpSwing,0,.75);
+      const stepLength=period*(step%2?1-swing*.45:1+swing*.45);
+      if(expanded.length){
+        const N=expanded.length;let i=this.arpIndex++;
+        if(a.mode==="random")i=Math.floor(this.random()*N);
+        else if(a.mode==="walk"){
+          this.arpWalkIndex=clamp(this.arpWalkIndex+(this.random()<.5?-1:1),0,N-1);
+          i=this.arpWalkIndex;
+        }else if(a.mode==="down")i=N-1-(i%N);
+        else if(a.mode==="pendulum"){
+          const cycle=Math.max(1,2*N-2);i%=cycle;i=i<N?i:cycle-i;
+        }else i%=N;
+        let note=expanded[i],gate=clamp(this.p.arpGate,.1,1);
+        const evolve=clamp(this.p.arpEvolve,0,1);
+        if(evolve>0 && this.random()<clamp(this.p.arpChance,0,1)){
+          const span=Math.max(1,Math.round(evolve*Math.min(4,N-1)));
+          note=expanded[clamp(i+Math.round((this.random()*2-1)*span),0,N-1)];
+          gate=clamp(gate*(1+(this.random()*2-1)*evolve*.35),.1,1);
+        }
+        this.arpOwner="arp:"+this.frame;
+        this.noteOn(this.arpOwner,note,.8);
+        this.arpGateEnd=this.frame+Math.round(stepLength*gate);
       }
-      this.nextArp += Math.round(this.sr / clamp(a.rate, 0.05, 40));
+      this.nextArp+=Math.max(32,Math.round(stepLength));
     }
     if (this.seqPlaying && this.frame >= this.nextSeq) {
       if (this.seqOwner) this.noteOff(this.seqOwner);
@@ -394,12 +432,7 @@ export class SynthEngine {
       this.noteOn(this.seqOwner, s.root + (s.steps[i] || 0), 0.8);
       this.nextSeq += Math.round(this.sr / clamp(s.rate, 0.05, 40));
     }
-    // Gate note sources at 80%; clocks remain entirely on the audio thread.
-    if (
-      this.arpOwner &&
-      this.frame >= this.nextArp - (this.sr / clamp(a.rate, 0.05, 40)) * 0.2
-    )
-      this.noteOff(this.arpOwner);
+    // ARP gate is now an adjustable sample-frame deadline.
     if (
       this.seqPlaying &&
       this.seqOwner &&
