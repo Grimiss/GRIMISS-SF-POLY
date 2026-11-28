@@ -438,7 +438,10 @@ export class SynthEngine {
         this.tracksDirty=false;
       }
       const usingClips=this.autoClipTracks.size>0;
-      const tracks=usingClips?this.autoClipTracks:this.autoTracks;
+      // Preserve recording of additional lanes even after a clip edit.
+      // Clip lanes own their parameter; unedited raw lanes still play.
+      const tracks=usingClips
+        ?new Map([...this.autoTracks,...this.autoClipTracks]):this.autoTracks;
       const morph=Math.max(0,Math.min(1,this.target.autoMorph||0));
       for(const [k,track] of tracks){
         if(this.autoRecording&&this.autoTouched.has(k))continue;
@@ -463,7 +466,7 @@ export class SynthEngine {
           pos=state.pos;
         }else this.morphLanes.delete(k);
         let value=null;
-        if(usingClips){
+        if(usingClips&&this.autoClipTracks.has(k)){
           // Blend overlapping clips over their intersection. Each clip
           // preserves its original recorded points and local timing.
           let sum=0,weight=0;
