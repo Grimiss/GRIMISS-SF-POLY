@@ -74,6 +74,8 @@ export class SynthEngine {
     this.steals = 0;
     this.serial = 0;
     this.autoTracks = new Map();
+    this.morphLanes = new Map();
+    this.autoClipTracks = new Map();
     this.tracksDirty = true;
     this.recordWasPlaying = false;
     this.autoBaseline = {};
@@ -97,7 +99,7 @@ export class SynthEngine {
     if (k === "arpRate") this.music.arp.rate = v;
     if (k.startsWith("seqStep"))
       this.music.seq.steps[+k.slice(7)] = Math.round(v);
-    if (record && this.autoRecording && k !== "autoSpeed") {
+    if (record && this.autoRecording && k !== "autoSpeed" && k !== "autoMorph") {
       const t = this.autoPlaying
         ? this.autoPosition
         : (this.frame - this.recordStart) / this.sr;
@@ -163,6 +165,7 @@ export class SynthEngine {
     this.autoRecording = false;
     this.autoPlaying = false;
     this.autoTouched.clear();
+    this.morphLanes.clear();
     this.tracksDirty = true;
   }
   panic() {
@@ -273,6 +276,7 @@ export class SynthEngine {
           this.autoPlaying = false;
           this.music.automation.events = [];
           this.music.automation.duration = 0;
+          this.music.automation.clips = [];
         }
         this.autoBaseline = { ...this.target };
         this.recordWasPlaying = this.autoPlaying;
@@ -285,8 +289,9 @@ export class SynthEngine {
         this.stopAutomation();
         this.autoPlaying = true;
         this.autoStart = this.frame;
-        this.autoPosition = 0;
+        this.autoPosition = this.music.automation.loop && this.music.automation.loopEnd > this.music.automation.loopStart ? this.music.automation.loopStart : 0;
         this.autoLast = this.frame;
+        this.morphLanes.clear();
         break;
       case "autoStop":
         this.stopAutomation();
@@ -294,9 +299,22 @@ export class SynthEngine {
       case "autoOptions":
         Object.assign(this.music.automation, e.value);
         break;
+      case "autoEdit":
+        // Clip edits are committed at once on the audio thread, without
+        // resetting held notes or disrupting the current synth patch.
+        this.music.automation.clips = Array.isArray(e.value?.clips)
+          ? JSON.parse(JSON.stringify(e.value.clips)) : [];
+        this.music.automation.duration = Math.max(.02,Number(e.value?.duration)||.02);
+        this.music.automation.loopStart = Math.max(0,Number(e.value?.loopStart)||0);
+        this.music.automation.loopEnd = Math.min(this.music.automation.duration,Number(e.value?.loopEnd)||0);
+        if(e.value?.loop!==undefined)this.music.automation.loop=!!e.value.loop;
+        this.tracksDirty=true;
+        this.morphLanes.clear();
+        break;
       case "autoClear":
         this.stopAutomation();
         this.music.automation.events = [];
+        this.music.automation.clips = [];
         this.music.automation.duration = 0;
         this.tracksDirty = true;
         break;
@@ -316,6 +334,7 @@ export class SynthEngine {
           this.param("seqStep" + i, v, false),
         );
         this.tracksDirty = true;
+        this.morphLanes.clear();
         this.serial = this.music.automation.events.reduce(
           (n, e) => Math.max(n, (e.order || 0) + 1),
           0,
@@ -386,52 +405,99 @@ export class SynthEngine {
     )
       this.noteOff(this.seqOwner);
     if (this.autoPlaying) {
-      const au = this.music.automation,
-        D = au.duration;
-      if (D <= 0) {
-        this.autoPlaying = false;
-        return;
-      }
-      this.autoPosition +=
-        ((this.frame - this.autoLast) / this.sr) * this.target.autoSpeed;
-      this.autoLast = this.frame;
-      if (this.autoPosition > D) {
-        if (au.loop) {
-          this.autoPosition %= D;
+      const au=this.music.automation,D=Math.max(.02,au.duration||0);
+      if(!au.duration){this.autoPlaying=false;return;}
+      const delta=((this.frame-this.autoLast)/this.sr)*this.target.autoSpeed;
+      this.autoLast=this.frame;
+      this.autoPosition+=delta;
+      const loopStart=au.loopEnd>au.loopStart?Math.max(0,au.loopStart||0):0;
+      const loopEnd=au.loopEnd>au.loopStart?Math.min(D,au.loopEnd):D;
+      if(this.autoPosition>loopEnd){
+        if(au.loop){
+          this.autoPosition=loopStart+(this.autoPosition-loopStart)%(loopEnd-loopStart);
           this.autoTouched.clear();
-        } else {
-          this.autoPosition = D;
-          this.autoPlaying = false;
+        }else if(this.autoPosition>D){
+          this.autoPosition=D;this.autoPlaying=false;
         }
       }
-      if (this.tracksDirty) {
+      if(this.tracksDirty){
         this.autoTracks.clear();
-        for (const e of au.events) {
-          if (!this.autoTracks.has(e.k)) this.autoTracks.set(e.k, []);
-          this.autoTracks.get(e.k).push(e);
+        this.autoClipTracks.clear();
+        for(const ev of au.events||[]){
+          if(!this.autoTracks.has(ev.k))this.autoTracks.set(ev.k,[]);
+          this.autoTracks.get(ev.k).push(ev);
         }
-        for (const track of this.autoTracks.values())
-          track.sort((a, b) => a.t - b.t || (a.order || 0) - (b.order || 0));
-        this.tracksDirty = false;
+        for(const track of this.autoTracks.values())
+          track.sort((a,b)=>a.t-b.t||(a.order||0)-(b.order||0));
+        for(const clip of au.clips||[]){
+          if(!this.autoClipTracks.has(clip.k))this.autoClipTracks.set(clip.k,[]);
+          this.autoClipTracks.get(clip.k).push(clip);
+        }
+        for(const track of this.autoClipTracks.values())
+          track.sort((a,b)=>a.start-b.start);
+        this.tracksDirty=false;
       }
-      const pos = this.autoPosition;
-      for (const [k, track] of this.autoTracks) {
-        if (this.autoRecording && this.autoTouched.has(k)) continue;
-        let lo = 0,
-          hi = track.length;
-        while (lo < hi) {
-          const mid = (lo + hi) >>> 1;
-          if (track[mid].t <= pos) lo = mid + 1;
-          else hi = mid;
+      const usingClips=this.autoClipTracks.size>0;
+      const tracks=usingClips?this.autoClipTracks:this.autoTracks;
+      const morph=Math.max(0,Math.min(1,this.target.autoMorph||0));
+      for(const [k,track] of tracks){
+        if(this.autoRecording&&this.autoTouched.has(k))continue;
+        let pos=this.autoPosition;
+        if(morph>0){
+          let state=this.morphLanes.get(k);
+          if(!state){
+            let h=0;for(let i=0;i<k.length;i++)h=((h*31+k.charCodeAt(i))>>>0);
+            state={pos,rate:1,phase:h%628/100,frequency:.018+(h%41)/900};
+            this.morphLanes.set(k,state);
+          }
+          // Independent slow, bounded rate modulation per lane.
+          // 10% MORPH ≈ ±5%, 100% MORPH ≈ ±45%.
+          const depth=.45*morph;
+          const time=this.frame/this.sr;
+          const targetRate=1+depth*(.72*Math.sin(time*state.frequency*6.283+state.phase)+
+            .28*Math.sin(time*state.frequency*2.7*6.283+state.phase*1.73));
+          state.rate+=(targetRate-state.rate)*.007;
+          state.pos+=delta*state.rate;
+          if(au.loop&&state.pos>loopEnd)
+            state.pos=loopStart+(state.pos-loopStart)%(loopEnd-loopStart);
+          pos=state.pos;
+        }else this.morphLanes.delete(k);
+        let value=null;
+        if(usingClips){
+          // Blend overlapping clips over their intersection. Each clip
+          // preserves its original recorded points and local timing.
+          let sum=0,weight=0;
+          for(let i=0;i<track.length;i++){
+            const c=track[i],start=c.start,end=start+c.duration;
+            if(pos<start||pos>end||!c.points?.length)continue;
+            const sourceTime=(pos-start)/Math.max(.001,c.duration)*c.sourceDuration;
+            const points=c.points;
+            let lo=0,hi=points.length;
+            while(lo<hi){const mid=(lo+hi)>>>1;if(points[mid].t<=sourceTime)lo=mid+1;else hi=mid;}
+            const prev=points[Math.max(0,lo-1)],next=points[lo];
+            const v=next&&prev!==next&&next.t>prev.t
+              ?prev.v+(next.v-prev.v)*(sourceTime-prev.t)/(next.t-prev.t):prev.v;
+            let w=1;
+            // Equal-gain crossfade in a region shared with another clip.
+            for(let j=0;j<track.length;j++){
+              if(i===j)continue;
+              const other=track[j],a=Math.max(start,other.start),b=Math.min(end,other.start+other.duration);
+              if(b>a&&pos>=a&&pos<=b){
+                const fraction=(pos-a)/(b-a);
+                w*=i<j?1-fraction:fraction;
+              }
+            }
+            sum+=v*w;weight+=w;
+          }
+          if(weight>0)value=sum/weight;
+        }else{
+          let lo=0,hi=track.length;
+          while(lo<hi){const mid=(lo+hi)>>>1;if(track[mid].t<=pos)lo=mid+1;else hi=mid;}
+          const prev=track[lo-1],next=track[lo];
+          if(prev)value=next&&next.t>prev.t
+            ?prev.v+(next.v-prev.v)*(pos-prev.t)/(next.t-prev.t):prev.v;
         }
-        const prev = track[lo - 1],
-          next = track[lo];
-        if (prev) {
-          const v = next
-            ? prev.v + ((next.v - prev.v) * (pos - prev.t)) / (next.t - prev.t)
-            : prev.v;
-          this.param(k, v, false);
-        }
+        if(value!==null)this.param(k,value,false);
       }
     }
   }
