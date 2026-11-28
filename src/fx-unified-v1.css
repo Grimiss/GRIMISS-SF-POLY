@@ -91,3 +91,12 @@
 #instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary.sf-phase-pot.sf-fx-top-knob .sf-knob-face{
  top:25px!important;width:39px!important;height:39px!important;
 }
+
+/* Explicit identifiers prevent PHASE SPEED/DEPTH from swapping columns.
+   The MIX rotary is authored before those two controls. */
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary[data-param="phaseSpeed"]{
+ left:12px!important;
+}
+#instrument .section.sf-phase-panel.sf-fx-unified .sf-rotary[data-param="phaseDepth"]{
+ left:88px!important;
+}
