@@ -1,0 +1,170 @@
+/* SF-POLY Automation Editor v1 / MORPH — isolated from the rest of the synth */
+
+/* Undo the temporary almost-black fill on all lower-row panel bodies.
+   The original shared synth fascia remains visible through the hardware bays. */
+#instrument .section.lower{
+ background:transparent!important;
+ background-color:transparent!important;
+ background-image:none!important;
+ background-blend-mode:normal!important;
+}
+
+/* Morph becomes a genuine 0–100% rotary, matching the neighbouring SPEED pot. */
+#instrument .section[data-section="AUTOMATION"] .sf-rotary.sf-auto-morph-pot{
+ left:155px!important;top:137px!important;
+ width:44px!important;height:52px!important;z-index:5!important;
+ pointer-events:auto!important;opacity:1!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-morph-pot .sf-knob-face{
+ top:18px!important;width:29px!important;height:29px!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-morph-pot .sf-knob-ticks{
+ top:-8px!important;left:-8px!important;
+ width:calc(100% + 16px)!important;
+ height:calc(100% + 16px)!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-morph-pot .sf-rotary-label{
+ position:absolute!important;
+ left:46px!important;right:auto!important;top:24px!important;
+ width:63px!important;height:16px!important;
+ color:#e4e6df!important;
+ text-align:left!important;
+ font:700 10px/16px Arial,sans-serif!important;
+ white-space:nowrap!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-mini{
+ cursor:pointer!important;
+}
+#instrument .section[data-section="AUTOMATION"] .sf-auto-mini:focus-visible{
+ outline:2px solid #6ccaf2!important;
+ outline-offset:2px!important;
+}
+/* Nonmodal editor, floating over the entire synth and preserving hardware
+   appearance. The hidden attribute genuinely hides the overlay. */
+.sf-ae-overlay[hidden]{display:none!important}
+.sf-ae-overlay{
+ position:fixed;inset:0;z-index:20000;
+ display:flex;align-items:center;justify-content:center;
+ padding:20px;box-sizing:border-box;
+ background:rgba(1,5,8,.64);
+}
+.sf-ae-window{
+ box-sizing:border-box;
+ width:min(1120px,96vw);max-height:87vh;overflow:auto;
+ padding:0 12px 12px;
+ border:3px solid #777c78;border-radius:9px;
+ background:#171d20;
+ box-shadow:inset 0 0 0 2px #0a1013,0 13px 35px #000b;
+ color:#e9e5d9;
+ font-family:Arial,sans-serif;
+}
+.sf-ae-header{
+ position:sticky;top:0;z-index:5;
+ display:flex;justify-content:space-between;align-items:center;
+ margin:0 -12px 10px;padding:8px 14px;
+ background:linear-gradient(#ffeed4,#d6c6a9);
+ color:#161b1f;letter-spacing:1px;
+ font:900 14px/19px Arial,sans-serif;
+}
+.sf-ae-close{
+ width:27px;height:26px;
+ background:linear-gradient(#575f60,#22282a);color:white;
+ border:1px solid #313d43;border-radius:3px;
+ cursor:pointer;font-size:21px;line-height:20px;
+}
+.sf-ae-tools{
+ display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+ padding:6px 0 10px;
+}
+.sf-ae-tools>button{
+ font:700 10px/15px Arial,sans-serif;
+ color:#e2e8e8;background:linear-gradient(#4b5152,#22292e);
+ border:1px solid #788188;border-radius:3px;
+ padding:5px 8px;cursor:pointer;min-height:26px;
+}
+.sf-ae-tools>button:hover{background:#26688d;color:#fff}
+.sf-ae-loop-fields{
+ display:flex;gap:4px;align-items:center;margin-left:auto;
+ font:700 9px Arial,sans-serif;
+}
+.sf-ae-loop-fields input{
+ box-sizing:border-box;width:60px;height:26px;padding:2px 3px;
+ background:#06161e;color:#79dafa;
+ border:1px solid #667a81;border-radius:3px;
+ font:700 11px monospace;
+}
+.sf-ae-timeline{
+ border:2px solid #59666b;border-radius:4px;
+ background:#09141a;min-height:240px;padding:6px;
+}
+.sf-ae-ruler{
+ height:38px;position:relative;margin-left:168px;
+ border-bottom:1px solid #8e9ba2;
+ background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 1px),#384850 calc(10% - 1px),#384850 10%);
+ cursor:crosshair;
+}
+.sf-ae-tick{
+ position:absolute;top:3px;font:700 10px monospace;
+ color:#aab8bf;transform:translateX(-20%);
+ pointer-events:none;white-space:nowrap;
+}
+.sf-ae-loop-band{
+ position:absolute;left:0;bottom:2px;height:8px;
+ border:1px solid #70badd;border-radius:1px;
+ background:#235d75a8;pointer-events:none;
+}
+.sf-ae-ruler-playhead{
+ position:absolute;top:0;bottom:0;width:2px;
+ background:#f6cb75;box-shadow:0 0 3px #f6cb7599;
+ pointer-events:none;z-index:2;
+}
+.sf-ae-lanes{max-height:50vh;overflow-y:auto;}
+.sf-ae-row{
+ display:flex;align-items:stretch;min-height:43px;
+ border-bottom:1px solid #3c4b50;background:#162329;
+}
+.sf-ae-row:nth-child(even){background:#1b292d}
+.sf-ae-lane-name{
+ box-sizing:border-box;flex:0 0 168px;max-width:168px;
+ display:flex;align-items:center;padding:0 10px;
+ font:700 11px Arial,sans-serif;
+ color:#cbd6d6;border-right:1px solid #536167;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sf-ae-strip{
+ position:relative;flex:1;min-width:80px;
+ background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 1px),#39484b66 calc(10% - 1px),#39484b66 10%);
+}
+.sf-ae-clip{
+ box-sizing:border-box;position:absolute;top:7px;height:29px;
+ min-width:5px;touch-action:none;cursor:grab;
+ border:1px solid #619dc1;border-radius:3px;
+ background:linear-gradient(#2b7098,#164362);
+ box-shadow:inset 0 1px #bce3f544,0 1px 3px #000c;
+}
+.sf-ae-clip.selected{
+ border-color:#a6e2fc;
+ box-shadow:inset 0 1px #c5eeff,0 0 0 1px #8acbec,0 1px 5px #000d;
+}
+.sf-ae-clip-line{
+ position:absolute;top:12px;left:6px;right:6px;
+ height:3px;border-radius:2px;background:#a5e3fc;
+ pointer-events:none;
+}
+.sf-ae-handle{
+ position:absolute;top:0;bottom:0;width:7px;
+ background:#a3d4e999;cursor:ew-resize;
+}
+.sf-ae-handle.left{left:0}.sf-ae-handle.right{right:0}
+.sf-ae-footer{
+ margin-top:10px;font:11px/15px Arial,sans-serif;color:#acb8bc;
+}
+.sf-ae-empty{padding:10px;color:#b9c9cd;font-size:12px}
+@media(max-width:720px){
+ .sf-ae-window{width:98vw;padding:0 7px 8px}
+ .sf-ae-header{margin:0 -7px 8px}
+ .sf-ae-lane-name{flex-basis:102px;max-width:102px;font-size:9px}
+ .sf-ae-ruler{margin-left:102px}
+ .sf-ae-tools>button{font-size:9px;padding:4px}
+ .sf-ae-loop-fields{margin-left:0}
+}
